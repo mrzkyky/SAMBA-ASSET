@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { X, Server, Save } from 'lucide-react';
+import { X, Server, Save, Layers } from 'lucide-react';
 import { createAsset, updateAsset } from '../api';
+
+const parseSNCount = (rawSN) => {
+  if (!rawSN) return 0;
+  const replaced = rawSN.replace(/\r\n/g, ',').replace(/\n/g, ',').replace(/;/g, ',');
+  const parts = replaced.split(',').map((s) => s.trim()).filter(Boolean);
+  return parts.length;
+};
 
 const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
@@ -48,6 +55,18 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
 
   if (!isOpen) return null;
 
+  const handleSNChange = (e) => {
+    const val = e.target.value;
+    const count = parseSNCount(val);
+    setFormData((prev) => ({
+      ...prev,
+      serial_number: val,
+      unit_count: count > 1 ? count : (prev.unit_count > 1 && count === 1 ? 1 : prev.unit_count),
+    }));
+  };
+
+  const detectedSNCount = parseSNCount(formData.serial_number);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -70,7 +89,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
       onSaveSuccess();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.error || 'Gagal menyimpan data aset. Pastikan serial number valid.');
+      setError(err.response?.data?.error || 'Gagal menyimpan data aset. Periksa kembali format input.');
     } finally {
       setLoading(false);
     }
@@ -91,7 +110,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
                 {asset ? 'Edit Detail Aset Perangkat' : 'Tambah Aset Perangkat Baru'}
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Isi data teknis dan lokasi spesifik perangkat di site.
+                Dukungan Multi-SN: Masukkan 1 atau lebih Serial Number sekaligus untuk tipe model yang sama.
               </p>
             </div>
           </div>
@@ -162,7 +181,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
               <input
                 type="text"
                 required
-                placeholder="misal: Cisco, MikroTik, Dell"
+                placeholder="misal: TP-Link, Cisco, MikroTik"
                 value={formData.brand}
                 onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
@@ -177,25 +196,10 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
               <input
                 type="text"
                 required
-                placeholder="misal: CCR2004-16G-2S+ / Catalyst 2960X"
+                placeholder="misal: TP-Link ES210GMP / Catalyst 2960X"
                 value={formData.model}
                 onChange={(e) => setFormData({ ...formData, model: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
-              />
-            </div>
-
-            {/* Serial Number */}
-            <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-                Serial Number *
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="misal: SN-MT-2004-BRB01"
-                value={formData.serial_number}
-                onChange={(e) => setFormData({ ...formData, serial_number: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-cyan-400 focus:border-cyan-500 focus:outline-none"
               />
             </div>
 
@@ -206,24 +210,9 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
               </label>
               <input
                 type="text"
-                placeholder="misal: Rack 01 - U12"
+                placeholder="misal: Sub Rack / Rack 01 - U12"
                 value={formData.location_detail}
                 onChange={(e) => setFormData({ ...formData, location_detail: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
-              />
-            </div>
-
-            {/* Unit Count */}
-            <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-                Jumlah Unit
-              </label>
-              <input
-                type="number"
-                min="1"
-                required
-                value={formData.unit_count}
-                onChange={(e) => setFormData({ ...formData, unit_count: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
               />
             </div>
@@ -245,6 +234,44 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
             </div>
           </div>
 
+          {/* Smart Multi-SN Textarea */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-semibold text-slate-300">
+                Serial Number (Dukungan Multi-SN) *
+              </label>
+              <span className="text-[11px] font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                Dideteksi: {detectedSNCount} Serial Number
+              </span>
+            </div>
+            <textarea
+              rows="3"
+              required
+              placeholder={`Masukkan 1 atau lebih Serial Number (pisahkan dengan koma atau tekan Enter)\nContoh:\n22640H5003558, 22640H5003559, 22640H5003560`}
+              value={formData.serial_number}
+              onChange={handleSNChange}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-cyan-400 focus:border-cyan-500 focus:outline-none"
+            ></textarea>
+            <p className="text-[11px] text-slate-500 mt-1">
+              * Anda bisa menyalin-menempel (*paste*) 9 Serial Number sekaligus (pisahkan dengan koma atau Enter).
+            </p>
+          </div>
+
+          {/* Unit Count */}
+          <div>
+            <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+              Jumlah Unit Terpasang
+            </label>
+            <input
+              type="number"
+              min="1"
+              required
+              value={formData.unit_count}
+              onChange={(e) => setFormData({ ...formData, unit_count: parseInt(e.target.value, 10) || 1 })}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+            />
+          </div>
+
           {/* Notes */}
           <div>
             <label className="text-xs font-semibold text-slate-300 block mb-1.5">
@@ -252,7 +279,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
             </label>
             <textarea
               rows="2"
-              placeholder="Catatan kondisi teknis, lisensi, atau riwayat perbaikan..."
+              placeholder="misal: Switch Distribusi AP di Lantai 1 s/d 3..."
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"

@@ -13,6 +13,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// cleanSerialNumbers formats raw multi-SN string into clean comma-separated list and calculates count
+func cleanSerialNumbers(rawSN string) (string, int) {
+	// Replace newlines and semicolons with commas
+	replaced := strings.ReplaceAll(rawSN, "\r\n", ",")
+	replaced = strings.ReplaceAll(replaced, "\n", ",")
+	replaced = strings.ReplaceAll(replaced, ";", ",")
+
+	parts := strings.Split(replaced, ",")
+	cleanParts := make([]string, 0)
+
+	for _, p := range parts {
+		trimmed := strings.TrimSpace(p)
+		if trimmed != "" {
+			cleanParts = append(cleanParts, trimmed)
+		}
+	}
+
+	if len(cleanParts) == 0 {
+		return strings.TrimSpace(rawSN), 1
+	}
+
+	return strings.Join(cleanParts, ", "), len(cleanParts)
+}
+
 // GetAssets handles server-side pagination, global search & filtering
 func GetAssets(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -107,7 +131,7 @@ func GetAssetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": asset})
 }
 
-// CreateAsset creates a new asset
+// CreateAsset creates a new asset with multi-SN auto formatting
 func CreateAsset(c *gin.Context) {
 	var input models.Asset
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -117,6 +141,13 @@ func CreateAsset(c *gin.Context) {
 
 	if input.Status == "" {
 		input.Status = "Aktif"
+	}
+
+	// Clean multi-SN string & auto-update unit count if multiple SNs provided
+	cleanSN, snCount := cleanSerialNumbers(input.SerialNumber)
+	input.SerialNumber = cleanSN
+	if snCount > 1 || input.UnitCount <= 1 {
+		input.UnitCount = snCount
 	}
 
 	if err := config.DB.Create(&input).Error; err != nil {
@@ -143,13 +174,21 @@ func UpdateAsset(c *gin.Context) {
 		return
 	}
 
+	cleanSN, snCount := cleanSerialNumbers(input.SerialNumber)
+
 	asset.SiteID = input.SiteID
 	asset.CategoryID = input.CategoryID
 	asset.Brand = input.Brand
 	asset.Model = input.Model
-	asset.SerialNumber = input.SerialNumber
+	asset.SerialNumber = cleanSN
 	asset.LocationDetail = input.LocationDetail
-	asset.UnitCount = input.UnitCount
+
+	if snCount > 1 {
+		asset.UnitCount = snCount
+	} else {
+		asset.UnitCount = input.UnitCount
+	}
+
 	asset.Status = input.Status
 	asset.Notes = input.Notes
 
@@ -198,7 +237,6 @@ func ExportAssets(c *gin.Context) {
 	b := &bytes.Buffer{}
 	w := csv.NewWriter(b)
 
-	// Write CSV Header
 	header := []string{
 		"ID", "Kode Cabang", "Nama Cabang", "Mitra / Partner", "Nama Site",
 		"Kategori", "Merek", "Tipe / Model", "Serial Number",

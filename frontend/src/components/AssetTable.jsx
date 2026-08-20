@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, Filter, Edit2, Trash2, ChevronLeft, ChevronRight, Copy, Check, QrCode } from 'lucide-react';
+import { parseSNList } from './HierarchyView';
 
 const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
@@ -45,7 +46,7 @@ const AssetTable = ({
   onDeleteAsset,
   onOpenQRCodeModal,
 }) => {
-  const [copiedSN, setCopiedSN] = React.useState(null);
+  const [copiedSN, setCopiedSN] = useState(null);
 
   const isAuditor = user?.role === 'Auditor';
   const isBranchAdmin = user?.role === 'Branch Admin';
@@ -122,7 +123,7 @@ const AssetTable = ({
               <th className="py-3.5 px-4">Info Branch / Site</th>
               <th className="py-3.5 px-4">Kategori</th>
               <th className="py-3.5 px-4">Merek & Tipe</th>
-              <th className="py-3.5 px-4">Serial Number</th>
+              <th className="py-3.5 px-4">Daftar Serial Number</th>
               <th className="py-3.5 px-4">Lokasi Detail</th>
               <th className="py-3.5 px-4 text-center">Unit</th>
               <th className="py-3.5 px-4 text-center">Status</th>
@@ -142,6 +143,7 @@ const AssetTable = ({
                 const partnerName = asset.site?.partner_name || '-';
                 const branchName = asset.site?.branch?.name || '-';
                 const categoryName = asset.category?.name || '-';
+                const snList = parseSNList(asset.serial_number);
 
                 return (
                   <tr key={asset.id} className="hover:bg-slate-800/40 transition-colors">
@@ -158,22 +160,54 @@ const AssetTable = ({
                       <div className="font-bold text-white">{asset.brand}</div>
                       <div className="text-[11px] text-slate-400">{asset.model}</div>
                     </td>
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="flex items-center space-x-1.5">
-                        <span className="text-cyan-400 font-semibold">{asset.serial_number}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleCopy(asset.serial_number)}
-                          className="p-1 text-slate-500 hover:text-cyan-400 transition-colors active:scale-95"
-                          title="Copy SN"
-                        >
-                          {copiedSN === asset.serial_number ? (
-                            <Check className="w-3 h-3 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-3 h-3" />
+                    <td className="py-3.5 px-4 font-mono max-w-xs">
+                      {snList.length <= 1 ? (
+                        <div className="flex items-center space-x-1.5">
+                          <span className="text-cyan-400 font-semibold">{snList[0] || '-'}</span>
+                          {snList[0] && (
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(snList[0])}
+                              className="p-1 text-slate-500 hover:text-cyan-400 transition-colors active:scale-95"
+                              title="Copy SN"
+                            >
+                              {copiedSN === snList[0] ? (
+                                <Check className="w-3 h-3 text-emerald-400" />
+                              ) : (
+                                <Copy className="w-3 h-3" />
+                              )}
+                            </button>
                           )}
-                        </button>
-                      </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <div className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">
+                            {snList.length} Serial Number Terdaftar:
+                          </div>
+                          <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+                            {snList.map((sn, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-[11px] text-cyan-400 font-semibold"
+                              >
+                                <span>{sn}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy(sn)}
+                                  className="text-slate-500 hover:text-cyan-300"
+                                  title="Copy SN ini"
+                                >
+                                  {copiedSN === sn ? (
+                                    <Check className="w-2.5 h-2.5 text-emerald-400" />
+                                  ) : (
+                                    <Copy className="w-2.5 h-2.5" />
+                                  )}
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </td>
                     <td className="py-3.5 px-4 text-slate-400">
                       {asset.location_detail}
