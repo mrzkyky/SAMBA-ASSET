@@ -124,5 +124,8 @@ INSERT INTO assets (site_id, category_id, brand, model, serial_number, location_
 (8, 1, 'Cisco', 'NCS 5500', 'SN-CS-NCS55-JKT01', 'Rack HQ-01 U30', 1, 'Aktif', 'National Backbone Core'),
 (8, 3, 'Lenovo', 'ThinkSystem SR650', 'SN-LNV-SR650-JKT02', 'Rack HQ-02 U10', 4, 'Aktif', 'Central Database Cluster');
 
--- Seed Data: Users (Passwords auto-seeded with Bcrypt by Backend: admin123, brebes123, auditor123)
--- Will be auto-initialized if empty by backend Go database seeder.
+-- Seed Data: Users (Default Passwords: admin123, brebes123, auditor123)
+INSERT INTO users (username, email, password_hash, role, branch_id) VALUES
+('admin', 'admin@national-asset.id', '$2a$10$2J9DpBWHjwJ.PnX8nWoTOO86mPBPhaW8C.8/42z8.DwfpfMciOHz2', 'Super Admin', NULL),
+('admin_brebes', 'brebes@national-asset.id', '$2a$10$OySKeuF3p4.hpZCTVUZ6COEzzwhLJgSY2cJjmOHUAe6FXugQnG0re', 'Branch Admin', 1),
+('auditor', 'auditor@national-asset.id', '$2a$10$.J47sE8P40pMdWAEWHF8oOZkLHYO4FMR.roJIqL3OrmVEuwQ.p33W', 'Auditor', NULL);

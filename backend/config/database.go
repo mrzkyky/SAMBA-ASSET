@@ -69,7 +69,7 @@ func InitDB() *gorm.DB {
 		log.Printf("AutoMigrate warning/error: %v", err)
 	}
 
-	// Seed Initial Default Users if empty
+	// Ensure default seed users exist
 	seedUsers()
 
 	log.Println("Database connection established & auto-migrated successfully.")
@@ -77,21 +77,13 @@ func InitDB() *gorm.DB {
 }
 
 func seedUsers() {
-	var count int64
-	DB.Model(&models.User{}).Count(&count)
-	if count > 0 {
-		return
-	}
-
-	log.Println("Seeding initial default users...")
-
-	hashAdmin, _ := bcrypt.GenerateFromPassword([]byte("admin123"), 14)
-	hashBrebes, _ := bcrypt.GenerateFromPassword([]byte("brebes123"), 14)
-	hashAuditor, _ := bcrypt.GenerateFromPassword([]byte("auditor123"), 14)
+	hashAdmin, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+	hashBrebes, _ := bcrypt.GenerateFromPassword([]byte("brebes123"), bcrypt.DefaultCost)
+	hashAuditor, _ := bcrypt.GenerateFromPassword([]byte("auditor123"), bcrypt.DefaultCost)
 
 	branchIDBrebes := uint(1)
 
-	users := []models.User{
+	defaultUsers := []models.User{
 		{
 			Username:     "admin",
 			Email:        "admin@national-asset.id",
@@ -115,10 +107,15 @@ func seedUsers() {
 		},
 	}
 
-	for _, u := range users {
-		if err := DB.Create(&u).Error; err != nil {
-			log.Printf("Failed to seed user %s: %v", u.Username, err)
+	for _, u := range defaultUsers {
+		var existing models.User
+		if err := DB.Where("username = ?", u.Username).First(&existing).Error; err != nil {
+			// User does not exist, create it!
+			if createErr := DB.Create(&u).Error; createErr != nil {
+				log.Printf("Warning: Failed to seed user %s: %v", u.Username, createErr)
+			} else {
+				log.Printf("Successfully seeded default user: %s", u.Username)
+			}
 		}
 	}
-	log.Println("Default users seeded successfully (admin, admin_brebes, auditor).")
 }
