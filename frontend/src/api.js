@@ -9,6 +9,50 @@ const api = axios.create({
   },
 });
 
+// Axios Request Interceptor: Attach JWT Token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+// Auth API
+export const login = async (username, password) => {
+  const response = await api.post('/auth/login', { username, password });
+  return response.data;
+};
+
+export const getProfile = async () => {
+  const response = await api.get('/auth/profile');
+  return response.data.data;
+};
+
+// User Management API
+export const getUsers = async () => {
+  const response = await api.get('/users');
+  return response.data.data;
+};
+
+export const createUser = async (data) => {
+  const response = await api.post('/users', data);
+  return response.data;
+};
+
+export const updateUser = async (id, data) => {
+  const response = await api.put(`/users/${id}`, data);
+  return response.data;
+};
+
+export const deleteUser = async (id) => {
+  const response = await api.delete(`/users/${id}`);
+  return response.data;
+};
+
+// Stats & Hierarchy API
 export const getStats = async () => {
   const response = await api.get('/dashboard/stats');
   return response.data.data;

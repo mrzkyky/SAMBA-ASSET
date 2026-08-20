@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Filter, Edit2, Trash2, ChevronLeft, ChevronRight, Copy, Check, Shield } from 'lucide-react';
+import { Search, Filter, Edit2, Trash2, ChevronLeft, ChevronRight, Copy, Check, QrCode } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
@@ -24,6 +24,7 @@ const StatusBadge = ({ status }) => {
 };
 
 const AssetTable = ({
+  user,
   assets,
   total,
   page,
@@ -42,8 +43,12 @@ const AssetTable = ({
   categories,
   onEditAsset,
   onDeleteAsset,
+  onOpenQRCodeModal,
 }) => {
   const [copiedSN, setCopiedSN] = React.useState(null);
+
+  const isAuditor = user?.role === 'Auditor';
+  const isBranchAdmin = user?.role === 'Branch Admin';
 
   const handleCopy = (sn) => {
     navigator.clipboard.writeText(sn);
@@ -67,9 +72,10 @@ const AssetTable = ({
           <div className="flex flex-wrap items-center gap-3">
             {/* Branch Filter */}
             <select
+              disabled={isBranchAdmin}
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
-              className="bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500"
+              className="bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 disabled:opacity-60"
             >
               <option value="">Semua Branch</option>
               {branches.map((b) => (
@@ -179,20 +185,33 @@ const AssetTable = ({
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
+                        {/* QR Print Button */}
                         <button
-                          onClick={() => onEditAsset(asset)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-colors"
-                          title="Edit Aset"
+                          onClick={() => onOpenQRCodeModal(asset)}
+                          className="p-1.5 rounded-lg text-purple-400 hover:bg-purple-500/20 transition-colors"
+                          title="Cetak Stiker QR Code"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <QrCode className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => onDeleteAsset(asset.id)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
-                          title="Hapus Aset"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+
+                        {!isAuditor && (
+                          <>
+                            <button
+                              onClick={() => onEditAsset(asset)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-colors"
+                              title="Edit Aset"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => onDeleteAsset(asset.id)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                              title="Hapus Aset"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

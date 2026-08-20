@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, Info } from 'lucide-react';
+import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, QrCode, Lock } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
@@ -26,9 +26,22 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const HierarchyView = ({ hierarchy, branches, selectedBranch, setSelectedBranch, onEditAsset, onDeleteAsset, searchQuery }) => {
+const HierarchyView = ({
+  user,
+  hierarchy,
+  branches,
+  selectedBranch,
+  setSelectedBranch,
+  onEditAsset,
+  onDeleteAsset,
+  onOpenQRCodeModal,
+  searchQuery,
+}) => {
   const [openSites, setOpenSites] = useState({});
   const [copiedSN, setCopiedSN] = useState(null);
+
+  const isAuditor = user?.role === 'Auditor';
+  const isBranchAdmin = user?.role === 'Branch Admin';
 
   const toggleSite = (siteId) => {
     setOpenSites((prev) => ({
@@ -59,32 +72,46 @@ const HierarchyView = ({ hierarchy, branches, selectedBranch, setSelectedBranch,
 
           {/* Branch Selector Pills */}
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setSelectedBranch('')}
-              className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
-                selectedBranch === ''
-                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/50'
-              }`}
-            >
-              Semua Branch
-            </button>
-            {branches.map((b) => (
+            {!isBranchAdmin && (
               <button
-                key={b.id}
-                onClick={() => setSelectedBranch(String(b.id))}
+                onClick={() => setSelectedBranch('')}
                 className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
-                  String(selectedBranch) === String(b.id)
+                  selectedBranch === ''
                     ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/50'
                 }`}
               >
-                {b.name} ({b.code})
+                Semua Branch
               </button>
-            ))}
+            )}
+            {branches.map((b) => {
+              if (isBranchAdmin && String(user?.branch_id) !== String(b.id)) return null;
+
+              return (
+                <button
+                  key={b.id}
+                  onClick={() => setSelectedBranch(String(b.id))}
+                  className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                    String(selectedBranch) === String(b.id)
+                      ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/50'
+                  }`}
+                >
+                  {b.name} ({b.code})
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
+
+      {/* Auditor Banner Notification */}
+      {isAuditor && (
+        <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs flex items-center space-x-2">
+          <Lock className="w-4 h-4 shrink-0 text-purple-400" />
+          <span>Anda masuk sebagai <strong>Auditor (Read-Only Mode)</strong>. Tombol tambah, edit, dan hapus disembunyikan.</span>
+        </div>
+      )}
 
       {/* HIRARKI CONTENT (Level 1 -> Level 2 -> Level 3 -> Level 4) */}
       {hierarchy.length === 0 ? (
@@ -177,7 +204,6 @@ const HierarchyView = ({ hierarchy, branches, selectedBranch, setSelectedBranch,
                               category_groups.map((catGroup) => {
                                 const { category, assets } = catGroup;
 
-                                // Apply search filter on Level 4 assets if search query exists
                                 const filteredAssets = assets.filter((a) => {
                                   if (!searchQuery) return true;
                                   const q = searchQuery.toLowerCase();
@@ -210,7 +236,7 @@ const HierarchyView = ({ hierarchy, branches, selectedBranch, setSelectedBranch,
                                       {filteredAssets.map((asset) => (
                                         <div
                                           key={asset.id}
-                                          className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-all space-y-3 relative group"
+                                          className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-all space-y-3 relative group shadow-sm"
                                         >
                                           <div className="flex items-start justify-between">
                                             <div>
@@ -245,27 +271,41 @@ const HierarchyView = ({ hierarchy, branches, selectedBranch, setSelectedBranch,
                                             </button>
                                           </div>
 
-                                          {/* Notes & Actions */}
+                                          {/* Actions: QR Button + Edit/Delete */}
                                           <div className="flex items-center justify-between pt-1 border-t border-slate-900 text-xs">
                                             <span className="text-[11px] text-slate-500">
                                               Jumlah: <strong className="text-slate-300">{asset.unit_count} Unit</strong>
                                             </span>
 
                                             <div className="flex items-center space-x-1">
+                                              {/* QR Sticker Print Button */}
                                               <button
-                                                onClick={() => onEditAsset(asset)}
-                                                className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-all"
-                                                title="Edit Aset"
+                                                onClick={() => onOpenQRCodeModal(asset)}
+                                                className="px-2 py-1 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20 text-[11px] font-semibold flex items-center space-x-1 transition-all"
+                                                title="Cetak Stiker QR Code"
                                               >
-                                                <Edit2 className="w-3.5 h-3.5" />
+                                                <QrCode className="w-3.5 h-3.5" />
+                                                <span>Cetak QR</span>
                                               </button>
-                                              <button
-                                                onClick={() => onDeleteAsset(asset.id)}
-                                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-all"
-                                                title="Hapus Aset"
-                                              >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                              </button>
+
+                                              {!isAuditor && (
+                                                <>
+                                                  <button
+                                                    onClick={() => onEditAsset(asset)}
+                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-all"
+                                                    title="Edit Aset"
+                                                  >
+                                                    <Edit2 className="w-3.5 h-3.5" />
+                                                  </button>
+                                                  <button
+                                                    onClick={() => onDeleteAsset(asset.id)}
+                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-all"
+                                                    title="Hapus Aset"
+                                                  >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                  </button>
+                                                </>
+                                              )}
                                             </div>
                                           </div>
 

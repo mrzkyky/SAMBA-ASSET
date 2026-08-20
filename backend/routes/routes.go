@@ -2,6 +2,7 @@ package routes
 
 import (
 	"asset-management-backend/handlers"
+	"asset-management-backend/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -9,7 +10,7 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	// Enable CORS for frontend integration
+	// Enable CORS
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
@@ -23,36 +24,56 @@ func SetupRouter() *gin.Engine {
 
 	api := r.Group("/api")
 	{
-		// Stats & Hierarchy
+		// Public Auth Endpoint
+		api.POST("/auth/login", handlers.Login)
+
+		// Public Data Endpoints for UI viewing (or protected)
 		api.GET("/dashboard/stats", handlers.GetDashboardStats)
 		api.GET("/hierarchy", handlers.GetHierarchyTree)
-
-		// Branch Endpoints
 		api.GET("/branches", handlers.GetBranches)
-		api.GET("/branches/:id", handlers.GetBranchByID)
-		api.POST("/branches", handlers.CreateBranch)
-		api.PUT("/branches/:id", handlers.UpdateBranch)
-		api.DELETE("/branches/:id", handlers.DeleteBranch)
-
-		// Site Endpoints
 		api.GET("/sites", handlers.GetSites)
-		api.POST("/sites", handlers.CreateSite)
-		api.PUT("/sites/:id", handlers.UpdateSite)
-		api.DELETE("/sites/:id", handlers.DeleteSite)
-
-		// Category Endpoints
 		api.GET("/categories", handlers.GetCategories)
-		api.POST("/categories", handlers.CreateCategory)
-		api.PUT("/categories/:id", handlers.UpdateCategory)
-		api.DELETE("/categories/:id", handlers.DeleteCategory)
-
-		// Asset Endpoints
 		api.GET("/assets", handlers.GetAssets)
 		api.GET("/assets/export", handlers.ExportAssets)
 		api.GET("/assets/:id", handlers.GetAssetByID)
-		api.POST("/assets", handlers.CreateAsset)
-		api.PUT("/assets/:id", handlers.UpdateAsset)
-		api.DELETE("/assets/:id", handlers.DeleteAsset)
+
+		// Authenticated Routes (Requires Bearer JWT Token)
+		authRoutes := api.Group("")
+		authRoutes.Use(middleware.JWTAuthMiddleware())
+		{
+			authRoutes.GET("/auth/profile", handlers.GetProfile)
+
+			// Super Admin & Branch Admin can perform CRUD on assets, branches, sites, categories
+			writeRoutes := authRoutes.Group("")
+			writeRoutes.Use(middleware.RequireRoles("Super Admin", "Branch Admin"))
+			{
+				writeRoutes.POST("/branches", handlers.CreateBranch)
+				writeRoutes.PUT("/branches/:id", handlers.UpdateBranch)
+				writeRoutes.DELETE("/branches/:id", handlers.DeleteBranch)
+
+				writeRoutes.POST("/sites", handlers.CreateSite)
+				writeRoutes.PUT("/sites/:id", handlers.UpdateSite)
+				writeRoutes.DELETE("/sites/:id", handlers.DeleteSite)
+
+				writeRoutes.POST("/categories", handlers.CreateCategory)
+				writeRoutes.PUT("/categories/:id", handlers.UpdateCategory)
+				writeRoutes.DELETE("/categories/:id", handlers.DeleteCategory)
+
+				writeRoutes.POST("/assets", handlers.CreateAsset)
+				writeRoutes.PUT("/assets/:id", handlers.UpdateAsset)
+				writeRoutes.DELETE("/assets/:id", handlers.DeleteAsset)
+			}
+
+			// Super Admin Only: User Management CRUD
+			adminRoutes := authRoutes.Group("")
+			adminRoutes.Use(middleware.RequireRoles("Super Admin"))
+			{
+				adminRoutes.GET("/users", handlers.GetUsers)
+				adminRoutes.POST("/users", handlers.CreateUser)
+				adminRoutes.PUT("/users/:id", handlers.UpdateUser)
+				adminRoutes.DELETE("/users/:id", handlers.DeleteUser)
+			}
+		}
 	}
 
 	return r

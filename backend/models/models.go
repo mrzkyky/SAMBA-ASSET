@@ -4,6 +4,52 @@ import (
 	"time"
 )
 
+type User struct {
+	ID           uint      `gorm:"primaryKey" json:"id"`
+	Username     string    `gorm:"size:50;uniqueIndex;not null" json:"username"`
+	Email        string    `gorm:"size:100;uniqueIndex;not null" json:"email"`
+	PasswordHash string    `gorm:"size:255;not null" json:"-"`
+	Role         string    `gorm:"size:20;default:'Auditor';index" json:"role"` // 'Super Admin', 'Branch Admin', 'Auditor'
+	BranchID     *uint     `gorm:"index" json:"branch_id"`                      // Nullable for Super Admin
+	Branch       *Branch   `gorm:"foreignKey:BranchID" json:"branch,omitempty"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type LoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type LoginResponse struct {
+	Token string  `json:"token"`
+	User  UserDTO `json:"user"`
+}
+
+type UserDTO struct {
+	ID        uint    `json:"id"`
+	Username  string  `json:"username"`
+	Email     string  `json:"email"`
+	Role      string  `json:"role"`
+	BranchID  *uint   `json:"branch_id"`
+	Branch    *Branch `json:"branch,omitempty"`
+}
+
+type CreateUserRequest struct {
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Role     string `json:"role" binding:"required"`
+	BranchID *uint  `json:"branch_id"`
+}
+
+type UpdateUserRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
+	BranchID *uint  `json:"branch_id"`
+}
+
 type Branch struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	Code      string    `gorm:"size:50;uniqueIndex;not null" json:"code"`
@@ -51,7 +97,6 @@ type Asset struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
-// StatsResponse represents overall dashboard metrics
 type StatsResponse struct {
 	TotalBranches   int64 `json:"total_branches"`
 	TotalSites      int64 `json:"total_sites"`
@@ -63,19 +108,16 @@ type StatsResponse struct {
 	BackupAssets    int64 `json:"backup_assets"`
 }
 
-// CategoryGroupDTO for Level 3 & 4 grouped asset responses
 type CategoryGroupDTO struct {
 	Category Category `json:"category"`
 	Assets   []Asset  `json:"assets"`
 }
 
-// SiteGroupDTO for Level 2 site responses
 type SiteGroupDTO struct {
-	Site            Site               `json:"site"`
-	CategoryGroups  []CategoryGroupDTO `json:"category_groups"`
+	Site           Site               `json:"site"`
+	CategoryGroups []CategoryGroupDTO `json:"category_groups"`
 }
 
-// BranchHierarchyDTO for complete 4-level navigation tree
 type BranchHierarchyDTO struct {
 	Branch     Branch         `json:"branch"`
 	SiteGroups []SiteGroupDTO `json:"site_groups"`
