@@ -50,7 +50,8 @@ const HierarchyView = ({
     }));
   };
 
-  const handleCopySN = (sn) => {
+  const handleCopySN = (e, sn) => {
+    e.stopPropagation();
     navigator.clipboard.writeText(sn);
     setCopiedSN(sn);
     setTimeout(() => setCopiedSN(null), 2000);
@@ -74,8 +75,9 @@ const HierarchyView = ({
           <div className="flex flex-wrap items-center gap-2">
             {!isBranchAdmin && (
               <button
+                type="button"
                 onClick={() => setSelectedBranch('')}
-                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all active:scale-95 ${
                   selectedBranch === ''
                     ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/50'
@@ -90,8 +92,9 @@ const HierarchyView = ({
               return (
                 <button
                   key={b.id}
+                  type="button"
                   onClick={() => setSelectedBranch(String(b.id))}
-                  className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                  className={`px-4 py-2 rounded-xl text-xs font-medium transition-all active:scale-95 ${
                     String(selectedBranch) === String(b.id)
                       ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/50'
@@ -163,9 +166,9 @@ const HierarchyView = ({
                       <div key={site.id} className="rounded-xl bg-slate-950/60 border border-slate-800/80 overflow-hidden">
                         
                         {/* SITE ACCORDION HEADER (Level 2) */}
-                        <button
+                        <div
                           onClick={() => toggleSite(site.id)}
-                          className="w-full p-4 flex items-center justify-between hover:bg-slate-900/60 transition-colors text-left"
+                          className="w-full p-4 flex items-center justify-between hover:bg-slate-900/60 cursor-pointer transition-colors text-left select-none"
                         >
                           <div className="flex items-center space-x-3">
                             {isOpen ? (
@@ -193,7 +196,7 @@ const HierarchyView = ({
                               {totalSiteAssets} Unit Perangkat
                             </span>
                           </div>
-                        </button>
+                        </div>
 
                         {/* ACCORDION CONTENT (Level 3 Category & Level 4 Assets) */}
                         {isOpen && (
@@ -259,8 +262,9 @@ const HierarchyView = ({
                                               SN: <strong className="text-white">{asset.serial_number}</strong>
                                             </div>
                                             <button
-                                              onClick={() => handleCopySN(asset.serial_number)}
-                                              className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-cyan-400 transition-colors"
+                                              type="button"
+                                              onClick={(e) => handleCopySN(e, asset.serial_number)}
+                                              className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-cyan-400 transition-colors active:scale-95"
                                               title="Salin Serial Number"
                                             >
                                               {copiedSN === asset.serial_number ? (
@@ -280,8 +284,12 @@ const HierarchyView = ({
                                             <div className="flex items-center space-x-1">
                                               {/* QR Sticker Print Button */}
                                               <button
-                                                onClick={() => onOpenQRCodeModal(asset)}
-                                                className="px-2 py-1 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20 text-[11px] font-semibold flex items-center space-x-1 transition-all"
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  onOpenQRCodeModal(asset);
+                                                }}
+                                                className="px-2 py-1 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20 text-[11px] font-semibold flex items-center space-x-1 transition-all active:scale-95 shadow-sm"
                                                 title="Cetak Stiker QR Code"
                                               >
                                                 <QrCode className="w-3.5 h-3.5" />
@@ -291,15 +299,23 @@ const HierarchyView = ({
                                               {!isAuditor && (
                                                 <>
                                                   <button
-                                                    onClick={() => onEditAsset(asset)}
-                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-all"
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      onEditAsset(asset);
+                                                    }}
+                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-all active:scale-95"
                                                     title="Edit Aset"
                                                   >
                                                     <Edit2 className="w-3.5 h-3.5" />
                                                   </button>
                                                   <button
-                                                    onClick={() => onDeleteAsset(asset.id)}
-                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-all"
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      onDeleteAsset(asset.id);
+                                                    }}
+                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-all active:scale-95"
                                                     title="Hapus Aset"
                                                   >
                                                     <Trash2 className="w-3.5 h-3.5" />

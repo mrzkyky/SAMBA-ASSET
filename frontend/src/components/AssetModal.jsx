@@ -20,8 +20,8 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
   useEffect(() => {
     if (asset) {
       setFormData({
-        site_id: asset.site_id,
-        category_id: asset.category_id,
+        site_id: String(asset.site_id),
+        category_id: String(asset.category_id),
         brand: asset.brand,
         model: asset.model,
         serial_number: asset.serial_number,
@@ -32,8 +32,8 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
       });
     } else {
       setFormData({
-        site_id: sites[0]?.id || '',
-        category_id: categories[0]?.id || '',
+        site_id: sites[0]?.id ? String(sites[0].id) : '',
+        category_id: categories[0]?.id ? String(categories[0].id) : '',
         brand: '',
         model: '',
         serial_number: '',
@@ -96,8 +96,9 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors active:scale-95"
           >
             <X className="w-5 h-5" />
           </button>
@@ -263,14 +264,14 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors"
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors active:scale-95"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs flex items-center space-x-1.5 shadow-lg shadow-cyan-500/25 transition-all"
+              className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs flex items-center space-x-1.5 shadow-lg shadow-cyan-500/25 transition-all active:scale-95"
             >
               <Save className="w-4 h-4" />
               <span>{loading ? 'Menyimpan...' : 'Simpan Data Aset'}</span>

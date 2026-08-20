@@ -162,8 +162,9 @@ const AssetTable = ({
                       <div className="flex items-center space-x-1.5">
                         <span className="text-cyan-400 font-semibold">{asset.serial_number}</span>
                         <button
+                          type="button"
                           onClick={() => handleCopy(asset.serial_number)}
-                          className="p-1 text-slate-500 hover:text-cyan-400 transition-colors"
+                          className="p-1 text-slate-500 hover:text-cyan-400 transition-colors active:scale-95"
                           title="Copy SN"
                         >
                           {copiedSN === asset.serial_number ? (
@@ -187,8 +188,9 @@ const AssetTable = ({
                       <div className="flex items-center justify-end space-x-2">
                         {/* QR Print Button */}
                         <button
+                          type="button"
                           onClick={() => onOpenQRCodeModal(asset)}
-                          className="p-1.5 rounded-lg text-purple-400 hover:bg-purple-500/20 transition-colors"
+                          className="p-1.5 rounded-lg text-purple-400 hover:bg-purple-500/20 transition-colors active:scale-95"
                           title="Cetak Stiker QR Code"
                         >
                           <QrCode className="w-4 h-4" />
@@ -197,15 +199,17 @@ const AssetTable = ({
                         {!isAuditor && (
                           <>
                             <button
+                              type="button"
                               onClick={() => onEditAsset(asset)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-colors"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-colors active:scale-95"
                               title="Edit Aset"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
+                              type="button"
                               onClick={() => onDeleteAsset(asset.id)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors active:scale-95"
                               title="Hapus Aset"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -231,9 +235,10 @@ const AssetTable = ({
 
         <div className="flex items-center space-x-2">
           <button
+            type="button"
             onClick={() => onPageChange(page - 1)}
             disabled={page <= 1}
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition-colors active:scale-95"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -241,9 +246,10 @@ const AssetTable = ({
             {page}
           </span>
           <button
+            type="button"
             onClick={() => onPageChange(page + 1)}
             disabled={page >= totalPages}
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition-colors active:scale-95"
           >
             <ChevronRight className="w-4 h-4" />
           </button>

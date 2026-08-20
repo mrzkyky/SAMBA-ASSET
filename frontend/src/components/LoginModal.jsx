@@ -10,13 +10,12 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const performLogin = async (userToLogin, passToLogin) => {
     setLoading(true);
     setError('');
 
     try {
-      const res = await login(username, password);
+      const res = await login(userToLogin, passToLogin);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       onLoginSuccess(res.data.user);
@@ -27,9 +26,15 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    performLogin(username, password);
+  };
+
   const handleQuickDemo = (demoUser, demoPass) => {
     setUsername(demoUser);
     setPassword(demoPass);
+    performLogin(demoUser, demoPass);
   };
 
   return (
@@ -91,34 +96,37 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center space-x-2"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center space-x-2 active:scale-95"
           >
             <LogIn className="w-4 h-4" />
-            <span>{loading ? 'Memverifikasi...' : 'Masuk ke Dashboard'}</span>
+            <span>{loading ? 'Memverifikasi Sesi...' : 'Masuk ke Dashboard'}</span>
           </button>
         </form>
 
         {/* Quick Demo Login Preset Buttons */}
         <div className="p-4 bg-slate-950/60 border-t border-slate-800 text-center space-y-2">
-          <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Coba Akun Demo Cepat:</p>
-          <div className="flex flex-wrap items-center justify-center gap-1.5">
+          <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Coba Akun Demo Cepat (1-Klik):</p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <button
+              type="button"
               onClick={() => handleQuickDemo('admin', 'admin123')}
-              className="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 text-[11px] font-medium"
+              className="px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs font-semibold transition-all active:scale-95 shadow-sm"
             >
               Super Admin
             </button>
             <button
+              type="button"
               onClick={() => handleQuickDemo('admin_brebes', 'brebes123')}
-              className="px-2.5 py-1 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/20 text-[11px] font-medium"
+              className="px-3 py-1.5 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/30 text-xs font-semibold transition-all active:scale-95 shadow-sm"
             >
               Admin Brebes
             </button>
             <button
+              type="button"
               onClick={() => handleQuickDemo('auditor', 'auditor123')}
-              className="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 text-[11px] font-medium"
+              className="px-3 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-semibold transition-all active:scale-95 shadow-sm"
             >
-              Auditor (Read-Only)
+              Auditor
             </button>
           </div>
         </div>
