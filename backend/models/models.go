@@ -27,12 +27,12 @@ type LoginResponse struct {
 }
 
 type UserDTO struct {
-	ID        uint    `json:"id"`
-	Username  string  `json:"username"`
-	Email     string  `json:"email"`
-	Role      string  `json:"role"`
-	BranchID  *uint   `json:"branch_id"`
-	Branch    *Branch `json:"branch,omitempty"`
+	ID       uint    `json:"id"`
+	Username string  `json:"username"`
+	Email    string  `json:"email"`
+	Role     string  `json:"role"`
+	BranchID *uint   `json:"branch_id"`
+	Branch   *Branch `json:"branch,omitempty"`
 }
 
 type CreateUserRequest struct {
@@ -88,7 +88,7 @@ type Asset struct {
 	Category       *Category `gorm:"foreignKey:CategoryID" json:"category,omitempty"`
 	Brand          string    `gorm:"size:100;not null" json:"brand"`
 	Model          string    `gorm:"size:100;not null" json:"model"`
-	SerialNumber   string    `gorm:"size:100;not null;index" json:"serial_number"`
+	SerialNumber   string    `gorm:"type:text;not null" json:"serial_number"` // Changed from VARCHAR(100) to TEXT to support Multi-SN
 	LocationDetail string    `gorm:"size:100;default:'Main Rack'" json:"location_detail"`
 	UnitCount      int       `gorm:"default:1;not null" json:"unit_count"`
 	Status         string    `gorm:"size:20;default:'Aktif';index" json:"status"` // 'Aktif', 'Rusak', 'Cadangan'

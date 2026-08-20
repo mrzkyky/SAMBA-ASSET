@@ -36,14 +36,14 @@ CREATE TABLE categories (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Assets Table (Level 4)
+-- 4. Assets Table (Level 4) - serial_number set to TEXT to support unlimited Multi-SN strings
 CREATE TABLE assets (
     id BIGSERIAL PRIMARY KEY,
     site_id BIGINT NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
     category_id BIGINT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
     brand VARCHAR(100) NOT NULL,
     model VARCHAR(100) NOT NULL,
-    serial_number VARCHAR(100) NOT NULL,
+    serial_number TEXT NOT NULL,
     location_detail VARCHAR(100) DEFAULT 'Main Rack',
     unit_count INT NOT NULL DEFAULT 1,
     status VARCHAR(20) NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Rusak', 'Cadangan')),
@@ -69,7 +69,6 @@ CREATE INDEX idx_branches_code ON branches(code);
 CREATE INDEX idx_sites_branch_id ON sites(branch_id);
 CREATE INDEX idx_assets_site_id ON assets(site_id);
 CREATE INDEX idx_assets_category_id ON assets(category_id);
-CREATE INDEX idx_assets_serial_number ON assets(serial_number);
 CREATE INDEX idx_assets_status ON assets(status);
 CREATE INDEX idx_assets_brand_model ON assets(brand, model);
 CREATE INDEX idx_users_username ON users(username);

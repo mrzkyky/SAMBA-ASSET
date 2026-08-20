@@ -69,6 +69,11 @@ func InitDB() *gorm.DB {
 		log.Printf("AutoMigrate warning/error: %v", err)
 	}
 
+	// Explicitly widen serial_number column type to TEXT to support unlimited multi-SN strings
+	if alterErr := DB.Exec("ALTER TABLE assets ALTER COLUMN serial_number TYPE TEXT;").Error; alterErr != nil {
+		log.Printf("Notice on alter serial_number column: %v", alterErr)
+	}
+
 	// Ensure default seed users exist
 	seedUsers()
 
@@ -110,7 +115,6 @@ func seedUsers() {
 	for _, u := range defaultUsers {
 		var existing models.User
 		if err := DB.Where("username = ?", u.Username).First(&existing).Error; err != nil {
-			// User does not exist, create it!
 			if createErr := DB.Create(&u).Error; createErr != nil {
 				log.Printf("Warning: Failed to seed user %s: %v", u.Username, createErr)
 			} else {
