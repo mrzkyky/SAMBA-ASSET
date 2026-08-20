@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Plus, Edit2, Trash2, Shield, Key } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, X } from 'lucide-react';
 import { createUser, updateUser, deleteUser } from '../api';
 
 const RoleBadge = ({ role }) => {
@@ -25,6 +25,7 @@ const RoleBadge = ({ role }) => {
 };
 
 const UserManager = ({ users, branches, onRefresh }) => {
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
@@ -36,14 +37,14 @@ const UserManager = ({ users, branches, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleOpenModal = (u = null) => {
+  const handleOpenForm = (u = null) => {
     setError('');
     if (u) {
       setEditingUser(u);
       setFormData({
         username: u.username,
         email: u.email,
-        password: '', // Blank unless changing
+        password: '',
         role: u.role,
         branch_id: u.branch_id ? String(u.branch_id) : '',
       });
@@ -57,6 +58,14 @@ const UserManager = ({ users, branches, onRefresh }) => {
         branch_id: '',
       });
     }
+    setIsFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditingUser(null);
+    setFormData({ username: '', email: '', password: '', role: 'Auditor', branch_id: '' });
+    setError('');
   };
 
   const handleSubmit = async (e) => {
@@ -77,8 +86,7 @@ const UserManager = ({ users, branches, onRefresh }) => {
       }
 
       onRefresh();
-      setEditingUser(null);
-      setFormData({ username: '', email: '', password: '', role: 'Auditor', branch_id: '' });
+      handleCloseForm();
     } catch (err) {
       setError(err.response?.data?.error || 'Gagal menyimpan data pengguna.');
     } finally {
@@ -92,7 +100,7 @@ const UserManager = ({ users, branches, onRefresh }) => {
       await deleteUser(id);
       onRefresh();
     } catch (err) {
-      alert('Gagal menghapus pengguna.');
+      alert(err.response?.data?.error || 'Gagal menghapus pengguna.');
     }
   };
 
@@ -112,8 +120,9 @@ const UserManager = ({ users, branches, onRefresh }) => {
         </div>
 
         <button
-          onClick={() => handleOpenModal()}
-          className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 transition-all shadow-lg shadow-cyan-500/20"
+          type="button"
+          onClick={() => handleOpenForm(null)}
+          className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 transition-all shadow-lg shadow-cyan-500/20 active:scale-95"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah User Baru</span>
@@ -148,15 +157,17 @@ const UserManager = ({ users, branches, onRefresh }) => {
                 <td className="py-3 px-4 text-right">
                   <div className="flex items-center justify-end space-x-2">
                     <button
-                      onClick={() => handleOpenModal(u)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800"
+                      type="button"
+                      onClick={() => handleOpenForm(u)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 active:scale-95"
                       title="Edit User"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleDelete(u.id)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 active:scale-95"
                       title="Hapus User"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -169,13 +180,19 @@ const UserManager = ({ users, branches, onRefresh }) => {
         </table>
       </div>
 
-      {/* Editor Panel */}
-      {(editingUser !== null || formData.username !== '') && (
-        <div className="p-4 rounded-xl bg-slate-950 border border-cyan-500/30 space-y-4">
-          <h3 className="text-sm font-bold text-cyan-400">
-            {editingUser ? `Edit Pengguna: ${editingUser.username}` : 'Tambah Pengguna Sistem Baru'}
-          </h3>
-          {error && <p className="text-xs text-rose-400">{error}</p>}
+      {/* Form Editor Panel */}
+      {isFormOpen && (
+        <div className="p-5 rounded-xl bg-slate-950 border border-cyan-500/30 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 className="text-sm font-bold text-cyan-400">
+              {editingUser ? `Edit Pengguna: ${editingUser.username}` : 'Tambah Pengguna Sistem Baru'}
+            </h3>
+            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {error && <p className="text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20">{error}</p>}
 
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {!editingUser && (
@@ -184,9 +201,10 @@ const UserManager = ({ users, branches, onRefresh }) => {
                 <input
                   type="text"
                   required
+                  placeholder="misal: admin_bandung"
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
                 />
               </div>
             )}
@@ -196,9 +214,10 @@ const UserManager = ({ users, branches, onRefresh }) => {
               <input
                 type="email"
                 required
+                placeholder="user@national-asset.id"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white"
+                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
               />
             </div>
 
@@ -209,9 +228,10 @@ const UserManager = ({ users, branches, onRefresh }) => {
               <input
                 type="password"
                 required={!editingUser}
+                placeholder="Masukkan password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white"
+                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
               />
             </div>
 
@@ -220,7 +240,7 @@ const UserManager = ({ users, branches, onRefresh }) => {
               <select
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white"
+                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
               >
                 <option value="Super Admin">Super Admin (Nasional)</option>
                 <option value="Branch Admin">Branch Admin (Khusus Cabang)</option>
@@ -235,7 +255,7 @@ const UserManager = ({ users, branches, onRefresh }) => {
                   required
                   value={formData.branch_id}
                   onChange={(e) => setFormData({ ...formData, branch_id: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
                 >
                   <option value="">Pilih Cabang</option>
                   {branches.map((b) => (
@@ -250,18 +270,15 @@ const UserManager = ({ users, branches, onRefresh }) => {
             <div className="md:col-span-2 flex justify-end space-x-2 pt-2">
               <button
                 type="button"
-                onClick={() => {
-                  setEditingUser(null);
-                  setFormData({ username: '', email: '', password: '', role: 'Auditor', branch_id: '' });
-                }}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs"
+                onClick={handleCloseForm}
+                className="px-3.5 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-700"
               >
                 Batal
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-1.5 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs"
+                className="px-4 py-2 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 active:scale-95"
               >
                 {loading ? 'Menyimpan...' : 'Simpan User'}
               </button>
