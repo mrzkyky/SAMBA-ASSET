@@ -74,11 +74,35 @@ func InitDB() *gorm.DB {
 		log.Printf("Notice on alter serial_number column: %v", alterErr)
 	}
 
+	// Ensure 29 default telecom & networking categories exist
+	seedCategories()
+
 	// Ensure default seed users exist
 	seedUsers()
 
 	log.Println("Database connection established & auto-migrated successfully.")
 	return DB
+}
+
+func seedCategories() {
+	categories := []string{
+		"Access Point", "AOC", "Akses Kontrol", "ATN", "Baterai", "CRS",
+		"DCDU", "Firewall", "Inline Atenuator", "Inverter", "Kipas Mini",
+		"LHG", "MC", "Microwave (ODU, IDU, Kabel)", "MikroTik", "OLT",
+		"ONT", "OTB", "Patch Cord", "PSU", "Rack Server", "Rectifier",
+		"Router", "RTN", "Server", "SFP", "Step Down / Step Up", "Switch",
+		"UPS & Power",
+	}
+
+	for _, name := range categories {
+		var existing models.Category
+		if err := DB.Where("name = ?", name).First(&existing).Error; err != nil {
+			c := models.Category{Name: name}
+			if createErr := DB.Create(&c).Error; createErr == nil {
+				log.Printf("Seeded default category: %s", name)
+			}
+		}
+	}
 }
 
 func seedUsers() {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Server, Save, Layers } from 'lucide-react';
-import { createAsset, updateAsset } from '../api';
+import { X, Server, Save, Plus, Tag, Check } from 'lucide-react';
+import { createAsset, updateAsset, createCategory, getCategories } from '../api';
 
 const parseSNCount = (rawSN) => {
   if (!rawSN) return 0;
@@ -9,7 +9,8 @@ const parseSNCount = (rawSN) => {
   return parts.length;
 };
 
-const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }) => {
+const AssetModal = ({ isOpen, onClose, asset, sites, categories: initialCategories, onSaveSuccess }) => {
+  const [categories, setCategories] = useState(initialCategories || []);
   const [formData, setFormData] = useState({
     site_id: '',
     category_id: '',
@@ -21,8 +22,19 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
     status: 'Aktif',
     notes: '',
   });
+
+  // Inline Category Creation State
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [creatingCategory, setCreatingCategory] = useState(false);
+  const [categoryError, setCategoryError] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    setCategories(initialCategories || []);
+  }, [initialCategories]);
 
   useEffect(() => {
     if (asset) {
@@ -50,8 +62,11 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
         notes: '',
       });
     }
+    setIsAddingNewCategory(false);
+    setNewCategoryName('');
     setError('');
-  }, [asset, sites, categories, isOpen]);
+    setCategoryError('');
+  }, [asset, sites, isOpen]);
 
   if (!isOpen) return null;
 
@@ -63,6 +78,40 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
       serial_number: val,
       unit_count: count > 1 ? count : (prev.unit_count > 1 && count === 1 ? 1 : prev.unit_count),
     }));
+  };
+
+  const handleCategorySelectChange = (e) => {
+    const val = e.target.value;
+    if (val === 'NEW') {
+      setIsAddingNewCategory(true);
+    } else {
+      setFormData({ ...formData, category_id: val });
+    }
+  };
+
+  const handleInlineCreateCategory = async (e) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) return;
+    setCreatingCategory(true);
+    setCategoryError('');
+
+    try {
+      const res = await createCategory({ name: newCategoryName.trim() });
+      const newCat = res.data;
+
+      // Refresh categories list
+      const updatedCategories = await getCategories();
+      setCategories(updatedCategories);
+
+      // Auto select newly created category
+      setFormData((prev) => ({ ...prev, category_id: String(newCat.id) }));
+      setIsAddingNewCategory(false);
+      setNewCategoryName('');
+    } catch (err) {
+      setCategoryError(err.response?.data?.error || 'Gagal membuat kategori baru.');
+    } finally {
+      setCreatingCategory(false);
+    }
   };
 
   const detectedSNCount = parseSNCount(formData.serial_number);
@@ -110,7 +159,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
                 {asset ? 'Edit Detail Aset Perangkat' : 'Tambah Aset Perangkat Baru'}
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Dukungan Multi-SN: Masukkan 1 atau lebih Serial Number sekaligus untuk tipe model yang sama.
+                Dukungan 29+ Kategori & Multi-SN otomatis.
               </p>
             </div>
           </div>
@@ -153,24 +202,74 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories, onSaveSuccess }
               </select>
             </div>
 
-            {/* Category Dropdown */}
+            {/* Category Dropdown & Quick Add Toggle */}
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-                Kategori Perangkat (Level 3) *
-              </label>
-              <select
-                required
-                value={formData.category_id}
-                onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
-              >
-                <option value="">Pilih Kategori</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-slate-300">
+                  Kategori Perangkat (Level 3) *
+                </label>
+                {!isAddingNewCategory && (
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingNewCategory(true)}
+                    className="text-[11px] text-cyan-400 hover:underline flex items-center space-x-1 font-semibold"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>Kategori Baru</span>
+                  </button>
+                )}
+              </div>
+
+              {isAddingNewCategory ? (
+                <div className="space-y-1.5">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      autoFocus
+                      placeholder="Nama Kategori Baru (misal: SFP+)"
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      className="flex-1 bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleInlineCreateCategory}
+                      disabled={creatingCategory || !newCategoryName.trim()}
+                      className="px-3 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shrink-0"
+                    >
+                      {creatingCategory ? 'Simpan...' : 'Simpan'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsAddingNewCategory(false);
+                        setNewCategoryName('');
+                      }}
+                      className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white shrink-0 text-xs"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  {categoryError && <p className="text-[10px] text-rose-400">{categoryError}</p>}
+                </div>
+              ) : (
+                <select
+                  required
+                  value={formData.category_id}
+                  onChange={handleCategorySelectChange}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                >
+                  <option value="">Pilih Kategori</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                  <option value="NEW" className="text-cyan-400 font-bold">
+                    + Tambah Kategori Baru...
                   </option>
-                ))}
-              </select>
+                </select>
+              )}
             </div>
 
             {/* Brand */}
