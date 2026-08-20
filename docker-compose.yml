@@ -11,7 +11,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
     ports:
-      - "5432:5432"
+      # Mapping Host Port 5437 -> Container Internal Port 5432
+      - "5437:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -29,6 +30,7 @@ services:
     container_name: asset-backend
     restart: always
     environment:
+      # Di dalam jaringan Docker, backend terhubung langsung ke service postgres port 5432
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: postgres
@@ -36,7 +38,8 @@ services:
       DB_NAME: asset_db
       PORT: 8080
     ports:
-      - "8080:8080"
+      # Mapping Host Port 8088 -> Container Internal Port 8080
+      - "8088:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -49,7 +52,8 @@ services:
     container_name: asset-frontend
     restart: always
     ports:
-      - "3000:80"
+      # Mapping Host Port 3002 -> Container Internal Port 80
+      - "3002:80"
     depends_on:
       - backend
 
