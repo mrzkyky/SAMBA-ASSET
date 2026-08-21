@@ -63,7 +63,7 @@ func GetHierarchyTree(c *gin.Context) {
 
 			for _, cat := range categories {
 				var assets []models.Asset
-				config.DB.Where("site_id = ? AND category_id = ?", site.ID, cat.ID).
+				config.DB.Preload("Segment").Where("site_id = ? AND category_id = ?", site.ID, cat.ID).
 					Order("brand ASC, model ASC").
 					Find(&assets)
 

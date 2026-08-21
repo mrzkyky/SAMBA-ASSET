@@ -217,10 +217,20 @@ const HierarchyView = ({
                     const { site, category_groups } = siteGroup;
                     const isOpen = openSites[site.id] !== false; // Open by default
 
-                    const totalSiteAssets = category_groups.reduce(
-                      (acc, cat) => acc + cat.assets.reduce((sum, a) => sum + a.unit_count, 0),
-                      0
-                    );
+                    const totalSiteAssets = category_groups.reduce((acc, cat) => {
+                      const matchingAssets = cat.assets.filter((a) => {
+                        if (selectedSegment && String(a.segment_id) !== String(selectedSegment)) return false;
+                        if (!searchQuery) return true;
+                        const q = searchQuery.toLowerCase();
+                        return (
+                          a.serial_number.toLowerCase().includes(q) ||
+                          a.brand.toLowerCase().includes(q) ||
+                          a.model.toLowerCase().includes(q) ||
+                          (a.notes && a.notes.toLowerCase().includes(q))
+                        );
+                      });
+                      return acc + matchingAssets.reduce((sum, a) => sum + a.unit_count, 0);
+                    }, 0);
 
                     return (
                       <div key={site.id} className="rounded-xl bg-slate-950/60 border border-slate-800/80 overflow-hidden">
@@ -261,8 +271,12 @@ const HierarchyView = ({
                         {/* ACCORDION CONTENT (Level 3 Category & Level 4 Assets) */}
                         {isOpen && (
                           <div className="p-4 border-t border-slate-800/60 bg-slate-900/30 space-y-5">
-                            {category_groups.length === 0 ? (
-                              <p className="text-xs text-slate-500 italic">Belum ada aset terdaftar pada site ini.</p>
+                            {totalSiteAssets === 0 ? (
+                              <p className="text-xs text-slate-500 italic p-2">
+                                {selectedSegment
+                                  ? 'Belum ada aset dengan segmen ini di site ini. Klik "Tabel Master Aset" atau Edit Aset untuk menentukan segmennya.'
+                                  : 'Belum ada aset terdaftar pada site ini.'}
+                              </p>
                             ) : (
                               category_groups.map((catGroup) => {
                                 const { category, assets } = catGroup;
