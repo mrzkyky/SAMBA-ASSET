@@ -77,6 +77,20 @@ func InitDB() *gorm.DB {
 		log.Printf("Notice on alter serial_number column: %v", alterErr)
 	}
 
+	// Explicitly create segments table if not exists
+	createSegTable := `
+	CREATE TABLE IF NOT EXISTS segments (
+		id BIGSERIAL PRIMARY KEY,
+		name VARCHAR(100) UNIQUE NOT NULL,
+		description VARCHAR(255),
+		color VARCHAR(20) DEFAULT '#06b6d4',
+		created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+	);`
+	if segTableErr := DB.Exec(createSegTable).Error; segTableErr != nil {
+		log.Printf("Notice on create segments table: %v", segTableErr)
+	}
+
 	// Explicitly ensure segment_id column exists on assets table
 	if alterSegErr := DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS segment_id BIGINT;").Error; alterSegErr != nil {
 		log.Printf("Notice on add segment_id column: %v", alterSegErr)
