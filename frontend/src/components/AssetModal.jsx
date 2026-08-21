@@ -126,12 +126,24 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
 
   const handleInlineCreateCategory = async (e) => {
     e.preventDefault();
-    if (!newCategoryName.trim()) return;
+    const nameToCreate = newCategoryName.trim();
+    if (!nameToCreate) return;
+
+    // Check if category already exists in current list
+    const existing = categories.find(c => c.name.toLowerCase() === nameToCreate.toLowerCase());
+    if (existing) {
+      setFormData((prev) => ({ ...prev, category_id: String(existing.id) }));
+      setIsAddingNewCategory(false);
+      setNewCategoryName('');
+      setCategoryError('');
+      return;
+    }
+
     setCreatingCategory(true);
     setCategoryError('');
 
     try {
-      const res = await createCategory({ name: newCategoryName.trim() });
+      const res = await createCategory({ name: nameToCreate });
       const newCat = res.data;
 
       // Refresh categories list
@@ -143,7 +155,18 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
       setIsAddingNewCategory(false);
       setNewCategoryName('');
     } catch (err) {
-      setCategoryError(err.response?.data?.error || 'Gagal membuat kategori baru.');
+      // If error (e.g. backend duplicate), refresh & match
+      const updatedCategories = await getCategories().catch(() => []);
+      if (updatedCategories.length > 0) setCategories(updatedCategories);
+      const match = updatedCategories.find(c => c.name.toLowerCase() === nameToCreate.toLowerCase());
+      if (match) {
+        setFormData((prev) => ({ ...prev, category_id: String(match.id) }));
+        setIsAddingNewCategory(false);
+        setNewCategoryName('');
+        setCategoryError('');
+      } else {
+        setCategoryError(err.response?.data?.error || 'Gagal membuat kategori baru.');
+      }
     } finally {
       setCreatingCategory(false);
     }
@@ -160,12 +183,24 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
 
   const handleInlineCreateSegment = async (e) => {
     e.preventDefault();
-    if (!newSegmentName.trim()) return;
+    const nameToCreate = newSegmentName.trim();
+    if (!nameToCreate) return;
+
+    // Check if segment already exists in current list
+    const existing = segmentsList.find(s => s.name.toLowerCase() === nameToCreate.toLowerCase());
+    if (existing) {
+      setFormData((prev) => ({ ...prev, segment_id: String(existing.id) }));
+      setIsAddingNewSegment(false);
+      setNewSegmentName('');
+      setSegmentError('');
+      return;
+    }
+
     setCreatingSegment(true);
     setSegmentError('');
 
     try {
-      const res = await createSegment({ name: newSegmentName.trim() });
+      const res = await createSegment({ name: nameToCreate });
       const newSeg = res.data;
 
       // Refresh segments list
@@ -177,7 +212,18 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
       setIsAddingNewSegment(false);
       setNewSegmentName('');
     } catch (err) {
-      setSegmentError(err.response?.data?.error || 'Gagal membuat segmen baru.');
+      // If error (e.g. backend duplicate), refresh & match
+      const updatedSegments = await getSegments().catch(() => []);
+      if (updatedSegments.length > 0) setSegmentsList(updatedSegments);
+      const match = updatedSegments.find(s => s.name.toLowerCase() === nameToCreate.toLowerCase());
+      if (match) {
+        setFormData((prev) => ({ ...prev, segment_id: String(match.id) }));
+        setIsAddingNewSegment(false);
+        setNewSegmentName('');
+        setSegmentError('');
+      } else {
+        setSegmentError(err.response?.data?.error || 'Gagal membuat segmen baru.');
+      }
     } finally {
       setCreatingSegment(false);
     }
@@ -196,23 +242,35 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
 
       // Auto-save category if user typed in inline input without clicking Simpan button
       if (isAddingNewCategory && newCategoryName.trim()) {
-        try {
-          const res = await createCategory({ name: newCategoryName.trim() });
-          if (res.data?.id) finalCategoryId = res.data.id;
-        } catch {
-          const existing = categories.find(c => c.name.toLowerCase() === newCategoryName.trim().toLowerCase());
-          if (existing) finalCategoryId = existing.id;
+        const existing = categories.find(c => c.name.toLowerCase() === newCategoryName.trim().toLowerCase());
+        if (existing) {
+          finalCategoryId = existing.id;
+        } else {
+          try {
+            const res = await createCategory({ name: newCategoryName.trim() });
+            if (res.data?.id) finalCategoryId = res.data.id;
+          } catch {
+            const updatedCategories = await getCategories().catch(() => []);
+            const match = updatedCategories.find(c => c.name.toLowerCase() === newCategoryName.trim().toLowerCase());
+            if (match) finalCategoryId = match.id;
+          }
         }
       }
 
       // Auto-save segment if user typed in inline input without clicking Simpan button
       if (isAddingNewSegment && newSegmentName.trim()) {
-        try {
-          const res = await createSegment({ name: newSegmentName.trim() });
-          if (res.data?.id) finalSegmentId = res.data.id;
-        } catch {
-          const existing = segmentsList.find(s => s.name.toLowerCase() === newSegmentName.trim().toLowerCase());
-          if (existing) finalSegmentId = existing.id;
+        const existing = segmentsList.find(s => s.name.toLowerCase() === newSegmentName.trim().toLowerCase());
+        if (existing) {
+          finalSegmentId = existing.id;
+        } else {
+          try {
+            const res = await createSegment({ name: newSegmentName.trim() });
+            if (res.data?.id) finalSegmentId = res.data.id;
+          } catch {
+            const updatedSegments = await getSegments().catch(() => []);
+            const match = updatedSegments.find(s => s.name.toLowerCase() === newSegmentName.trim().toLowerCase());
+            if (match) finalSegmentId = match.id;
+          }
         }
       }
 
