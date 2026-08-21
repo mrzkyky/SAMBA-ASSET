@@ -21,7 +21,7 @@ func GetAuditLogs(c *gin.Context) {
 	}
 	offset := (page - 1) * limit
 
-	query := config.DB.Model(&models.AuditLog{}).Preload("User")
+	query := config.DB.Model(&models.AuditLog{})
 
 	actionFilter := c.Query("action")
 	if actionFilter != "" {
@@ -32,12 +32,17 @@ func GetAuditLogs(c *gin.Context) {
 	query.Count(&total)
 
 	var logs []models.AuditLog
-	if err := query.Order("created_at DESC").
+	if err := query.Preload("User").
+		Order("created_at DESC").
 		Limit(limit).
 		Offset(offset).
 		Find(&logs).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil log aktivitas"})
-		return
+		// Fallback without preload if user association fails
+		config.DB.Model(&models.AuditLog{}).
+			Order("created_at DESC").
+			Limit(limit).
+			Offset(offset).
+			Find(&logs)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

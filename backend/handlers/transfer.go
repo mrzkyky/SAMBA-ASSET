@@ -42,7 +42,7 @@ func CreateTransfer(c *gin.Context) {
 		return
 	}
 
-	// Generate Reference Number MUT-YYYYMMDD-RANDOM
+	// Generate Reference Number MUT/YYYY/MM/XXXX
 	refNo := fmt.Sprintf("MUT/%s/%04d", time.Now().Format("2006/01"), time.Now().Unix()%10000)
 
 	// Clean & format serial numbers to move
@@ -52,7 +52,7 @@ func CreateTransfer(c *gin.Context) {
 	}
 
 	// Get authenticated user ID & Username
-	userIDVal, _ := c.Get("userID")
+	userIDVal, _ := c.Get("user_id")
 	usernameVal, _ := c.Get("username")
 	var userIDPtr *uint
 	username := "System"

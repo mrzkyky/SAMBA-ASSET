@@ -76,10 +76,9 @@ func InitDB() *gorm.DB {
 		log.Printf("Notice on alter serial_number column: %v", alterErr)
 	}
 
-	// Ensure 29 default telecom & networking categories exist
+	// Ensure default seeds exist safely
+	seedBranchesAndSites()
 	seedCategories()
-
-	// Ensure default seed users exist
 	seedUsers()
 
 	log.Println("Database connection established & auto-migrated successfully.")
@@ -99,6 +98,38 @@ func RecordAuditLog(userID *uint, username, action, details, ipAddress string) {
 		CreatedAt: time.Now(),
 	}
 	DB.Create(&logEntry)
+}
+
+func seedBranchesAndSites() {
+	var count int64
+	DB.Model(&models.Branch{}).Count(&count)
+	if count == 0 {
+		branches := []models.Branch{
+			{Code: "BR-BRB", Name: "Branch Brebes", Province: "Jawa Tengah"},
+			{Code: "BR-BDG", Name: "Branch Bandung", Province: "Jawa Barat"},
+			{Code: "BR-SBY", Name: "Branch Surabaya", Province: "Jawa Timur"},
+			{Code: "BR-JKT", Name: "Branch Jakarta Pusat", Province: "DKI Jakarta"},
+			{Code: "BR-MDN", Name: "Branch Medan", Province: "Sumatera Utara"},
+		}
+		for _, b := range branches {
+			DB.Create(&b)
+		}
+		log.Println("Seeded default branches successfully.")
+
+		// Seed initial sites under Branch Brebes & Bandung
+		var brebesBranch models.Branch
+		if err := DB.Where("code = ?", "BR-BRB").First(&brebesBranch).Error; err == nil {
+			sites := []models.Site{
+				{BranchID: brebesBranch.ID, PartnerName: "MAN 1 Brebes", SiteName: "Site Brebes", Address: "Jl. Yos Sudarso No. 16, Brebes"},
+				{BranchID: brebesBranch.ID, PartnerName: "SMA N 1 Brebes", SiteName: "Site Brebes", Address: "Jl. Dr. Setiabudi No. 11, Brebes"},
+				{BranchID: brebesBranch.ID, PartnerName: "SMA N 2 Brebes", SiteName: "Site Brebes", Address: "Jl. Jenderal A. Yani No. 77, Brebes"},
+			}
+			for _, s := range sites {
+				DB.Create(&s)
+			}
+			log.Println("Seeded default sites under Branch Brebes.")
+		}
+	}
 }
 
 func seedCategories() {
