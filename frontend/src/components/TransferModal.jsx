@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { X, ArrowRightLeft, Send, MapPin } from 'lucide-react';
-import { createTransfer } from '../api';
+import { createTransfer, getSites } from '../api';
 import { parseSNList } from './HierarchyView';
 
-const TransferModal = ({ isOpen, onClose, asset, sites, onTransferSuccess }) => {
+const TransferModal = ({ isOpen, onClose, asset, sites: initialSites, onTransferSuccess }) => {
+  const [sitesList, setSitesList] = useState(initialSites || []);
   const [toSiteId, setToSiteId] = useState('');
   const [unitCount, setUnitCount] = useState(1);
   const [selectedSNs, setSelectedSNs] = useState('');
@@ -12,6 +13,14 @@ const TransferModal = ({ isOpen, onClose, asset, sites, onTransferSuccess }) => 
   const [error, setError] = useState('');
 
   const snList = asset ? parseSNList(asset.serial_number) : [];
+
+  useEffect(() => {
+    if (initialSites && initialSites.length > 0) {
+      setSitesList(initialSites);
+    } else if (isOpen) {
+      getSites().then((data) => data && setSitesList(data)).catch(() => {});
+    }
+  }, [initialSites, isOpen]);
 
   useEffect(() => {
     if (asset) {
@@ -118,7 +127,7 @@ const TransferModal = ({ isOpen, onClose, asset, sites, onTransferSuccess }) => 
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
             >
               <option value="">-- Pilih Site Tujuan --</option>
-              {sites
+              {sitesList
                 .filter((s) => String(s.id) !== String(asset.site_id))
                 .map((s) => (
                   <option key={s.id} value={s.id}>

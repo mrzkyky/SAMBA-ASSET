@@ -75,6 +75,10 @@ const HierarchyView = ({
     setTimeout(() => setCopiedSN(null), 2000);
   };
 
+  const availableBranches = (branches && branches.length > 0)
+    ? branches
+    : (hierarchy ? hierarchy.map((h) => h.branch).filter(Boolean) : []);
+
   return (
     <div className="space-y-6">
       
@@ -105,7 +109,7 @@ const HierarchyView = ({
               </button>
             )}
 
-            {branches.map((b) => (
+            {availableBranches.map((b) => (
               <button
                 key={b.id}
                 type="button"

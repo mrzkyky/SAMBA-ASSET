@@ -84,20 +84,29 @@ func CreateTransfer(c *gin.Context) {
 	// Process Asset Quantity / Site updates
 	if input.UnitCount >= sourceAsset.UnitCount {
 		// Entire asset record is moved to destination site
-		sourceAsset.SiteID = input.ToSiteID
-		if transferredSNs != "" {
-			sourceAsset.SerialNumber = transferredSNs
+		updateMap := map[string]interface{}{
+			"site_id": input.ToSiteID,
 		}
-		config.DB.Save(&sourceAsset)
+		if transferredSNs != "" {
+			updateMap["serial_number"] = transferredSNs
+		}
+		if err := config.DB.Model(&models.Asset{}).Where("id = ?", sourceAsset.ID).Updates(updateMap).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memindahkan lokasi aset di database"})
+			return
+		}
 	} else {
 		// Partial transfer: Reduce unit_count of source asset
-		sourceAsset.UnitCount -= input.UnitCount
-		config.DB.Save(&sourceAsset)
+		newCount := sourceAsset.UnitCount - input.UnitCount
+		if err := config.DB.Model(&models.Asset{}).Where("id = ?", sourceAsset.ID).Update("unit_count", newCount).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memperbarui jumlah unit aset asal"})
+			return
+		}
 
 		// Create a new asset record at destination site for transferred units
 		newDestAsset := models.Asset{
 			SiteID:         input.ToSiteID,
 			CategoryID:     sourceAsset.CategoryID,
+			SegmentID:      sourceAsset.SegmentID,
 			Brand:          sourceAsset.Brand,
 			Model:          sourceAsset.Model,
 			SerialNumber:   transferredSNs,
@@ -106,7 +115,10 @@ func CreateTransfer(c *gin.Context) {
 			Status:         sourceAsset.Status,
 			Notes:          fmt.Sprintf("Hasil mutasi dari %s (%s). Catatan: %s", sourceAsset.Site.SiteName, refNo, input.Reason),
 		}
-		config.DB.Create(&newDestAsset)
+		if err := config.DB.Create(&newDestAsset).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat aset baru di site tujuan"})
+			return
+		}
 	}
 
 	// Record Audit Log

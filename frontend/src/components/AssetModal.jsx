@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Server, Save, Plus, Tag, Check } from 'lucide-react';
-import { createAsset, updateAsset, createCategory, getCategories, createSegment, getSegments } from '../api';
+import { createAsset, updateAsset, createCategory, getCategories, createSegment, getSegments, getSites } from '../api';
 
 const parseSNCount = (rawSN) => {
   if (!rawSN) return 0;
@@ -9,7 +9,8 @@ const parseSNCount = (rawSN) => {
   return parts.length;
 };
 
-const AssetModal = ({ isOpen, onClose, asset, sites, categories: initialCategories, segments: initialSegments, onSaveSuccess }) => {
+const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: initialCategories, segments: initialSegments, onSaveSuccess }) => {
+  const [sitesList, setSitesList] = useState(initialSites || []);
   const [categories, setCategories] = useState(initialCategories || []);
   const [segmentsList, setSegmentsList] = useState(initialSegments || []);
   const [formData, setFormData] = useState({
@@ -40,23 +41,40 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories: initialCategori
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Sync props or dynamically fetch if empty
   useEffect(() => {
-    setCategories(initialCategories || []);
-  }, [initialCategories]);
+    if (initialSites && initialSites.length > 0) {
+      setSitesList(initialSites);
+    } else if (isOpen) {
+      getSites().then((data) => data && setSitesList(data)).catch(() => {});
+    }
+  }, [initialSites, isOpen]);
 
   useEffect(() => {
-    setSegmentsList(initialSegments || []);
-  }, [initialSegments]);
+    if (initialCategories && initialCategories.length > 0) {
+      setCategories(initialCategories);
+    } else if (isOpen) {
+      getCategories().then((data) => data && setCategories(data)).catch(() => {});
+    }
+  }, [initialCategories, isOpen]);
+
+  useEffect(() => {
+    if (initialSegments && initialSegments.length > 0) {
+      setSegmentsList(initialSegments);
+    } else if (isOpen) {
+      getSegments().then((data) => data && setSegmentsList(data)).catch(() => {});
+    }
+  }, [initialSegments, isOpen]);
 
   useEffect(() => {
     if (asset) {
       setFormData({
-        site_id: String(asset.site_id),
-        category_id: String(asset.category_id),
+        site_id: String(asset.site_id || ''),
+        category_id: String(asset.category_id || ''),
         segment_id: asset.segment_id ? String(asset.segment_id) : '',
-        brand: asset.brand,
-        model: asset.model,
-        serial_number: asset.serial_number,
+        brand: asset.brand || '',
+        model: asset.model || '',
+        serial_number: asset.serial_number || '',
         location_detail: asset.location_detail || 'Main Rack',
         unit_count: asset.unit_count || 1,
         status: asset.status || 'Aktif',
@@ -64,8 +82,8 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories: initialCategori
       });
     } else {
       setFormData({
-        site_id: sites[0]?.id ? String(sites[0].id) : '',
-        category_id: categories[0]?.id ? String(categories[0].id) : '',
+        site_id: sitesList[0]?.id ? String(sitesList[0].id) : (initialSites?.[0]?.id ? String(initialSites[0].id) : ''),
+        category_id: categories[0]?.id ? String(categories[0].id) : (initialCategories?.[0]?.id ? String(initialCategories[0].id) : ''),
         segment_id: segmentsList[0]?.id ? String(segmentsList[0].id) : '',
         brand: '',
         model: '',
@@ -83,7 +101,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories: initialCategori
     setError('');
     setCategoryError('');
     setSegmentError('');
-  }, [asset, sites, isOpen]);
+  }, [asset, initialSites, isOpen]);
 
   if (!isOpen) return null;
 
@@ -246,7 +264,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites, categories: initialCategori
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
               >
                 <option value="">Pilih Site</option>
-                {sites.map((s) => (
+                {sitesList.map((s) => (
                   <option key={s.id} value={s.id}>
                     [{s.branch?.name}] {s.partner_name} - {s.site_name}
                   </option>

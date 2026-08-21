@@ -124,14 +124,28 @@ function App() {
     }
   }, []);
 
-  // Fetch Master Data Lists (Branches, Sites, Categories)
+  // Fetch Master Data Lists (Branches, Sites, Categories, Segments)
   const fetchMasterData = useCallback(async () => {
     try {
-      const [b, s, c, seg] = await Promise.all([getBranches(), getSites(), getCategories(), getSegments()]);
-      setBranches(b || []);
-      setSites(s || []);
-      setCategories(c || []);
-      setSegments(seg || []);
+      const results = await Promise.allSettled([
+        getBranches(),
+        getSites(),
+        getCategories(),
+        getSegments(),
+      ]);
+
+      if (results[0].status === 'fulfilled' && Array.isArray(results[0].value)) {
+        setBranches(results[0].value);
+      }
+      if (results[1].status === 'fulfilled' && Array.isArray(results[1].value)) {
+        setSites(results[1].value);
+      }
+      if (results[2].status === 'fulfilled' && Array.isArray(results[2].value)) {
+        setCategories(results[2].value);
+      }
+      if (results[3].status === 'fulfilled' && Array.isArray(results[3].value)) {
+        setSegments(results[3].value);
+      }
     } catch (err) {
       console.error('Gagal mengambil data master:', err);
     }
