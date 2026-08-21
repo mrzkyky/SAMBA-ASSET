@@ -116,7 +116,7 @@ func seedBranchesAndSites() {
 		}
 		log.Println("Seeded default branches successfully.")
 
-		// Seed initial sites under Branch Brebes & Bandung
+		// Seed initial sites under Branch Brebes
 		var brebesBranch models.Branch
 		if err := DB.Where("code = ?", "BR-BRB").First(&brebesBranch).Error; err == nil {
 			sites := []models.Site{
@@ -189,9 +189,11 @@ func seedUsers() {
 		if err := DB.Where("username = ?", u.Username).First(&existing).Error; err != nil {
 			if createErr := DB.Create(&u).Error; createErr != nil {
 				log.Printf("Warning: Failed to seed user %s: %v", u.Username, createErr)
-			} else {
-				log.Printf("Successfully seeded default user: %s", u.Username)
 			}
+		} else {
+			// Ensure password hash for default users is always valid bcrypt hash of default passwords
+			existing.PasswordHash = u.PasswordHash
+			DB.Save(&existing)
 		}
 	}
 }
