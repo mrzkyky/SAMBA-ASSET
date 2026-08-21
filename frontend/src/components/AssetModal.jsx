@@ -191,12 +191,54 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
     setError('');
 
     try {
+      let finalCategoryId = formData.category_id ? parseInt(formData.category_id, 10) : null;
+      let finalSegmentId = formData.segment_id ? parseInt(formData.segment_id, 10) : null;
+
+      // Auto-save category if user typed in inline input without clicking Simpan button
+      if (isAddingNewCategory && newCategoryName.trim()) {
+        try {
+          const res = await createCategory({ name: newCategoryName.trim() });
+          if (res.data?.id) finalCategoryId = res.data.id;
+        } catch {
+          const existing = categories.find(c => c.name.toLowerCase() === newCategoryName.trim().toLowerCase());
+          if (existing) finalCategoryId = existing.id;
+        }
+      }
+
+      // Auto-save segment if user typed in inline input without clicking Simpan button
+      if (isAddingNewSegment && newSegmentName.trim()) {
+        try {
+          const res = await createSegment({ name: newSegmentName.trim() });
+          if (res.data?.id) finalSegmentId = res.data.id;
+        } catch {
+          const existing = segmentsList.find(s => s.name.toLowerCase() === newSegmentName.trim().toLowerCase());
+          if (existing) finalSegmentId = existing.id;
+        }
+      }
+
+      if (!formData.site_id) {
+        setError('Silakan pilih lokasi Site & Mitra.');
+        setLoading(false);
+        return;
+      }
+
+      if (!finalCategoryId) {
+        setError('Silakan pilih atau tambahkan Kategori Perangkat.');
+        setLoading(false);
+        return;
+      }
+
       const payload = {
-        ...formData,
         site_id: parseInt(formData.site_id, 10),
-        category_id: parseInt(formData.category_id, 10),
-        segment_id: formData.segment_id ? parseInt(formData.segment_id, 10) : null,
-        unit_count: parseInt(formData.unit_count, 10),
+        category_id: finalCategoryId,
+        segment_id: finalSegmentId,
+        brand: formData.brand.trim(),
+        model: formData.model.trim(),
+        serial_number: formData.serial_number.trim(),
+        location_detail: formData.location_detail || 'Main Rack',
+        unit_count: parseInt(formData.unit_count, 10) || 1,
+        status: formData.status || 'Aktif',
+        notes: formData.notes || '',
       };
 
       if (asset) {

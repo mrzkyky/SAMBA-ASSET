@@ -150,6 +150,19 @@ func CreateAsset(c *gin.Context) {
 		input.Status = "Aktif"
 	}
 
+	// Validate SegmentID: if 0 or invalid, set to nil to avoid FK violation
+	if input.SegmentID != nil {
+		if *input.SegmentID == 0 {
+			input.SegmentID = nil
+		} else {
+			var segCount int64
+			config.DB.Model(&models.Segment{}).Where("id = ?", *input.SegmentID).Count(&segCount)
+			if segCount == 0 {
+				input.SegmentID = nil
+			}
+		}
+	}
+
 	// Clean multi-SN string & auto-update unit count if multiple SNs provided
 	cleanSN, snCount := cleanSerialNumbers(input.SerialNumber)
 	input.SerialNumber = cleanSN
@@ -158,7 +171,7 @@ func CreateAsset(c *gin.Context) {
 	}
 
 	if err := config.DB.Create(&input).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Gagal menambahkan aset"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Gagal menambahkan aset: %v", err)})
 		return
 	}
 
@@ -181,27 +194,40 @@ func UpdateAsset(c *gin.Context) {
 		return
 	}
 
-	cleanSN, snCount := cleanSerialNumbers(input.SerialNumber)
-
-	asset.SiteID = input.SiteID
-	asset.CategoryID = input.CategoryID
-	asset.Brand = input.Brand
-	asset.Model = input.Model
-	asset.SerialNumber = cleanSN
-	asset.LocationDetail = input.LocationDetail
-
-	if snCount > 1 {
-		asset.UnitCount = snCount
-	} else {
-		asset.UnitCount = input.UnitCount
+	// Validate SegmentID: if 0 or invalid, set to nil
+	if input.SegmentID != nil {
+		if *input.SegmentID == 0 {
+			input.SegmentID = nil
+		} else {
+			var segCount int64
+			config.DB.Model(&models.Segment{}).Where("id = ?", *input.SegmentID).Count(&segCount)
+			if segCount == 0 {
+				input.SegmentID = nil
+			}
+		}
 	}
 
-	asset.Status = input.Status
-	asset.Notes = input.Notes
-	asset.SegmentID = input.SegmentID
+	cleanSN, snCount := cleanSerialNumbers(input.SerialNumber)
+	finalUnitCount := input.UnitCount
+	if snCount > 1 {
+		finalUnitCount = snCount
+	}
 
-	if err := config.DB.Save(&asset).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memperbarui aset"})
+	updateMap := map[string]interface{}{
+		"site_id":         input.SiteID,
+		"category_id":     input.CategoryID,
+		"segment_id":      input.SegmentID,
+		"brand":           input.Brand,
+		"model":           input.Model,
+		"serial_number":   cleanSN,
+		"location_detail": input.LocationDetail,
+		"unit_count":      finalUnitCount,
+		"status":          input.Status,
+		"notes":           input.Notes,
+	}
+
+	if err := config.DB.Model(&models.Asset{}).Where("id = ?", asset.ID).Updates(updateMap).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Gagal memperbarui aset: %v", err)})
 		return
 	}
 
