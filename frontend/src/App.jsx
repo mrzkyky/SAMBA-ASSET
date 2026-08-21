@@ -117,9 +117,9 @@ function App() {
   const fetchMasterData = useCallback(async () => {
     try {
       const [b, s, c] = await Promise.all([getBranches(), getSites(), getCategories()]);
-      setBranches(b);
-      setSites(s);
-      setCategories(c);
+      setBranches(b || []);
+      setSites(s || []);
+      setCategories(c || []);
     } catch (err) {
       console.error('Gagal mengambil data master:', err);
     }
@@ -130,7 +130,7 @@ function App() {
     setLoading(true);
     try {
       const data = await getHierarchy(selectedBranch);
-      setHierarchy(data);
+      setHierarchy(data || []);
     } catch (err) {
       console.error('Gagal mengambil data hirarki:', err);
     } finally {
@@ -167,12 +167,12 @@ function App() {
     fetchAssetsTableData();
   }, [fetchStats, fetchMasterData, fetchHierarchyData, fetchAssetsTableData]);
 
-  // Effect Trigger on Filter Changes
+  // Effect Trigger on Filter & Tab Changes
   useEffect(() => {
     if (token) {
       refreshAllData();
     }
-  }, [token, selectedBranch, selectedCategory, selectedStatus, searchQuery, currentPage, refreshAllData]);
+  }, [token, activeTab, selectedBranch, selectedCategory, selectedStatus, searchQuery, currentPage, refreshAllData]);
 
   // Handlers for Asset Modals
   const handleOpenCreateAssetModal = () => {
