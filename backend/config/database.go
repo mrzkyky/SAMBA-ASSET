@@ -77,6 +77,11 @@ func InitDB() *gorm.DB {
 		log.Printf("Notice on alter serial_number column: %v", alterErr)
 	}
 
+	// Explicitly ensure segment_id column exists on assets table
+	if alterSegErr := DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS segment_id BIGINT;").Error; alterSegErr != nil {
+		log.Printf("Notice on add segment_id column: %v", alterSegErr)
+	}
+
 	// Ensure default seeds exist safely
 	seedBranchesAndSites()
 	seedCategories()
