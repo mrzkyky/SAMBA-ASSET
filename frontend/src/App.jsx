@@ -30,7 +30,15 @@ import {
 function App() {
   // Auth State
   const [token, setToken] = useState(localStorage.getItem('token') || '');
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || 'null'));
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      localStorage.removeItem('user');
+      return null;
+    }
+  });
 
   // Active Navigation Tab: 'hierarchy', 'master', 'transfers', 'audit', 'users', 'branches', 'sites', 'categories'
   const [activeTab, setActiveTab] = useState('hierarchy');
