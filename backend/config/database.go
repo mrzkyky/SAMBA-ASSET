@@ -101,9 +101,10 @@ func RecordAuditLog(userID *uint, username, action, details, ipAddress string) {
 }
 
 func seedBranchesAndSites() {
-	var count int64
-	DB.Model(&models.Branch{}).Count(&count)
-	if count == 0 {
+	// Seed branches if none exist
+	var branchCount int64
+	DB.Model(&models.Branch{}).Count(&branchCount)
+	if branchCount == 0 {
 		branches := []models.Branch{
 			{Code: "BR-BRB", Name: "Branch Brebes", Province: "Jawa Tengah"},
 			{Code: "BR-BDG", Name: "Branch Bandung", Province: "Jawa Barat"},
@@ -115,8 +116,12 @@ func seedBranchesAndSites() {
 			DB.Create(&b)
 		}
 		log.Println("Seeded default branches successfully.")
+	}
 
-		// Seed initial sites under Branch Brebes
+	// Seed sites INDEPENDENTLY — always check, even if branches were already created by init-db.sql
+	var siteCount int64
+	DB.Model(&models.Site{}).Count(&siteCount)
+	if siteCount == 0 {
 		var brebesBranch models.Branch
 		if err := DB.Where("code = ?", "BR-BRB").First(&brebesBranch).Error; err == nil {
 			sites := []models.Site{
