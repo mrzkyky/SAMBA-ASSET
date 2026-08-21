@@ -101,6 +101,7 @@ func InitDB() *gorm.DB {
 	seedCategories()
 	seedSegments()
 	seedUsers()
+	autoAssignSegmentsToExistingAssets()
 
 	log.Println("Database connection established & auto-migrated successfully.")
 	return DB
@@ -246,4 +247,50 @@ func seedUsers() {
 			DB.Save(&existing)
 		}
 	}
+}
+
+func autoAssignSegmentsToExistingAssets() {
+	var unassignedCount int64
+	DB.Model(&models.Asset{}).Where("segment_id IS NULL OR segment_id = 0").Count(&unassignedCount)
+	if unassignedCount == 0 {
+		return
+	}
+
+	var segKemitraan, segPOP, segLocalLoop, segCorporate models.Segment
+	DB.Where("name = ?", "Kemitraan").First(&segKemitraan)
+	DB.Where("name = ?", "POP").First(&segPOP)
+	DB.Where("name = ?", "Local Loop").First(&segLocalLoop)
+	DB.Where("name = ?", "Corporate").First(&segCorporate)
+
+	if segCorporate.ID == 0 {
+		return
+	}
+
+	// 1. Assign Access Point, LHG, ONT, Patch Cord, MC to Local Loop / Kemitraan
+	if segLocalLoop.ID > 0 {
+		DB.Exec(`UPDATE assets SET segment_id = ? WHERE (segment_id IS NULL OR segment_id = 0) AND category_id IN (
+			SELECT id FROM categories WHERE LOWER(name) LIKE '%access point%' OR LOWER(name) LIKE '%ont%' OR LOWER(name) LIKE '%lhg%' OR LOWER(name) LIKE '%patch cord%' OR LOWER(name) LIKE '%mc%'
+		)`, segLocalLoop.ID)
+	}
+
+	// 2. Assign OLT, Router, Switch, Firewall, Microwave, ATN, RTN to POP
+	if segPOP.ID > 0 {
+		DB.Exec(`UPDATE assets SET segment_id = ? WHERE (segment_id IS NULL OR segment_id = 0) AND category_id IN (
+			SELECT id FROM categories WHERE LOWER(name) LIKE '%olt%' OR LOWER(name) LIKE '%router%' OR LOWER(name) LIKE '%firewall%' OR LOWER(name) LIKE '%microwave%' OR LOWER(name) LIKE '%atn%' OR LOWER(name) LIKE '%rtn%'
+		)`, segPOP.ID)
+	}
+
+	// 3. Assign SFP, AOC, Server, Rack Server, Step Down, UPS to Corporate
+	if segCorporate.ID > 0 {
+		DB.Exec(`UPDATE assets SET segment_id = ? WHERE (segment_id IS NULL OR segment_id = 0) AND category_id IN (
+			SELECT id FROM categories WHERE LOWER(name) LIKE '%sfp%' OR LOWER(name) LIKE '%server%' OR LOWER(name) LIKE '%aoc%' OR LOWER(name) LIKE '%ups%' OR LOWER(name) LIKE '%rack%' OR LOWER(name) LIKE '%step%'
+		)`, segCorporate.ID)
+	}
+
+	// 4. Any remaining assets set to Corporate or Kemitraan
+	if segCorporate.ID > 0 {
+		DB.Exec(`UPDATE assets SET segment_id = ? WHERE segment_id IS NULL OR segment_id = 0`, segCorporate.ID)
+	}
+
+	log.Printf("Successfully auto-assigned segments to %d existing unclassified assets.", unassignedCount)
 }
