@@ -1,16 +1,8 @@
 -- SQL DDL Schema & Initial Seed Data for National Asset Management System
-
--- Drop tables if exists (for clean init)
-DROP TABLE IF EXISTS audit_logs CASCADE;
-DROP TABLE IF EXISTS asset_transfers CASCADE;
-DROP TABLE IF EXISTS assets CASCADE;
-DROP TABLE IF EXISTS categories CASCADE;
-DROP TABLE IF EXISTS sites CASCADE;
-DROP TABLE IF EXISTS branches CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
+-- NON-DESTRUCTIVE: Safe for production database updates without dropping existing user data.
 
 -- 1. Branches Table (Level 1)
-CREATE TABLE branches (
+CREATE TABLE IF NOT EXISTS branches (
     id BIGSERIAL PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(100) NOT NULL,
@@ -20,7 +12,7 @@ CREATE TABLE branches (
 );
 
 -- 2. Sites / Mitra Table (Level 2)
-CREATE TABLE sites (
+CREATE TABLE IF NOT EXISTS sites (
     id BIGSERIAL PRIMARY KEY,
     branch_id BIGINT NOT NULL REFERENCES branches(id) ON DELETE CASCADE,
     partner_name VARCHAR(100) NOT NULL,
@@ -31,7 +23,7 @@ CREATE TABLE sites (
 );
 
 -- 3. Categories Table (Level 3)
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -39,7 +31,7 @@ CREATE TABLE categories (
 );
 
 -- 4. Assets Table (Level 4) - serial_number set to TEXT to support unlimited Multi-SN strings
-CREATE TABLE assets (
+CREATE TABLE IF NOT EXISTS assets (
     id BIGSERIAL PRIMARY KEY,
     site_id BIGINT NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
     category_id BIGINT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
@@ -55,7 +47,7 @@ CREATE TABLE assets (
 );
 
 -- 5. Users Table (Role-Based Access Control)
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -67,7 +59,7 @@ CREATE TABLE users (
 );
 
 -- 6. Asset Transfers Table (Mutasi Perangkat)
-CREATE TABLE asset_transfers (
+CREATE TABLE IF NOT EXISTS asset_transfers (
     id BIGSERIAL PRIMARY KEY,
     reference_no VARCHAR(50) UNIQUE NOT NULL,
     asset_id BIGINT NOT NULL REFERENCES assets(id) ON DELETE CASCADE,
@@ -82,7 +74,7 @@ CREATE TABLE asset_transfers (
 );
 
 -- 7. Audit Logs Table (Catatan Log Aktivitas)
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
     username VARCHAR(50) NOT NULL,
@@ -92,43 +84,32 @@ CREATE TABLE audit_logs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Performance Indexes
-CREATE INDEX idx_branches_code ON branches(code);
-CREATE INDEX idx_sites_branch_id ON sites(branch_id);
-CREATE INDEX idx_assets_site_id ON assets(site_id);
-CREATE INDEX idx_assets_category_id ON assets(category_id);
-CREATE INDEX idx_assets_status ON assets(status);
-CREATE INDEX idx_assets_brand_model ON assets(brand, model);
-CREATE INDEX idx_users_username ON users(username);
-CREATE INDEX idx_users_role ON users(role);
-CREATE INDEX idx_users_branch_id ON users(branch_id);
-CREATE INDEX idx_transfers_asset_id ON asset_transfers(asset_id);
-CREATE INDEX idx_transfers_from_site ON asset_transfers(from_site_id);
-CREATE INDEX idx_transfers_to_site ON asset_transfers(to_site_id);
-CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
-CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
+-- Performance Indexes (Safe IF NOT EXISTS)
+CREATE INDEX IF NOT EXISTS idx_branches_code ON branches(code);
+CREATE INDEX IF NOT EXISTS idx_sites_branch_id ON sites(branch_id);
+CREATE INDEX IF NOT EXISTS idx_assets_site_id ON assets(site_id);
+CREATE INDEX IF NOT EXISTS idx_assets_category_id ON assets(category_id);
+CREATE INDEX IF NOT EXISTS idx_assets_status ON assets(status);
+CREATE INDEX IF NOT EXISTS idx_assets_brand_model ON assets(brand, model);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_branch_id ON users(branch_id);
+CREATE INDEX IF NOT EXISTS idx_transfers_asset_id ON asset_transfers(asset_id);
+CREATE INDEX IF NOT EXISTS idx_transfers_from_site ON asset_transfers(from_site_id);
+CREATE INDEX IF NOT EXISTS idx_transfers_to_site ON asset_transfers(to_site_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);
 
--- Seed Data: Branches
+-- Seed Data: Branches (ON CONFLICT DO NOTHING)
 INSERT INTO branches (code, name, province) VALUES
 ('BR-BRB', 'Branch Brebes', 'Jawa Tengah'),
 ('BR-BDG', 'Branch Bandung', 'Jawa Barat'),
 ('BR-SBY', 'Branch Surabaya', 'Jawa Timur'),
 ('BR-JKT', 'Branch Jakarta Pusat', 'DKI Jakarta'),
-('BR-MDN', 'Branch Medan', 'Sumatera Utara');
+('BR-MDN', 'Branch Medan', 'Sumatera Utara')
+ON CONFLICT (code) DO NOTHING;
 
--- Seed Data: Sites
-INSERT INTO sites (branch_id, partner_name, site_name, address) VALUES
-(1, 'Mitra Telkom', 'Site Brebes Kota', 'Jl. Sudirman No. 45, Brebes'),
-(1, 'Mitra PLN', 'Site Substation Jatibarang', 'Jl. Raya Jatibarang No. 12, Brebes'),
-(1, 'Mitra Indosat', 'Site Tower Ketanggungan', 'Jl. Lucu No. 88, Ketanggungan, Brebes'),
-(2, 'Mitra XL Axiata', 'Site Dago POP', 'Jl. Ir. H. Juanda No. 102, Bandung'),
-(2, 'Mitra Telkom', 'Site Gedung Sate Core', 'Jl. Diponegoro No. 22, Bandung'),
-(3, 'Mitra Smartfren', 'Site Gubeng Core', 'Jl. Stasiun Gubeng No. 5, Surabaya'),
-(3, 'Mitra PLN', 'Site Rungkut Data Center', 'Jl. Rungkut Industri No. 18, Surabaya'),
-(4, 'Mitra Lintasarta', 'Site Sudirman Hub', 'Jl. Jend. Sudirman Kav 52, Jakarta Pusat'),
-(4, 'Mitra Biznet', 'Site Cyber Building', 'Jl. Kuningan Barat No. 8, Jakarta Selatan');
-
--- Seed Data: 29 Device Categories
+-- Seed Data: 29 Device Categories (ON CONFLICT DO NOTHING)
 INSERT INTO categories (name) VALUES
 ('Access Point'),
 ('AOC'),
@@ -158,20 +139,12 @@ INSERT INTO categories (name) VALUES
 ('SFP'),
 ('Step Down / Step Up'),
 ('Switch'),
-('UPS & Power');
+('UPS & Power')
+ON CONFLICT (name) DO NOTHING;
 
--- Seed Data: Assets
-INSERT INTO assets (site_id, category_id, brand, model, serial_number, location_detail, unit_count, status, notes) VALUES
-(1, 28, 'MikroTik', 'CCR2004-16G-2S+', 'SN-MT-2004-BRB01', 'Rack 01 - U12', 1, 'Aktif', 'Main Core Gateway Brebes'),
-(1, 28, 'Cisco', 'Catalyst 2960X-48TS', 'SN-CS-2960-BRB02', 'Rack 01 - U14', 2, 'Aktif', 'Distribution Switch'),
-(1, 25, 'Dell', 'PowerEdge R740', 'SN-DELL-R740-BRB03', 'Rack 02 - U05', 1, 'Aktif', 'Local Monitoring Server'),
-(1, 3, 'Hikvision', 'DS-K1T671M', 'SN-HIK-AC-BRB04', 'Pintu Masuk Ruang Server', 1, 'Aktif', 'Biometric Access Door'),
-(2, 23, 'Cisco', 'ISR 4331/K9', 'SN-CS-4331-JTB01', 'Rack Substation U02', 1, 'Aktif', 'SCADA Network Gateway'),
-(2, 8, 'Fortinet', 'FortiGate 60F', 'SN-FG-60F-JTB02', 'Rack Substation U04', 1, 'Cadangan', 'Backup Firewall Unit'),
-(3, 15, 'MikroTik', 'RB1100AHx4', 'SN-MT-1100-KTG01', 'Cabinet Tower U01', 1, 'Rusak', 'Perlu penggantian power supply');
-
--- Seed Data: Users (Default Passwords: admin123, brebes123, auditor123)
+-- Seed Data: Default Users (ON CONFLICT DO NOTHING)
 INSERT INTO users (username, email, password_hash, role, branch_id) VALUES
 ('admin', 'admin@national-asset.id', '$2a$10$2J9DpBWHjwJ.PnX8nWoTOO86mPBPhaW8C.8/42z8.DwfpfMciOHz2', 'Super Admin', NULL),
 ('admin_brebes', 'brebes@national-asset.id', '$2a$10$OySKeuF3p4.hpZCTVUZ6COEzzwhLJgSY2cJjmOHUAe6FXugQnG0re', 'Branch Admin', 1),
-('auditor', 'auditor@national-asset.id', '$2a$10$.J47sE8P40pMdWAEWHF8oOZkLHYO4FMR.roJIqL3OrmVEuwQ.p33W', 'Auditor', NULL);
+('auditor', 'auditor@national-asset.id', '$2a$10$.J47sE8P40pMdWAEWHF8oOZkLHYO4FMR.roJIqL3OrmVEuwQ.p33W', 'Auditor', NULL)
+ON CONFLICT (username) DO NOTHING;
