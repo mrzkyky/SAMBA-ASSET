@@ -38,10 +38,13 @@ const AssetTable = ({
   setSelectedBranch,
   selectedCategory,
   setSelectedCategory,
+  selectedSegment,
+  setSelectedSegment,
   selectedStatus,
   setSelectedStatus,
   branches,
   categories,
+  segments,
   onEditAsset,
   onDeleteAsset,
   onOpenQRCodeModal,
@@ -87,6 +90,20 @@ const AssetTable = ({
               ))}
             </select>
 
+            {/* Segment Filter (Kemitraan, POP, Local Loop, Corporate) */}
+            <select
+              value={selectedSegment || ''}
+              onChange={(e) => setSelectedSegment(e.target.value)}
+              className="bg-slate-950 border border-slate-800 text-xs text-violet-300 rounded-xl px-3 py-2 focus:outline-none focus:border-violet-500 font-medium"
+            >
+              <option value="">Semua Segmen Layanan</option>
+              {segments?.map((seg) => (
+                <option key={seg.id} value={seg.id}>
+                  {seg.name}
+                </option>
+              ))}
+            </select>
+
             {/* Category Filter */}
             <select
               value={selectedCategory}
@@ -122,6 +139,7 @@ const AssetTable = ({
           <thead className="bg-slate-950 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800">
             <tr>
               <th className="py-3.5 px-4">Info Branch / Site</th>
+              <th className="py-3.5 px-4">Segmen Layanan</th>
               <th className="py-3.5 px-4">Kategori</th>
               <th className="py-3.5 px-4">Merek & Tipe</th>
               <th className="py-3.5 px-4">Daftar Serial Number</th>
@@ -134,7 +152,7 @@ const AssetTable = ({
           <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
             {assets.length === 0 ? (
               <tr>
-                <td colSpan="8" className="py-12 text-center text-slate-500">
+                <td colSpan="9" className="py-12 text-center text-slate-500">
                   Tidak ada aset yang memenuhi kriteria filter.
                 </td>
               </tr>
@@ -144,6 +162,8 @@ const AssetTable = ({
                 const partnerName = asset.site?.partner_name || '-';
                 const branchName = asset.site?.branch?.name || '-';
                 const categoryName = asset.category?.name || '-';
+                const segmentName = asset.segment?.name || 'Umum';
+                const segmentColor = asset.segment?.color || '#64748b';
                 const snList = parseSNList(asset.serial_number);
 
                 return (
@@ -151,6 +171,19 @@ const AssetTable = ({
                     <td className="py-3.5 px-4">
                       <div className="font-semibold text-slate-200">{partnerName} - {siteName}</div>
                       <div className="text-[11px] text-slate-500">{branchName}</div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span
+                        className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold"
+                        style={{
+                          backgroundColor: `${segmentColor}15`,
+                          color: segmentColor,
+                          border: `1px solid ${segmentColor}40`,
+                        }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full mr-1.5" style={{ backgroundColor: segmentColor }} />
+                        {segmentName}
+                      </span>
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="inline-flex px-2 py-0.5 rounded text-[11px] font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">

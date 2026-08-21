@@ -80,12 +80,24 @@ type Category struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type Segment struct {
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	Name        string    `gorm:"size:100;uniqueIndex;not null" json:"name"`
+	Description string    `gorm:"size:255" json:"description"`
+	Color       string    `gorm:"size:20;default:'#06b6d4'" json:"color"` // Hex color for badge
+	Assets      []Asset   `gorm:"foreignKey:SegmentID" json:"assets,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
 type Asset struct {
 	ID             uint      `gorm:"primaryKey" json:"id"`
 	SiteID         uint      `gorm:"not null;index" json:"site_id"`
 	Site           *Site     `gorm:"foreignKey:SiteID" json:"site,omitempty"`
 	CategoryID     uint      `gorm:"not null;index" json:"category_id"`
 	Category       *Category `gorm:"foreignKey:CategoryID" json:"category,omitempty"`
+	SegmentID      *uint     `gorm:"index" json:"segment_id"`
+	Segment        *Segment  `gorm:"foreignKey:SegmentID" json:"segment,omitempty"`
 	Brand          string    `gorm:"size:100;not null" json:"brand"`
 	Model          string    `gorm:"size:100;not null" json:"model"`
 	SerialNumber   string    `gorm:"type:text;not null" json:"serial_number"`

@@ -7,6 +7,7 @@ import AssetModal from './components/AssetModal';
 import BranchManager from './components/BranchManager';
 import SiteManager from './components/SiteManager';
 import CategoryManager from './components/CategoryManager';
+import SegmentManager from './components/SegmentManager';
 import UserManager from './components/UserManager';
 import LoginModal from './components/LoginModal';
 import QRCodeModal from './components/QRCodeModal';
@@ -23,6 +24,7 @@ import {
   getBranches,
   getSites,
   getCategories,
+  getSegments,
   getAssets,
   deleteAsset,
 } from './api';
@@ -46,6 +48,7 @@ function App() {
   // Filter States
   const [selectedBranch, setSelectedBranch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSegment, setSelectedSegment] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -55,6 +58,7 @@ function App() {
   const [branches, setBranches] = useState([]);
   const [sites, setSites] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [segments, setSegments] = useState([]);
   const [assetsData, setAssetsData] = useState({ data: [], total: 0, page: 1, limit: 10, total_pages: 1 });
 
   // Pagination State for Master Asset Table
@@ -123,10 +127,11 @@ function App() {
   // Fetch Master Data Lists (Branches, Sites, Categories)
   const fetchMasterData = useCallback(async () => {
     try {
-      const [b, s, c] = await Promise.all([getBranches(), getSites(), getCategories()]);
+      const [b, s, c, seg] = await Promise.all([getBranches(), getSites(), getCategories(), getSegments()]);
       setBranches(b || []);
       setSites(s || []);
       setCategories(c || []);
+      setSegments(seg || []);
     } catch (err) {
       console.error('Gagal mengambil data master:', err);
     }
@@ -155,6 +160,7 @@ function App() {
         q: searchQuery,
         branch_id: selectedBranch,
         category_id: selectedCategory,
+        segment_id: selectedSegment,
         status: selectedStatus,
       };
       const res = await getAssets(params);
@@ -164,7 +170,7 @@ function App() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchQuery, selectedBranch, selectedCategory, selectedStatus]);
+  }, [currentPage, searchQuery, selectedBranch, selectedCategory, selectedSegment, selectedStatus]);
 
   // Global Data Refresh Trigger
   const refreshAllData = useCallback(() => {
@@ -179,7 +185,7 @@ function App() {
     if (token) {
       refreshAllData();
     }
-  }, [token, activeTab, selectedBranch, selectedCategory, selectedStatus, searchQuery, currentPage, refreshAllData]);
+  }, [token, activeTab, selectedBranch, selectedCategory, selectedSegment, selectedStatus, searchQuery, currentPage, refreshAllData]);
 
   // Handlers for Asset Modals
   const handleOpenCreateAssetModal = () => {
@@ -256,8 +262,11 @@ function App() {
             user={user}
             hierarchy={hierarchy}
             branches={branches}
+            segments={segments}
             selectedBranch={selectedBranch}
             setSelectedBranch={setSelectedBranch}
+            selectedSegment={selectedSegment}
+            setSelectedSegment={setSelectedSegment}
             onEditAsset={handleOpenEditAssetModal}
             onDeleteAsset={handleDeleteAsset}
             onOpenQRCodeModal={handleOpenQRCodeModal}
@@ -282,10 +291,13 @@ function App() {
             setSelectedBranch={setSelectedBranch}
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
+            selectedSegment={selectedSegment}
+            setSelectedSegment={setSelectedSegment}
             selectedStatus={selectedStatus}
             setSelectedStatus={setSelectedStatus}
             branches={branches}
             categories={categories}
+            segments={segments}
             onEditAsset={handleOpenEditAssetModal}
             onDeleteAsset={handleDeleteAsset}
             onOpenQRCodeModal={handleOpenQRCodeModal}
@@ -324,6 +336,11 @@ function App() {
         {activeTab === 'categories' && user?.role === 'Super Admin' && (
           <CategoryManager categories={categories} onRefresh={refreshAllData} />
         )}
+
+        {/* Segment Management */}
+        {activeTab === 'segments' && user?.role === 'Super Admin' && (
+          <SegmentManager segments={segments} onRefresh={refreshAllData} />
+        )}
       </main>
 
       {/* Asset CRUD Form Modal */}
@@ -333,6 +350,7 @@ function App() {
         asset={editingAsset}
         sites={sites}
         categories={categories}
+        segments={segments}
         onSaveSuccess={refreshAllData}
       />
 

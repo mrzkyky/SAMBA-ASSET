@@ -51,7 +51,8 @@ func GetAssets(c *gin.Context) {
 
 	query := config.DB.Model(&models.Asset{}).
 		Preload("Site.Branch").
-		Preload("Category")
+		Preload("Category").
+		Preload("Segment")
 
 	// Filter by Search Query (Serial Number, Brand, Model, Notes)
 	search := strings.TrimSpace(c.Query("q"))
@@ -86,6 +87,12 @@ func GetAssets(c *gin.Context) {
 	status := c.Query("status")
 	if status != "" {
 		query = query.Where("assets.status = ?", status)
+	}
+
+	// Filter by Segment
+	segmentID := c.Query("segment_id")
+	if segmentID != "" {
+		query = query.Where("assets.segment_id = ?", segmentID)
 	}
 
 	var total int64
@@ -124,7 +131,7 @@ func GetAssets(c *gin.Context) {
 func GetAssetByID(c *gin.Context) {
 	id := c.Param("id")
 	var asset models.Asset
-	if err := config.DB.Preload("Site.Branch").Preload("Category").First(&asset, id).Error; err != nil {
+	if err := config.DB.Preload("Site.Branch").Preload("Category").Preload("Segment").First(&asset, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Aset tidak ditemukan"})
 		return
 	}
@@ -155,7 +162,7 @@ func CreateAsset(c *gin.Context) {
 		return
 	}
 
-	config.DB.Preload("Site.Branch").Preload("Category").First(&input, input.ID)
+	config.DB.Preload("Site.Branch").Preload("Category").Preload("Segment").First(&input, input.ID)
 	c.JSON(http.StatusCreated, gin.H{"message": "Aset berhasil ditambahkan", "data": input})
 }
 
@@ -191,13 +198,14 @@ func UpdateAsset(c *gin.Context) {
 
 	asset.Status = input.Status
 	asset.Notes = input.Notes
+	asset.SegmentID = input.SegmentID
 
 	if err := config.DB.Save(&asset).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memperbarui aset"})
 		return
 	}
 
-	config.DB.Preload("Site.Branch").Preload("Category").First(&asset, asset.ID)
+	config.DB.Preload("Site.Branch").Preload("Category").Preload("Segment").First(&asset, asset.ID)
 	c.JSON(http.StatusOK, gin.H{"message": "Aset berhasil diperbarui", "data": asset})
 }
 
@@ -215,7 +223,8 @@ func DeleteAsset(c *gin.Context) {
 func ExportAssets(c *gin.Context) {
 	query := config.DB.Model(&models.Asset{}).
 		Preload("Site.Branch").
-		Preload("Category")
+		Preload("Category").
+		Preload("Segment")
 
 	branchID := c.Query("branch_id")
 	if branchID != "" {

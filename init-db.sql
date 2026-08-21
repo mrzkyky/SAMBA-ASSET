@@ -30,11 +30,22 @@ CREATE TABLE IF NOT EXISTS categories (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 3b. Segments Table (Service Segments: Kemitraan, POP, Local Loop, Corporate)
+CREATE TABLE IF NOT EXISTS segments (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    description VARCHAR(255),
+    color VARCHAR(20) DEFAULT '#06b6d4',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 4. Assets Table (Level 4) - serial_number set to TEXT to support unlimited Multi-SN strings
 CREATE TABLE IF NOT EXISTS assets (
     id BIGSERIAL PRIMARY KEY,
     site_id BIGINT NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
     category_id BIGINT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
+    segment_id BIGINT REFERENCES segments(id) ON DELETE SET NULL,
     brand VARCHAR(100) NOT NULL,
     model VARCHAR(100) NOT NULL,
     serial_number TEXT NOT NULL,
@@ -140,6 +151,14 @@ INSERT INTO categories (name) VALUES
 ('Step Down / Step Up'),
 ('Switch'),
 ('UPS & Power')
+ON CONFLICT (name) DO NOTHING;
+
+-- Seed Data: 4 Service Segments (ON CONFLICT DO NOTHING)
+INSERT INTO segments (name, description, color) VALUES
+('Kemitraan', 'Aset perangkat untuk layanan kemitraan/partnership', '#06b6d4'),
+('POP', 'Point of Presence — aset jaringan inti', '#8b5cf6'),
+('Local Loop', 'Aset untuk konektivitas last-mile', '#f59e0b'),
+('Corporate', 'Aset untuk layanan enterprise/korporat', '#10b981')
 ON CONFLICT (name) DO NOTHING;
 
 -- Seed Data: Default Users (ON CONFLICT DO NOTHING)

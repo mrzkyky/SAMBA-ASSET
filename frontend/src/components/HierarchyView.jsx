@@ -36,8 +36,11 @@ const HierarchyView = ({
   user,
   hierarchy,
   branches,
+  segments,
   selectedBranch,
   setSelectedBranch,
+  selectedSegment,
+  setSelectedSegment,
   onEditAsset,
   onDeleteAsset,
   onOpenQRCodeModal,
@@ -75,8 +78,8 @@ const HierarchyView = ({
   return (
     <div className="space-y-6">
       
-      {/* LEVEL 1: Branch Navigation & Filter */}
-      <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl">
+      {/* LEVEL 1: Branch & Segment Navigation & Filter */}
+      <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2 text-cyan-400 text-xs font-semibold uppercase tracking-wider">
@@ -92,35 +95,73 @@ const HierarchyView = ({
               <button
                 type="button"
                 onClick={() => setSelectedBranch('')}
-                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all active:scale-95 ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
                   selectedBranch === ''
-                    ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/50'
+                    ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25'
+                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
                 }`}
               >
-                Semua Branch
+                Semua Cabang
               </button>
             )}
-            {branches.map((b) => {
-              if (isBranchAdmin && String(user?.branch_id) !== String(b.id)) return null;
 
-              return (
-                <button
-                  key={b.id}
-                  type="button"
-                  onClick={() => setSelectedBranch(String(b.id))}
-                  className={`px-4 py-2 rounded-xl text-xs font-medium transition-all active:scale-95 ${
-                    String(selectedBranch) === String(b.id)
-                      ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/50'
-                  }`}
-                >
-                  {b.name} ({b.code})
-                </button>
-              );
-            })}
+            {branches.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                disabled={isBranchAdmin && user.branch_id !== b.id}
+                onClick={() => setSelectedBranch(String(b.id))}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                  selectedBranch === String(b.id)
+                    ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25'
+                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800 disabled:opacity-40'
+                }`}
+              >
+                {b.name} ({b.code})
+              </button>
+            ))}
           </div>
         </div>
+
+        {/* Segment Layanan Quick Filters */}
+        {segments && segments.length > 0 && (
+          <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">
+              Segmen Layanan:
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedSegment('')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                !selectedSegment
+                  ? 'bg-violet-500 text-white shadow-md shadow-violet-500/20'
+                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+              }`}
+            >
+              Semua Segmen
+            </button>
+            {segments.map((seg) => (
+              <button
+                key={seg.id}
+                type="button"
+                onClick={() => setSelectedSegment(String(seg.id))}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 ${
+                  selectedSegment === String(seg.id)
+                    ? 'text-white shadow-md'
+                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+                style={
+                  selectedSegment === String(seg.id)
+                    ? { backgroundColor: seg.color || '#8b5cf6', borderColor: seg.color || '#8b5cf6' }
+                    : {}
+                }
+              >
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: seg.color || '#8b5cf6' }} />
+                <span>{seg.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Auditor Banner Notification */}
@@ -223,13 +264,17 @@ const HierarchyView = ({
                                 const { category, assets } = catGroup;
 
                                 const filteredAssets = assets.filter((a) => {
+                                  if (selectedSegment && String(a.segment_id) !== String(selectedSegment)) {
+                                    return false;
+                                  }
                                   if (!searchQuery) return true;
                                   const q = searchQuery.toLowerCase();
                                   return (
                                     a.serial_number.toLowerCase().includes(q) ||
                                     a.brand.toLowerCase().includes(q) ||
                                     a.model.toLowerCase().includes(q) ||
-                                    (a.notes && a.notes.toLowerCase().includes(q))
+                                    (a.notes && a.notes.toLowerCase().includes(q)) ||
+                                    (a.segment?.name && a.segment.name.toLowerCase().includes(q))
                                   );
                                 });
 
@@ -255,6 +300,8 @@ const HierarchyView = ({
                                         const snList = parseSNList(asset.serial_number);
                                         const isExpanded = expandedSNs[asset.id];
                                         const displaySNs = isExpanded ? snList : snList.slice(0, 3);
+                                        const segmentName = asset.segment?.name || 'Umum';
+                                        const segmentColor = asset.segment?.color || '#64748b';
 
                                         return (
                                           <div
@@ -268,10 +315,26 @@ const HierarchyView = ({
                                                   <span className="text-slate-600">/</span>
                                                   <span className="text-xs font-semibold text-slate-200">{asset.model}</span>
                                                 </div>
-                                                <p className="text-[11px] text-slate-400 mt-1 flex items-center">
-                                                  <Box className="w-3 h-3 mr-1 text-slate-500" />
-                                                  Rak: <span className="text-slate-300 ml-1 font-medium">{asset.location_detail}</span>
-                                                </p>
+                                                <div className="flex items-center space-x-2 mt-1">
+                                                  <span
+                                                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold"
+                                                    style={{
+                                                      backgroundColor: `${segmentColor}18`,
+                                                      color: segmentColor,
+                                                      border: `1px solid ${segmentColor}35`,
+                                                    }}
+                                                  >
+                                                    <span
+                                                      className="w-1.5 h-1.5 rounded-full mr-1"
+                                                      style={{ backgroundColor: segmentColor }}
+                                                    />
+                                                    {segmentName}
+                                                  </span>
+                                                  <p className="text-[11px] text-slate-400 flex items-center">
+                                                    <Box className="w-3 h-3 mr-1 text-slate-500" />
+                                                    <span className="text-slate-300 font-medium">{asset.location_detail}</span>
+                                                  </p>
+                                                </div>
                                               </div>
                                               <StatusBadge status={asset.status} />
                                             </div>

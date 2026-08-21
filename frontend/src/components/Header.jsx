@@ -255,6 +255,19 @@ const Header = ({
                 <Tag className="w-4 h-4" />
                 <span>Kategori (L3)</span>
               </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('segments')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
+                  activeTab === 'segments'
+                    ? 'bg-violet-500/10 text-violet-400 border border-violet-500/30'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                }`}
+              >
+                <Layers className="w-4 h-4" />
+                <span>Segmen</span>
+              </button>
             </>
           )}
         </div>

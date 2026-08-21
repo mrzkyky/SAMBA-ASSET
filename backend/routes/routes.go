@@ -73,6 +73,15 @@ func SetupRouter() *gin.Engine {
 				categories.DELETE("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.DeleteCategory)
 			}
 
+			// Segment CRUD (Kemitraan, POP, Local Loop, Corporate)
+			segments := protected.Group("/segments")
+			{
+				segments.GET("", handlers.GetSegments)
+				segments.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateSegment)
+				segments.PUT("/:id", middleware.RequireRoles("Super Admin"), handlers.UpdateSegment)
+				segments.DELETE("/:id", middleware.RequireRoles("Super Admin"), handlers.DeleteSegment)
+			}
+
 			// Asset CRUD
 			assets := protected.Group("/assets")
 			{

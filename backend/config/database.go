@@ -62,6 +62,7 @@ func InitDB() *gorm.DB {
 		&models.Branch{},
 		&models.Site{},
 		&models.Category{},
+		&models.Segment{},
 		&models.Asset{},
 		&models.User{},
 		&models.AssetTransfer{},
@@ -79,6 +80,7 @@ func InitDB() *gorm.DB {
 	// Ensure default seeds exist safely
 	seedBranchesAndSites()
 	seedCategories()
+	seedSegments()
 	seedUsers()
 
 	log.Println("Database connection established & auto-migrated successfully.")
@@ -153,6 +155,30 @@ func seedCategories() {
 			c := models.Category{Name: name}
 			if createErr := DB.Create(&c).Error; createErr == nil {
 				log.Printf("Seeded default category: %s", name)
+			}
+		}
+	}
+}
+
+func seedSegments() {
+	type segDef struct {
+		Name        string
+		Description string
+		Color       string
+	}
+	segments := []segDef{
+		{Name: "Kemitraan", Description: "Aset perangkat untuk layanan kemitraan/partnership", Color: "#06b6d4"},
+		{Name: "POP", Description: "Point of Presence — aset jaringan inti", Color: "#8b5cf6"},
+		{Name: "Local Loop", Description: "Aset untuk konektivitas last-mile", Color: "#f59e0b"},
+		{Name: "Corporate", Description: "Aset untuk layanan enterprise/korporat", Color: "#10b981"},
+	}
+
+	for _, seg := range segments {
+		var existing models.Segment
+		if err := DB.Where("name = ?", seg.Name).First(&existing).Error; err != nil {
+			s := models.Segment{Name: seg.Name, Description: seg.Description, Color: seg.Color}
+			if createErr := DB.Create(&s).Error; createErr == nil {
+				log.Printf("Seeded default segment: %s", seg.Name)
 			}
 		}
 	}

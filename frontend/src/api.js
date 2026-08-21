@@ -184,6 +184,27 @@ export const createTransfer = async (data) => {
   return response.data;
 };
 
+// Segment API (Kemitraan, POP, Local Loop, Corporate)
+export const getSegments = async () => {
+  const response = await api.get('/segments');
+  return response.data.data;
+};
+
+export const createSegment = async (data) => {
+  const response = await api.post('/segments', data);
+  return response.data;
+};
+
+export const updateSegment = async (id, data) => {
+  const response = await api.put(`/segments/${id}`, data);
+  return response.data;
+};
+
+export const deleteSegment = async (id) => {
+  const response = await api.delete(`/segments/${id}`);
+  return response.data;
+};
+
 // Audit Trail Logs API
 export const getAuditLogs = async (params = {}) => {
   const response = await api.get('/audit-logs', { params });
