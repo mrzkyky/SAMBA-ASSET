@@ -143,8 +143,9 @@ INSERT INTO categories (name) VALUES
 ON CONFLICT (name) DO NOTHING;
 
 -- Seed Data: Default Users (ON CONFLICT DO NOTHING)
+-- Bcrypt cost=14 hashes matching jwt.go HashPassword function
 INSERT INTO users (username, email, password_hash, role, branch_id) VALUES
-('admin', 'admin@national-asset.id', '$2a$10$2J9DpBWHjwJ.PnX8nWoTOO86mPBPhaW8C.8/42z8.DwfpfMciOHz2', 'Super Admin', NULL),
-('admin_brebes', 'brebes@national-asset.id', '$2a$10$OySKeuF3p4.hpZCTVUZ6COEzzwhLJgSY2cJjmOHUAe6FXugQnG0re', 'Branch Admin', 1),
-('auditor', 'auditor@national-asset.id', '$2a$10$.J47sE8P40pMdWAEWHF8oOZkLHYO4FMR.roJIqL3OrmVEuwQ.p33W', 'Auditor', NULL)
+('admin', 'admin@national-asset.id', '$2a$14$1vwek3LVgAwN19xP/Cwknu5vk3kvz1UPEzpFd87CtuZr7Yznss04G', 'Super Admin', NULL),
+('admin_brebes', 'brebes@national-asset.id', '$2a$14$kSOH1yW4RrAEKKqrXE74Cu1RytXuR338lhgQ4BHjSX0fHgnS0Ujo6', 'Branch Admin', 1),
+('auditor', 'auditor@national-asset.id', '$2a$14$t5ifqWuRwS/iV4oPKbHPp..8ZqoLwgNVCDVBp69rWjuYs3T8RRMfG', 'Auditor', NULL)
 ON CONFLICT (username) DO NOTHING;

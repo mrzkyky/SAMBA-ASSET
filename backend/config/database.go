@@ -154,9 +154,9 @@ func seedCategories() {
 }
 
 func seedUsers() {
-	hashAdmin, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-	hashBrebes, _ := bcrypt.GenerateFromPassword([]byte("brebes123"), bcrypt.DefaultCost)
-	hashAuditor, _ := bcrypt.GenerateFromPassword([]byte("auditor123"), bcrypt.DefaultCost)
+	hashAdmin, _ := bcrypt.GenerateFromPassword([]byte("admin123"), 14)
+	hashBrebes, _ := bcrypt.GenerateFromPassword([]byte("brebes123"), 14)
+	hashAuditor, _ := bcrypt.GenerateFromPassword([]byte("auditor123"), 14)
 
 	branchIDBrebes := uint(1)
 
