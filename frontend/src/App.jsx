@@ -82,11 +82,10 @@ function App() {
     }
   }, [token, user]);
 
-  const handleLoginSuccess = (newToken, newUser) => {
-    setToken(newToken);
-    setUser(newUser);
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
+  const handleLoginSuccess = (loggedInUser) => {
+    // Token is already saved to localStorage by LoginModal
+    setToken(localStorage.getItem('token'));
+    setUser(loggedInUser);
   };
 
   const handleLogout = () => {
