@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8088/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,41 +9,54 @@ const api = axios.create({
   },
 });
 
-// Axios Request Interceptor: Attach JWT Token
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+// Request Interceptor: Attach JWT Token automatically
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-// Auth API
+// Response Interceptor: Handle 401 Unauthorized
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Auth API Methods
 export const login = async (username, password) => {
   const response = await api.post('/auth/login', { username, password });
   return response.data;
 };
 
 export const getProfile = async () => {
-  const response = await api.get('/auth/profile');
+  const response = await api.get('/auth/me');
   return response.data.data;
 };
 
-// User Management API
+// User Management API Methods (Super Admin)
 export const getUsers = async () => {
   const response = await api.get('/users');
   return response.data.data;
 };
 
-export const createUser = async (data) => {
-  const response = await api.post('/users', data);
+export const createUser = async (userData) => {
+  const response = await api.post('/users', userData);
   return response.data;
 };
 
-export const updateUser = async (id, data) => {
-  const response = await api.put(`/users/${id}`, data);
+export const updateUser = async (id, userData) => {
+  const response = await api.put(`/users/${id}`, userData);
   return response.data;
 };
 
@@ -52,9 +65,9 @@ export const deleteUser = async (id) => {
   return response.data;
 };
 
-// Stats & Hierarchy API
+// Dashboard Stats & Hierarchy
 export const getStats = async () => {
-  const response = await api.get('/dashboard/stats');
+  const response = await api.get('/stats');
   return response.data.data;
 };
 
@@ -151,11 +164,30 @@ export const deleteAsset = async (id) => {
   return response.data;
 };
 
-export const getExportUrl = (branchId = '', siteId = '') => {
-  let url = `${API_BASE_URL}/assets/export?`;
-  if (branchId) url += `branch_id=${branchId}&`;
-  if (siteId) url += `site_id=${siteId}&`;
-  return url;
+export const getExportAssetsUrl = (branchId = '') => {
+  const token = localStorage.getItem('token');
+  let url = `${API_BASE_URL}/assets/export`;
+  if (branchId) {
+    url += `?branch_id=${branchId}`;
+  }
+  return { url, token };
+};
+
+// Asset Transfer & Mutation API
+export const getTransfers = async (params = {}) => {
+  const response = await api.get('/transfers', { params });
+  return response.data;
+};
+
+export const createTransfer = async (data) => {
+  const response = await api.post('/transfers', data);
+  return response.data;
+};
+
+// Audit Trail Logs API
+export const getAuditLogs = async (params = {}) => {
+  const response = await api.get('/audit-logs', { params });
+  return response.data;
 };
 
 export default api;

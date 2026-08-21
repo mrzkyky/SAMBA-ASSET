@@ -3,75 +3,102 @@ package routes
 import (
 	"asset-management-backend/handlers"
 	"asset-management-backend/middleware"
-	"github.com/gin-contrib/cors"
+
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	// Enable CORS
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowAllOrigins = true
-	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
-	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	r.Use(cors.New(corsConfig))
+	// CORS Middleware
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 
-	// Health Check
-	r.GET("/api/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "UP", "message": "National Asset Management System API is operational"})
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(24)
+			return
+		}
+		c.Next()
 	})
 
 	api := r.Group("/api")
 	{
-		// Public Auth Endpoint
+		// Auth Public Routes
 		api.POST("/auth/login", handlers.Login)
 
-		// Public Data Endpoints for UI viewing (or protected)
-		api.GET("/dashboard/stats", handlers.GetDashboardStats)
-		api.GET("/hierarchy", handlers.GetHierarchyTree)
-		api.GET("/branches", handlers.GetBranches)
-		api.GET("/sites", handlers.GetSites)
-		api.GET("/categories", handlers.GetCategories)
-		api.GET("/assets", handlers.GetAssets)
-		api.GET("/assets/export", handlers.ExportAssets)
-		api.GET("/assets/:id", handlers.GetAssetByID)
+		// Public Stats Endpoint
+		api.GET("/stats", handlers.GetDashboardStats)
 
-		// Authenticated Routes (Requires Bearer JWT Token)
-		authRoutes := api.Group("")
-		authRoutes.Use(middleware.JWTAuthMiddleware())
+		// Protected Routes (Require Valid JWT Token)
+		protected := api.Group("")
+		protected.Use(middleware.JWTAuthMiddleware())
 		{
-			authRoutes.GET("/auth/profile", handlers.GetProfile)
+			// Auth Profile
+			protected.GET("/auth/me", handlers.GetProfile)
 
-			// Super Admin & Branch Admin can perform CRUD on assets, branches, sites, categories
-			writeRoutes := authRoutes.Group("")
-			writeRoutes.Use(middleware.RequireRoles("Super Admin", "Branch Admin"))
+			// Hierarchy View
+			protected.GET("/hierarchy", handlers.GetHierarchyTree)
+
+			// Branch CRUD (Super Admin Only)
+			branches := protected.Group("/branches")
 			{
-				writeRoutes.POST("/branches", handlers.CreateBranch)
-				writeRoutes.PUT("/branches/:id", handlers.UpdateBranch)
-				writeRoutes.DELETE("/branches/:id", handlers.DeleteBranch)
-
-				writeRoutes.POST("/sites", handlers.CreateSite)
-				writeRoutes.PUT("/sites/:id", handlers.UpdateSite)
-				writeRoutes.DELETE("/sites/:id", handlers.DeleteSite)
-
-				writeRoutes.POST("/categories", handlers.CreateCategory)
-				writeRoutes.PUT("/categories/:id", handlers.UpdateCategory)
-				writeRoutes.DELETE("/categories/:id", handlers.DeleteCategory)
-
-				writeRoutes.POST("/assets", handlers.CreateAsset)
-				writeRoutes.PUT("/assets/:id", handlers.UpdateAsset)
-				writeRoutes.DELETE("/assets/:id", handlers.DeleteAsset)
+				branches.GET("", handlers.GetBranches)
+				branches.GET("/:id", handlers.GetBranchByID)
+				branches.POST("", middleware.RequireRoles("Super Admin"), handlers.CreateBranch)
+				branches.PUT("/:id", middleware.RequireRoles("Super Admin"), handlers.UpdateBranch)
+				branches.DELETE("/:id", middleware.RequireRoles("Super Admin"), handlers.DeleteBranch)
 			}
 
-			// Super Admin Only: User Management CRUD
-			adminRoutes := authRoutes.Group("")
-			adminRoutes.Use(middleware.RequireRoles("Super Admin"))
+			// Site CRUD
+			sites := protected.Group("/sites")
 			{
-				adminRoutes.GET("/users", handlers.GetUsers)
-				adminRoutes.POST("/users", handlers.CreateUser)
-				adminRoutes.PUT("/users/:id", handlers.UpdateUser)
-				adminRoutes.DELETE("/users/:id", handlers.DeleteUser)
+				sites.GET("", handlers.GetSites)
+				sites.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateSite)
+				sites.PUT("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.UpdateSite)
+				sites.DELETE("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.DeleteSite)
+			}
+
+			// Category CRUD
+			categories := protected.Group("/categories")
+			{
+				categories.GET("", handlers.GetCategories)
+				categories.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateCategory)
+				categories.PUT("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.UpdateCategory)
+				categories.DELETE("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.DeleteCategory)
+			}
+
+			// Asset CRUD
+			assets := protected.Group("/assets")
+			{
+				assets.GET("", handlers.GetAssets)
+				assets.GET("/export", handlers.ExportAssets)
+				assets.GET("/:id", handlers.GetAssetByID)
+				assets.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateAsset)
+				assets.PUT("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.UpdateAsset)
+				assets.DELETE("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.DeleteAsset)
+			}
+
+			// Asset Transfer & Mutation Routes
+			transfers := protected.Group("/transfers")
+			{
+				transfers.GET("", handlers.GetTransfers)
+				transfers.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateTransfer)
+			}
+
+			// System Audit Trail Logs Route
+			protected.GET("/audit-logs", middleware.RequireRoles("Super Admin"), handlers.GetAuditLogs)
+
+			// User Management Routes (Super Admin Only)
+			users := protected.Group("/users")
+			users.Use(middleware.RequireRoles("Super Admin"))
+			{
+				users.GET("", handlers.GetUsers)
+				users.POST("", handlers.CreateUser)
+				users.PUT("/:id", handlers.UpdateUser)
+				users.DELETE("/:id", handlers.DeleteUser)
 			}
 		}
 	}

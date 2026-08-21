@@ -57,13 +57,15 @@ func InitDB() *gorm.DB {
 	sqlDB.SetMaxOpenConns(50)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	// AutoMigrate all models including User
+	// AutoMigrate all models
 	err = DB.AutoMigrate(
 		&models.Branch{},
 		&models.Site{},
 		&models.Category{},
 		&models.Asset{},
 		&models.User{},
+		&models.AssetTransfer{},
+		&models.AuditLog{},
 	)
 	if err != nil {
 		log.Printf("AutoMigrate warning/error: %v", err)
@@ -82,6 +84,21 @@ func InitDB() *gorm.DB {
 
 	log.Println("Database connection established & auto-migrated successfully.")
 	return DB
+}
+
+func RecordAuditLog(userID *uint, username, action, details, ipAddress string) {
+	if username == "" {
+		username = "System"
+	}
+	logEntry := models.AuditLog{
+		UserID:    userID,
+		Username:  username,
+		Action:    action,
+		Details:   details,
+		IPAddress: ipAddress,
+		CreatedAt: time.Now(),
+	}
+	DB.Create(&logEntry)
 }
 
 func seedCategories() {

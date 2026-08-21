@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, QrCode, Lock, Layers } from 'lucide-react';
+import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, QrCode, Lock, ArrowRightLeft } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
@@ -41,6 +41,7 @@ const HierarchyView = ({
   onEditAsset,
   onDeleteAsset,
   onOpenQRCodeModal,
+  onOpenTransferModal,
   searchQuery,
 }) => {
   const [openSites, setOpenSites] = useState({});
@@ -311,14 +312,14 @@ const HierarchyView = ({
                                               </div>
                                             </div>
 
-                                            {/* Actions: QR Button + Edit/Delete */}
+                                            {/* Actions: QR, Mutasi, Edit/Delete */}
                                             <div className="flex items-center justify-between pt-1 border-t border-slate-900 text-xs">
                                               <span className="text-[11px] text-slate-500">
                                                 Jumlah: <strong className="text-slate-300">{asset.unit_count} Unit</strong>
                                               </span>
 
                                               <div className="flex items-center space-x-1">
-                                                {/* QR Sticker Print Button */}
+                                                {/* QR Print Button */}
                                                 <button
                                                   type="button"
                                                   onClick={(e) => {
@@ -334,6 +335,18 @@ const HierarchyView = ({
 
                                                 {!isAuditor && (
                                                   <>
+                                                    {/* Mutasi Asset Button */}
+                                                    <button
+                                                      type="button"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onOpenTransferModal(asset);
+                                                      }}
+                                                      className="p-1.5 rounded-lg text-cyan-400 hover:bg-cyan-500/10 transition-all active:scale-95"
+                                                      title="Mutasi / Pindahkan Perangkat"
+                                                    >
+                                                      <ArrowRightLeft className="w-3.5 h-3.5" />
+                                                    </button>
                                                     <button
                                                       type="button"
                                                       onClick={(e) => {

@@ -3,15 +3,21 @@ import Header from './components/Header';
 import StatsOverview from './components/StatsOverview';
 import HierarchyView from './components/HierarchyView';
 import AssetTable from './components/AssetTable';
+import AssetModal from './components/AssetModal';
 import BranchManager from './components/BranchManager';
 import SiteManager from './components/SiteManager';
 import CategoryManager from './components/CategoryManager';
 import UserManager from './components/UserManager';
-import AssetModal from './components/AssetModal';
 import LoginModal from './components/LoginModal';
 import QRCodeModal from './components/QRCodeModal';
 import QRScannerModal from './components/QRScannerModal';
+import TransferModal from './components/TransferModal';
+import BASTModal from './components/BASTModal';
+import TransferHistory from './components/TransferHistory';
+import AuditLogView from './components/AuditLogView';
+
 import {
+  getProfile,
   getStats,
   getHierarchy,
   getBranches,
@@ -19,229 +25,222 @@ import {
   getCategories,
   getAssets,
   deleteAsset,
-  getUsers,
-  getProfile,
 } from './api';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  // Auth State
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || 'null'));
 
-  const [activeTab, setActiveTab] = useState('hierarchy'); // 'hierarchy' | 'table' | 'master' | 'users'
+  // Active Navigation Tab: 'hierarchy', 'master', 'transfers', 'audit', 'users', 'branches', 'sites', 'categories'
+  const [activeTab, setActiveTab] = useState('hierarchy');
+
+  // Filter States
+  const [selectedBranch, setSelectedBranch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Data States
   const [stats, setStats] = useState(null);
   const [hierarchy, setHierarchy] = useState([]);
   const [branches, setBranches] = useState([]);
   const [sites, setSites] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [usersList, setUsersList] = useState([]);
+  const [assetsData, setAssetsData] = useState({ data: [], total: 0, page: 1, limit: 10, total_pages: 1 });
 
-  // Table state & filters
-  const [assets, setAssets] = useState([]);
-  const [totalAssets, setTotalAssets] = useState(0);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
+  // Pagination State for Master Asset Table
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Modals
+  // Modal States
   const [isAssetModalOpen, setIsAssetModalOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState(null);
 
   const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false);
-  const [qrAsset, setQrAsset] = useState(null);
+  const [selectedQRAsset, setSelectedQRAsset] = useState(null);
 
-  const [isQRScannerModalOpen, setIsQRScannerModalOpen] = useState(false);
+  const [isQRScannerOpen, setIsQRScannerOpen] = useState(false);
 
-  // Check initial Auth & Profile
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [transferAsset, setTransferAsset] = useState(null);
+
+  const [isBASTModalOpen, setIsBASTModalOpen] = useState(false);
+  const [bastTransfer, setBastTransfer] = useState(null);
+  const [bastAsset, setBastAsset] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+
+  // Load User Profile if token exists
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-
-    if (savedToken && savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
-
-      if (parsedUser.role === 'Branch Admin' && parsedUser.branch_id) {
-        setSelectedBranch(String(parsedUser.branch_id));
-      }
-
+    if (token && !user) {
       getProfile()
         .then((u) => {
           setUser(u);
           localStorage.setItem('user', JSON.stringify(u));
-          if (u.role === 'Branch Admin' && u.branch_id) {
-            setSelectedBranch(String(u.branch_id));
-          }
         })
-        .catch(() => {
-          // Token expired or invalid
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setUser(null);
-          setIsLoginModalOpen(true);
-        });
-    } else {
-      setIsLoginModalOpen(true);
+        .catch(() => handleLogout());
     }
-  }, []);
+  }, [token, user]);
 
-  // Fetch Master Data
-  const fetchMasterData = useCallback(async () => {
-    try {
-      const [sData, bData, stData, cData] = await Promise.all([
-        getStats(),
-        getBranches(),
-        getSites(),
-        getCategories(),
-      ]);
-      setStats(sData);
-      setBranches(bData);
-      setSites(stData);
-      setCategories(cData);
-    } catch (err) {
-      console.error('Error fetching master data:', err);
-    }
-  }, []);
+  const handleLoginSuccess = (newToken, newUser) => {
+    setToken(newToken);
+    setUser(newUser);
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
+  };
 
-  // Fetch Users List (for Super Admin)
-  const fetchUsersData = useCallback(async () => {
-    if (user?.role === 'Super Admin') {
-      try {
-        const data = await getUsers();
-        setUsersList(data);
-      } catch (err) {
-        console.error('Error fetching users:', err);
-      }
+  const handleLogout = () => {
+    setToken('');
+    setUser(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  };
+
+  // Enforce Branch Admin scope filter automatically
+  useEffect(() => {
+    if (user?.role === 'Branch Admin' && user.branch_id) {
+      setSelectedBranch(String(user.branch_id));
     }
   }, [user]);
 
+  // Fetch Stats Data
+  const fetchStats = useCallback(async () => {
+    try {
+      const data = await getStats();
+      setStats(data);
+    } catch (err) {
+      console.error('Gagal mengambil statistik dashboard:', err);
+    }
+  }, []);
+
+  // Fetch Master Data Lists (Branches, Sites, Categories)
+  const fetchMasterData = useCallback(async () => {
+    try {
+      const [b, s, c] = await Promise.all([getBranches(), getSites(), getCategories()]);
+      setBranches(b);
+      setSites(s);
+      setCategories(c);
+    } catch (err) {
+      console.error('Gagal mengambil data master:', err);
+    }
+  }, []);
+
   // Fetch Hierarchy Tree
-  const fetchHierarchyTree = useCallback(async () => {
+  const fetchHierarchyData = useCallback(async () => {
+    setLoading(true);
     try {
       const data = await getHierarchy(selectedBranch);
       setHierarchy(data);
     } catch (err) {
-      console.error('Error fetching hierarchy:', err);
+      console.error('Gagal mengambil data hirarki:', err);
+    } finally {
+      setLoading(false);
     }
   }, [selectedBranch]);
 
-  // Fetch Assets List
-  const fetchAssetsData = useCallback(async () => {
+  // Fetch Assets Page Data (Master Table)
+  const fetchAssetsTableData = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await getAssets({
-        page,
-        limit,
+      const params = {
+        page: currentPage,
+        limit: 10,
         q: searchQuery,
         branch_id: selectedBranch,
         category_id: selectedCategory,
         status: selectedStatus,
-      });
-      setAssets(res.data);
-      setTotalAssets(res.total);
-      setTotalPages(res.total_pages);
+      };
+      const res = await getAssets(params);
+      setAssetsData(res);
     } catch (err) {
-      console.error('Error fetching assets:', err);
+      console.error('Gagal mengambil data master aset:', err);
+    } finally {
+      setLoading(false);
     }
-  }, [page, limit, searchQuery, selectedBranch, selectedCategory, selectedStatus]);
+  }, [currentPage, searchQuery, selectedBranch, selectedCategory, selectedStatus]);
 
-  // Sync initial load
-  useEffect(() => {
+  // Global Data Refresh Trigger
+  const refreshAllData = useCallback(() => {
+    fetchStats();
     fetchMasterData();
-  }, [fetchMasterData]);
+    fetchHierarchyData();
+    fetchAssetsTableData();
+  }, [fetchStats, fetchMasterData, fetchHierarchyData, fetchAssetsTableData]);
 
+  // Effect Trigger on Filter Changes
   useEffect(() => {
-    fetchHierarchyTree();
-  }, [fetchHierarchyTree]);
-
-  useEffect(() => {
-    fetchAssetsData();
-  }, [fetchAssetsData]);
-
-  useEffect(() => {
-    if (activeTab === 'users') {
-      fetchUsersData();
+    if (token) {
+      refreshAllData();
     }
-  }, [activeTab, fetchUsersData]);
+  }, [token, selectedBranch, selectedCategory, selectedStatus, searchQuery, currentPage, refreshAllData]);
 
-  // Auth Handlers
-  const handleLoginSuccess = (loggedInUser) => {
-    setUser(loggedInUser);
-    setIsLoginModalOpen(false);
-    if (loggedInUser.role === 'Branch Admin' && loggedInUser.branch_id) {
-      setSelectedBranch(String(loggedInUser.branch_id));
-    }
-    fetchMasterData();
-    fetchHierarchyTree();
-    fetchAssetsData();
+  // Handlers for Asset Modals
+  const handleOpenCreateAssetModal = () => {
+    setEditingAsset(null);
+    setIsAssetModalOpen(true);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    setSelectedBranch('');
-    setIsLoginModalOpen(true);
-  };
-
-  // Asset Handlers
-  const handleOpenAssetModal = (assetToEdit = null) => {
-    setEditingAsset(assetToEdit);
+  const handleOpenEditAssetModal = (asset) => {
+    setEditingAsset(asset);
     setIsAssetModalOpen(true);
   };
 
   const handleDeleteAsset = async (assetId) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus aset ini?')) return;
+    if (!window.confirm('Apakah Anda yakin ingin menghapus data aset ini?')) return;
     try {
       await deleteAsset(assetId);
-      fetchMasterData();
-      fetchHierarchyTree();
-      fetchAssetsData();
+      refreshAllData();
     } catch (err) {
       alert(err.response?.data?.error || 'Gagal menghapus aset.');
     }
   };
 
-  const handleSaveSuccess = () => {
-    fetchMasterData();
-    fetchHierarchyTree();
-    fetchAssetsData();
-  };
-
-  // QR Handlers
-  const handleOpenQRCodeModal = (assetObj) => {
-    setQrAsset(assetObj);
+  const handleOpenQRCodeModal = (asset) => {
+    setSelectedQRAsset(asset);
     setIsQRCodeModalOpen(true);
   };
 
-  const handleScanQRSuccess = (scannedSN) => {
-    setSearchQuery(scannedSN);
-    setActiveTab('hierarchy');
+  const handleOpenTransferModal = (asset) => {
+    setTransferAsset(asset);
+    setIsTransferModalOpen(true);
   };
 
+  const handleOpenBASTModal = (transferOrAsset) => {
+    if (transferOrAsset.reference_no) {
+      setBastTransfer(transferOrAsset);
+      setBastAsset(null);
+    } else {
+      setBastAsset(transferOrAsset);
+      setBastTransfer(null);
+    }
+    setIsBASTModalOpen(true);
+  };
+
+  // If not logged in, render Login Dialog
+  if (!token) {
+    return <LoginModal isOpen={true} onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 pb-16">
       
-      {/* Header Bar */}
+      {/* Responsive Header Bar */}
       <Header
         user={user}
         onLogout={handleLogout}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onOpenAssetModal={handleOpenCreateAssetModal}
+        onOpenQRScannerModal={() => setIsQRScannerOpen(true)}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        onOpenAssetModal={handleOpenAssetModal}
-        onOpenQRScanner={() => setIsQRScannerModalOpen(true)}
         selectedBranch={selectedBranch}
-        branches={branches}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
         
-        {/* Top KPI Metrics Overview */}
+        {/* Dashboard Key Metrics Banner */}
         <StatsOverview stats={stats} />
 
         {/* Tab 1: 4-Level Hierarchy View */}
@@ -252,23 +251,24 @@ function App() {
             branches={branches}
             selectedBranch={selectedBranch}
             setSelectedBranch={setSelectedBranch}
-            onEditAsset={handleOpenAssetModal}
+            onEditAsset={handleOpenEditAssetModal}
             onDeleteAsset={handleDeleteAsset}
             onOpenQRCodeModal={handleOpenQRCodeModal}
+            onOpenTransferModal={handleOpenTransferModal}
             searchQuery={searchQuery}
           />
         )}
 
-        {/* Tab 2: Full Master Asset Data Table */}
-        {activeTab === 'table' && (
+        {/* Tab 2: Master Asset Grid Table */}
+        {activeTab === 'master' && (
           <AssetTable
             user={user}
-            assets={assets}
-            total={totalAssets}
-            page={page}
-            limit={limit}
-            totalPages={totalPages}
-            onPageChange={setPage}
+            assets={assetsData.data || []}
+            total={assetsData.total || 0}
+            page={assetsData.page || 1}
+            limit={assetsData.limit || 10}
+            totalPages={assetsData.total_pages || 1}
+            onPageChange={(newPage) => setCurrentPage(newPage)}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             selectedBranch={selectedBranch}
@@ -279,63 +279,86 @@ function App() {
             setSelectedStatus={setSelectedStatus}
             branches={branches}
             categories={categories}
-            onEditAsset={handleOpenAssetModal}
+            onEditAsset={handleOpenEditAssetModal}
             onDeleteAsset={handleDeleteAsset}
             onOpenQRCodeModal={handleOpenQRCodeModal}
+            onOpenTransferModal={handleOpenTransferModal}
           />
         )}
 
-        {/* Tab 3: Master Data Management (Branch, Site, Category) */}
-        {activeTab === 'master' && user?.role !== 'Auditor' && (
-          <div className="space-y-8">
-            <BranchManager branches={branches} onRefresh={fetchMasterData} />
-            <SiteManager sites={sites} branches={branches} onRefresh={fetchMasterData} />
-            <CategoryManager categories={categories} onRefresh={fetchMasterData} />
-          </div>
+        {/* Tab 3: Asset Transfer & Mutation History */}
+        {activeTab === 'transfers' && (
+          <TransferHistory
+            onOpenBASTModal={(transfer) => handleOpenBASTModal(transfer)}
+          />
         )}
 
-        {/* Tab 4: User Management (Super Admin Only) */}
+        {/* Tab 4: System Audit Trail Log (Super Admin) */}
+        {activeTab === 'audit' && user?.role === 'Super Admin' && (
+          <AuditLogView />
+        )}
+
+        {/* Tab 5: User Management RBAC (Super Admin) */}
         {activeTab === 'users' && user?.role === 'Super Admin' && (
-          <UserManager users={usersList} branches={branches} onRefresh={fetchUsersData} />
+          <UserManager users={[]} branches={branches} onRefresh={refreshAllData} />
         )}
 
+        {/* Level 1: Branch Management */}
+        {activeTab === 'branches' && user?.role === 'Super Admin' && (
+          <BranchManager branches={branches} onRefresh={refreshAllData} />
+        )}
+
+        {/* Level 2: Site Management */}
+        {activeTab === 'sites' && user?.role === 'Super Admin' && (
+          <SiteManager sites={sites} branches={branches} onRefresh={refreshAllData} />
+        )}
+
+        {/* Level 3: Category Management */}
+        {activeTab === 'categories' && user?.role === 'Super Admin' && (
+          <CategoryManager categories={categories} onRefresh={refreshAllData} />
+        )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">
-        <p>National Asset Management System • Terintegrasi QR Code & RBAC Auth</p>
-      </footer>
-
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onLoginSuccess={handleLoginSuccess}
-      />
-
-      {/* Create / Edit Asset Modal */}
+      {/* Asset CRUD Form Modal */}
       <AssetModal
         isOpen={isAssetModalOpen}
         onClose={() => setIsAssetModalOpen(false)}
         asset={editingAsset}
         sites={sites}
         categories={categories}
-        onSaveSuccess={handleSaveSuccess}
+        onSaveSuccess={refreshAllData}
       />
 
-      {/* QR Code Printable Sticker Modal */}
+      {/* Printable QR Code Sticker Modal */}
       <QRCodeModal
         isOpen={isQRCodeModalOpen}
         onClose={() => setIsQRCodeModalOpen(false)}
-        asset={qrAsset}
+        asset={selectedQRAsset}
       />
 
-      {/* Live Camera QR Scanner Modal */}
+      {/* Live Web Camera QR Scanner Modal */}
       <QRScannerModal
-        isOpen={isQRScannerModalOpen}
-        onClose={() => setIsQRScannerModalOpen(false)}
-        onScanSuccess={handleScanQRSuccess}
+        isOpen={isQRScannerOpen}
+        onClose={() => setIsQRScannerOpen(false)}
+        onScanResult={(scannedSN) => setSearchQuery(scannedSN)}
       />
 
+      {/* Asset Transfer & Mutation Modal */}
+      <TransferModal
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+        asset={transferAsset}
+        sites={sites}
+        onTransferSuccess={refreshAllData}
+      />
+
+      {/* Printable BAST PDF Document Modal */}
+      <BASTModal
+        isOpen={isBASTModalOpen}
+        onClose={() => setIsBASTModalOpen(false)}
+        transfer={bastTransfer}
+        asset={bastAsset}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Edit2, Trash2, ChevronLeft, ChevronRight, Copy, Check, QrCode } from 'lucide-react';
+import { Search, Filter, Edit2, Trash2, ChevronLeft, ChevronRight, Copy, Check, QrCode, ArrowRightLeft } from 'lucide-react';
 import { parseSNList } from './HierarchyView';
 
 const StatusBadge = ({ status }) => {
@@ -45,6 +45,7 @@ const AssetTable = ({
   onEditAsset,
   onDeleteAsset,
   onOpenQRCodeModal,
+  onOpenTransferModal,
 }) => {
   const [copiedSN, setCopiedSN] = useState(null);
 
@@ -232,6 +233,15 @@ const AssetTable = ({
 
                         {!isAuditor && (
                           <>
+                            {/* Mutasi Asset Button */}
+                            <button
+                              type="button"
+                              onClick={() => onOpenTransferModal(asset)}
+                              className="p-1.5 rounded-lg text-cyan-400 hover:bg-cyan-500/10 transition-colors active:scale-95"
+                              title="Mutasi / Pindahkan Perangkat"
+                            >
+                              <ArrowRightLeft className="w-4 h-4" />
+                            </button>
                             <button
                               type="button"
                               onClick={() => onEditAsset(asset)}

@@ -1,6 +1,8 @@
 -- SQL DDL Schema & Initial Seed Data for National Asset Management System
 
 -- Drop tables if exists (for clean init)
+DROP TABLE IF EXISTS audit_logs CASCADE;
+DROP TABLE IF EXISTS asset_transfers CASCADE;
 DROP TABLE IF EXISTS assets CASCADE;
 DROP TABLE IF EXISTS categories CASCADE;
 DROP TABLE IF EXISTS sites CASCADE;
@@ -64,6 +66,32 @@ CREATE TABLE users (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 6. Asset Transfers Table (Mutasi Perangkat)
+CREATE TABLE asset_transfers (
+    id BIGSERIAL PRIMARY KEY,
+    reference_no VARCHAR(50) UNIQUE NOT NULL,
+    asset_id BIGINT NOT NULL REFERENCES assets(id) ON DELETE CASCADE,
+    from_site_id BIGINT NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
+    to_site_id BIGINT NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
+    unit_count INT NOT NULL DEFAULT 1,
+    serial_numbers TEXT,
+    transfer_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    reason TEXT,
+    performed_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. Audit Logs Table (Catatan Log Aktivitas)
+CREATE TABLE audit_logs (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    username VARCHAR(50) NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    details TEXT,
+    ip_address VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Performance Indexes
 CREATE INDEX idx_branches_code ON branches(code);
 CREATE INDEX idx_sites_branch_id ON sites(branch_id);
@@ -74,6 +102,11 @@ CREATE INDEX idx_assets_brand_model ON assets(brand, model);
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_role ON users(role);
 CREATE INDEX idx_users_branch_id ON users(branch_id);
+CREATE INDEX idx_transfers_asset_id ON asset_transfers(asset_id);
+CREATE INDEX idx_transfers_from_site ON asset_transfers(from_site_id);
+CREATE INDEX idx_transfers_to_site ON asset_transfers(to_site_id);
+CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
 
 -- Seed Data: Branches
 INSERT INTO branches (code, name, province) VALUES

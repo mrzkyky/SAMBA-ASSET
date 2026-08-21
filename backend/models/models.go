@@ -88,13 +88,50 @@ type Asset struct {
 	Category       *Category `gorm:"foreignKey:CategoryID" json:"category,omitempty"`
 	Brand          string    `gorm:"size:100;not null" json:"brand"`
 	Model          string    `gorm:"size:100;not null" json:"model"`
-	SerialNumber   string    `gorm:"type:text;not null" json:"serial_number"` // Changed from VARCHAR(100) to TEXT to support Multi-SN
+	SerialNumber   string    `gorm:"type:text;not null" json:"serial_number"`
 	LocationDetail string    `gorm:"size:100;default:'Main Rack'" json:"location_detail"`
 	UnitCount      int       `gorm:"default:1;not null" json:"unit_count"`
 	Status         string    `gorm:"size:20;default:'Aktif';index" json:"status"` // 'Aktif', 'Rusak', 'Cadangan'
 	Notes          string    `gorm:"type:text" json:"notes"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+type AssetTransfer struct {
+	ID                 uint      `gorm:"primaryKey" json:"id"`
+	ReferenceNo        string    `gorm:"size:50;uniqueIndex;not null" json:"reference_no"`
+	AssetID            uint      `gorm:"not null;index" json:"asset_id"`
+	Asset              *Asset    `gorm:"foreignKey:AssetID" json:"asset,omitempty"`
+	FromSiteID         uint      `gorm:"not null;index" json:"from_site_id"`
+	FromSite           *Site     `gorm:"foreignKey:FromSiteID" json:"from_site,omitempty"`
+	ToSiteID           uint      `gorm:"not null;index" json:"to_site_id"`
+	ToSite             *Site     `gorm:"foreignKey:ToSiteID" json:"to_site,omitempty"`
+	UnitCount          int       `gorm:"default:1;not null" json:"unit_count"`
+	SerialNumbers      string    `gorm:"type:text" json:"serial_numbers"`
+	TransferDate       time.Time `json:"transfer_date"`
+	Reason             string    `gorm:"type:text" json:"reason"`
+	PerformedByUserID *uint     `gorm:"index" json:"performed_by_user_id"`
+	PerformedByUser   *User     `gorm:"foreignKey:PerformedByUserID" json:"performed_by_user,omitempty"`
+	CreatedAt          time.Time `json:"created_at"`
+}
+
+type CreateTransferRequest struct {
+	AssetID       uint   `json:"asset_id" binding:"required"`
+	ToSiteID      uint   `json:"to_site_id" binding:"required"`
+	UnitCount     int    `json:"unit_count" binding:"required"`
+	SerialNumbers string `json:"serial_numbers"`
+	Reason        string `json:"reason"`
+}
+
+type AuditLog struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	UserID    *uint     `gorm:"index" json:"user_id"`
+	User      *User     `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Username  string    `gorm:"size:50;not null" json:"username"`
+	Action    string    `gorm:"size:50;not null" json:"action"`
+	Details   string    `gorm:"type:text" json:"details"`
+	IPAddress string    `gorm:"size:50" json:"ip_address"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type StatsResponse struct {
