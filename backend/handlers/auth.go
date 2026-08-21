@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"asset-management-backend/config"
@@ -13,18 +14,27 @@ import (
 func Login(c *gin.Context) {
 	var input models.LoginRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Format data login tidak valid"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Format data login tidak valid", "debug": err.Error()})
 		return
 	}
 
 	var user models.User
 	if err := config.DB.Preload("Branch").Where("username = ?", input.Username).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Username atau password salah"})
+		// Count total users in DB for diagnostic
+		var userCount int64
+		config.DB.Model(&models.User{}).Count(&userCount)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":       "Username tidak ditemukan di database",
+			"debug_info":  fmt.Sprintf("Username '%s' tidak ditemukan. Total user di database: %d", input.Username, userCount),
+		})
 		return
 	}
 
 	if !utils.CheckPasswordHash(input.Password, user.PasswordHash) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Username atau password salah"})
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":      "Password salah",
+			"debug_info": fmt.Sprintf("User '%s' ditemukan (ID: %d, Role: %s), tapi password tidak cocok. Hash prefix: %s...", user.Username, user.ID, user.Role, user.PasswordHash[:10]),
+		})
 		return
 	}
 

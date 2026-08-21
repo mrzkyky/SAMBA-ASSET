@@ -32,6 +32,9 @@ func SetupRouter() *gin.Engine {
 		// Public Stats Endpoint
 		api.GET("/stats", handlers.GetDashboardStats)
 
+		// Public Health Check (for debugging database state)
+		api.GET("/health", handlers.HealthCheck)
+
 		// Protected Routes (Require Valid JWT Token)
 		protected := api.Group("")
 		protected.Use(middleware.JWTAuthMiddleware())

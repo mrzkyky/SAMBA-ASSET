@@ -20,7 +20,7 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
       localStorage.setItem('user', JSON.stringify(res.data.user));
       onLoginSuccess(res.data.user);
     } catch (err) {
-      setError(err.response?.data?.error || 'Gagal masuk. Periksa username dan password Anda.');
+      setError(err.response?.data?.debug_info || err.response?.data?.error || 'Gagal masuk. Periksa username dan password Anda.');
     } finally {
       setLoading(false);
     }
