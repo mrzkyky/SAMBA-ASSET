@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"asset-management-backend/config"
 	"asset-management-backend/models"
@@ -18,7 +19,7 @@ func GetCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": categories})
 }
 
-// CreateCategory creates a new category
+// CreateCategory creates a new category (or returns existing if name already exists)
 func CreateCategory(c *gin.Context) {
 	var input models.Category
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -26,8 +27,22 @@ func CreateCategory(c *gin.Context) {
 		return
 	}
 
+	trimmedName := strings.TrimSpace(input.Name)
+	if trimmedName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama kategori tidak boleh kosong"})
+		return
+	}
+
+	// Check if category already exists (case-insensitive)
+	var existing models.Category
+	if err := config.DB.Where("LOWER(name) = ?", strings.ToLower(trimmedName)).First(&existing).Error; err == nil {
+		c.JSON(http.StatusOK, gin.H{"message": "Kategori sudah ada", "data": existing})
+		return
+	}
+
+	input.Name = trimmedName
 	if err := config.DB.Create(&input).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Gagal membuat kategori. Pastikan nama kategori unik."})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Gagal membuat kategori."})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"message": "Kategori berhasil ditambahkan", "data": input})

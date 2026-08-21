@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"asset-management-backend/config"
 	"asset-management-backend/models"
@@ -18,18 +19,33 @@ func GetSegments(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": segments})
 }
 
-// CreateSegment creates a new service segment
+// CreateSegment creates a new service segment (or returns existing if name already exists)
 func CreateSegment(c *gin.Context) {
 	var input models.Segment
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	trimmedName := strings.TrimSpace(input.Name)
+	if trimmedName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama segmen tidak boleh kosong"})
+		return
+	}
+
+	// Check if segment already exists (case-insensitive)
+	var existing models.Segment
+	if err := config.DB.Where("LOWER(name) = ?", strings.ToLower(trimmedName)).First(&existing).Error; err == nil {
+		c.JSON(http.StatusOK, gin.H{"message": "Segmen sudah ada", "data": existing})
+		return
+	}
+
+	input.Name = trimmedName
 	if input.Color == "" {
 		input.Color = "#06b6d4"
 	}
 	if err := config.DB.Create(&input).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Gagal membuat segmen. Pastikan nama segmen unik."})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Gagal membuat segmen."})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"message": "Segmen berhasil dibuat", "data": input})
