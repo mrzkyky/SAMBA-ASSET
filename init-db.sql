@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS assets (
     serial_number TEXT NOT NULL,
     location_detail VARCHAR(100) DEFAULT 'Main Rack',
     unit_count INT NOT NULL DEFAULT 1,
-    status VARCHAR(20) NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Rusak', 'Cadangan')),
+    status VARCHAR(20) NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Pasif', 'Rusak', 'Cadangan')),
     notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

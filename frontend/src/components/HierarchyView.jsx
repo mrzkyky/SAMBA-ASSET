@@ -10,6 +10,14 @@ const StatusBadge = ({ status }) => {
       </span>
     );
   }
+  if (status === 'Pasif') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mr-1.5"></span>
+        Pasif
+      </span>
+    );
+  }
   if (status === 'Rusak') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
@@ -21,7 +29,7 @@ const StatusBadge = ({ status }) => {
   return (
     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
       <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span>
-      Cadangan
+      Cadangan / Spare
     </span>
   );
 };

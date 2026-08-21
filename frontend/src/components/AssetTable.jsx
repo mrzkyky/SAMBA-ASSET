@@ -10,6 +10,13 @@ const StatusBadge = ({ status }) => {
       </span>
     );
   }
+  if (status === 'Pasif') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+        Pasif
+      </span>
+    );
+  }
   if (status === 'Rusak') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
@@ -19,7 +26,7 @@ const StatusBadge = ({ status }) => {
   }
   return (
     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-      Cadangan
+      Cadangan / Spare
     </span>
   );
 };
@@ -126,7 +133,8 @@ const AssetTable = ({
             >
               <option value="">Semua Status</option>
               <option value="Aktif">Aktif</option>
-              <option value="Cadangan">Cadangan</option>
+              <option value="Pasif">Pasif</option>
+              <option value="Cadangan">Cadangan / Spare</option>
               <option value="Rusak">Rusak</option>
             </select>
           </div>

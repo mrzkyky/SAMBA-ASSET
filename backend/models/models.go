@@ -153,6 +153,7 @@ type StatsResponse struct {
 	TotalAssets     int64 `json:"total_assets"`
 	TotalUnits      int64 `json:"total_units"`
 	ActiveAssets    int64 `json:"active_assets"`
+	PassiveAssets   int64 `json:"passive_assets"`
 	DamagedAssets   int64 `json:"damaged_assets"`
 	BackupAssets    int64 `json:"backup_assets"`
 }

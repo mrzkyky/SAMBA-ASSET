@@ -96,6 +96,9 @@ func InitDB() *gorm.DB {
 		log.Printf("Notice on add segment_id column: %v", alterSegErr)
 	}
 
+	// Drop old status check constraint if exists so 'Pasif' status is accepted safely
+	_ = DB.Exec("ALTER TABLE assets DROP CONSTRAINT IF EXISTS assets_status_check;").Error
+
 	// Ensure default seeds exist safely
 	seedBranchesAndSites()
 	seedCategories()

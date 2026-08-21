@@ -25,6 +25,7 @@ func GetDashboardStats(c *gin.Context) {
 	stats.TotalUnits = unitSum.TotalUnits
 
 	config.DB.Model(&models.Asset{}).Where("status = ?", "Aktif").Count(&stats.ActiveAssets)
+	config.DB.Model(&models.Asset{}).Where("status = ?", "Pasif").Count(&stats.PassiveAssets)
 	config.DB.Model(&models.Asset{}).Where("status = ?", "Rusak").Count(&stats.DamagedAssets)
 	config.DB.Model(&models.Asset{}).Where("status = ?", "Cadangan").Count(&stats.BackupAssets)
 

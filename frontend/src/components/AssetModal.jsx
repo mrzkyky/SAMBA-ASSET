@@ -566,7 +566,8 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
               >
                 <option value="Aktif">Aktif</option>
-                <option value="Cadangan">Cadangan</option>
+                <option value="Pasif">Pasif</option>
+                <option value="Cadangan">Cadangan / Spare</option>
                 <option value="Rusak">Rusak</option>
               </select>
             </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, MapPin, Tag, Box, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Building2, MapPin, Tag, Box, CheckCircle2, AlertTriangle, RefreshCw, MinusCircle } from 'lucide-react';
 
 const StatsOverview = ({ stats }) => {
   if (!stats) return null;
@@ -85,9 +85,14 @@ const StatsOverview = ({ stats }) => {
             <span>Aktif: <strong className="text-white text-sm ml-1">{stats.active_assets}</strong> unit</span>
           </div>
 
+          <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium">
+            <MinusCircle className="w-4 h-4" />
+            <span>Pasif: <strong className="text-white text-sm ml-1">{stats.passive_assets || 0}</strong> unit</span>
+          </div>
+
           <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
             <RefreshCw className="w-4 h-4" />
-            <span>Cadangan: <strong className="text-white text-sm ml-1">{stats.backup_assets}</strong> unit</span>
+            <span>Cadangan / Spare: <strong className="text-white text-sm ml-1">{stats.backup_assets}</strong> unit</span>
           </div>
 
           <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium">
