@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Server, Save, Plus, Tag, Check } from 'lucide-react';
 import { createAsset, updateAsset, createCategory, getCategories, createSegment, getSegments, getSites } from '../api';
+import SearchableSelect from './SearchableSelect';
 
 const parseSNCount = (rawSN) => {
   if (!rawSN) return 0;
@@ -357,19 +358,19 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
               <label className="text-xs font-semibold text-slate-300 block mb-1.5">
                 Lokasi Site & Mitra (Level 2) *
               </label>
-              <select
+              <SearchableSelect
                 required
                 value={formData.site_id}
-                onChange={(e) => setFormData({ ...formData, site_id: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
-              >
-                <option value="">Pilih Site</option>
-                {sitesList.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    [{s.branch?.name}] {s.partner_name} - {s.site_name}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setFormData({ ...formData, site_id: val })}
+                placeholder="Pilih Site & Mitra..."
+                searchPlaceholder="Ketik untuk mencari site (misal: Brebes, MAN 1, Pop)..."
+                options={sitesList.map((s) => ({
+                  value: String(s.id),
+                  label: `[${s.branch?.name || 'Branch'}] ${s.partner_name} - ${s.site_name}`,
+                  sublabel: s.address,
+                  searchKeywords: `${s.branch?.name || ''} ${s.partner_name || ''} ${s.site_name || ''} ${s.address || ''}`,
+                }))}
+              />
             </div>
 
             {/* Category Dropdown & Quick Add Toggle */}
@@ -423,22 +424,25 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
                   {categoryError && <p className="text-[10px] text-rose-400">{categoryError}</p>}
                 </div>
               ) : (
-                <select
+                <SearchableSelect
                   required
                   value={formData.category_id}
-                  onChange={handleCategorySelectChange}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
-                >
-                  <option value="">Pilih Kategori</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                  <option value="NEW" className="text-cyan-400 font-bold">
-                    + Tambah Kategori Baru...
-                  </option>
-                </select>
+                  onChange={(val) => {
+                    if (val === 'NEW') {
+                      setIsAddingNewCategory(true);
+                    } else {
+                      setFormData({ ...formData, category_id: val });
+                    }
+                  }}
+                  placeholder="Pilih Kategori Perangkat..."
+                  searchPlaceholder="Ketik untuk mencari kategori (misal: Access, Switch, SFP)..."
+                  options={categories.map((c) => ({
+                    value: String(c.id),
+                    label: c.name,
+                  }))}
+                  onAddNew={() => setIsAddingNewCategory(true)}
+                  addNewLabel="+ Tambah Kategori Baru..."
+                />
               )}
             </div>
 
@@ -493,21 +497,28 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
                   {segmentError && <p className="text-[10px] text-rose-400">{segmentError}</p>}
                 </div>
               ) : (
-                <select
-                  value={formData.segment_id}
-                  onChange={handleSegmentSelectChange}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-violet-500 focus:outline-none"
-                >
-                  <option value="">-- Tanpa Segmen (Umum) --</option>
-                  {segmentsList.map((seg) => (
-                    <option key={seg.id} value={seg.id}>
-                      {seg.name} {seg.description ? `(${seg.description})` : ''}
-                    </option>
-                  ))}
-                  <option value="NEW" className="text-violet-400 font-bold">
-                    + Tambah Segmen Baru...
-                  </option>
-                </select>
+                <SearchableSelect
+                  value={formData.segment_id || ''}
+                  onChange={(val) => {
+                    if (val === 'NEW') {
+                      setIsAddingNewSegment(true);
+                    } else {
+                      setFormData({ ...formData, segment_id: val });
+                    }
+                  }}
+                  placeholder="-- Tanpa Segmen (Umum) --"
+                  searchPlaceholder="Ketik untuk mencari segmen (misal: Corporate, POP, Kemitraan)..."
+                  options={[
+                    { value: '', label: '-- Tanpa Segmen (Umum) --' },
+                    ...segmentsList.map((seg) => ({
+                      value: String(seg.id),
+                      label: seg.name,
+                      sublabel: seg.description,
+                    })),
+                  ]}
+                  onAddNew={() => setIsAddingNewSegment(true)}
+                  addNewLabel="+ Tambah Segmen Baru..."
+                />
               )}
             </div>
 

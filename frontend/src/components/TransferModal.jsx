@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ArrowRightLeft, Send, MapPin } from 'lucide-react';
 import { createTransfer, getSites } from '../api';
 import { parseSNList } from './HierarchyView';
+import SearchableSelect from './SearchableSelect';
 
 const TransferModal = ({ isOpen, onClose, asset, sites: initialSites, onTransferSuccess }) => {
   const [sitesList, setSitesList] = useState(initialSites || []);
@@ -115,26 +116,26 @@ const TransferModal = ({ isOpen, onClose, asset, sites: initialSites, onTransfer
             </div>
           </div>
 
-          {/* Destination Site Selector */}
+          {/* Target Site Dropdown (Searchable) */}
           <div>
             <label className="text-xs font-semibold text-slate-300 block mb-1.5">
               Pilih Site & Mitra Tujuan Mutasi *
             </label>
-            <select
+            <SearchableSelect
               required
               value={toSiteId}
-              onChange={(e) => setToSiteId(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
-            >
-              <option value="">-- Pilih Site Tujuan --</option>
-              {sitesList
-                .filter((s) => String(s.id) !== String(asset.site_id))
-                .map((s) => (
-                  <option key={s.id} value={s.id}>
-                    [{s.branch?.name}] {s.partner_name} - {s.site_name}
-                  </option>
-                ))}
-            </select>
+              onChange={(val) => setToSiteId(val)}
+              placeholder="-- Pilih Site Tujuan --"
+              searchPlaceholder="Ketik untuk mencari site tujuan (misal: Brebes, MAN 1, Pop)..."
+              options={sitesList
+                .filter((s) => String(s.id) !== String(asset?.site_id))
+                .map((s) => ({
+                  value: String(s.id),
+                  label: `[${s.branch?.name || 'Branch'}] ${s.partner_name} - ${s.site_name}`,
+                  sublabel: s.address,
+                  searchKeywords: `${s.branch?.name || ''} ${s.partner_name || ''} ${s.site_name || ''} ${s.address || ''}`,
+                }))}
+            />
           </div>
 
           {/* Unit Count to Move */}

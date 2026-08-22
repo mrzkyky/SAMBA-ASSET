@@ -54,14 +54,18 @@ func GetAssets(c *gin.Context) {
 		Preload("Category").
 		Preload("Segment")
 
-	// Filter by Search Query (Serial Number, Brand, Model, Notes)
+	// Global Search Query (Serial Number, Brand, Model, Location, Notes, Site, Branch, Category, Segment)
 	search := strings.TrimSpace(c.Query("q"))
 	if search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
-		query = query.Where(
-			"LOWER(assets.serial_number) LIKE ? OR LOWER(assets.brand) LIKE ? OR LOWER(assets.model) LIKE ? OR LOWER(assets.location_detail) LIKE ?",
-			searchPattern, searchPattern, searchPattern, searchPattern,
-		)
+		query = query.Joins("LEFT JOIN sites ON sites.id = assets.site_id").
+			Joins("LEFT JOIN branches ON branches.id = sites.branch_id").
+			Joins("LEFT JOIN categories ON categories.id = assets.category_id").
+			Joins("LEFT JOIN segments ON segments.id = assets.segment_id").
+			Where(
+				"LOWER(assets.serial_number) LIKE ? OR LOWER(assets.brand) LIKE ? OR LOWER(assets.model) LIKE ? OR LOWER(assets.location_detail) LIKE ? OR LOWER(assets.notes) LIKE ? OR LOWER(sites.site_name) LIKE ? OR LOWER(sites.partner_name) LIKE ? OR LOWER(branches.name) LIKE ? OR LOWER(branches.code) LIKE ? OR LOWER(categories.name) LIKE ? OR LOWER(segments.name) LIKE ?",
+				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+			)
 	}
 
 	// Filter by Branch
