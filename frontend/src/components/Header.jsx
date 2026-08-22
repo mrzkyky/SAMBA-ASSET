@@ -17,6 +17,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { getExportAssetsUrl } from '../api';
+import sambaIcon from '../assets/samba-icon.png';
 
 const Header = ({
   user,
@@ -62,7 +63,7 @@ const Header = ({
           {/* Logo & Title */}
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-cyan-500/25 border border-cyan-500/30 bg-slate-950 flex items-center justify-center shrink-0">
-              <img src="/favicon.png" alt="SAMBA Logo" className="w-full h-full object-contain" />
+              <img src={sambaIcon} alt="SAMBA Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="flex items-center space-x-2">

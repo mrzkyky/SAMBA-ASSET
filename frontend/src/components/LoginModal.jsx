@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Network, Lock, User as UserIcon, LogIn, AlertCircle } from 'lucide-react';
 import { login } from '../api';
+import sambaIcon from '../assets/samba-icon.png';
 
 const LoginModal = ({ isOpen, onLoginSuccess }) => {
   const [username, setUsername] = useState('');
@@ -44,7 +45,7 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
         {/* Modal Header */}
         <div className="p-6 bg-slate-950 border-b border-slate-800 text-center relative">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-slate-950 border border-cyan-500/30 p-1 flex items-center justify-center shadow-xl shadow-cyan-500/25 mb-3 overflow-hidden">
-            <img src="/favicon.png" alt="SAMBA Logo" className="w-full h-full object-contain" />
+            <img src={sambaIcon} alt="SAMBA Logo" className="w-full h-full object-contain" />
           </div>
           <h2 className="text-xl font-bold text-white">Masuk Sistem SAMBA Asset</h2>
           <p className="text-xs text-slate-400 mt-1">System Asset Management Branch & Associates • Terproteksi JWT</p>
