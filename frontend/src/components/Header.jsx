@@ -61,8 +61,8 @@ const Header = ({
           
           {/* Logo & Title */}
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/20 text-slate-950">
-              <Server className="w-6 h-6 stroke-[2.5]" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-cyan-500/20 border border-slate-700 bg-white p-0.5 flex items-center justify-center shrink-0">
+              <img src="/favicon.png" alt="SAMBA Logo" className="w-full h-full object-contain rounded-lg" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
@@ -71,7 +71,7 @@ const Header = ({
                   NATIONAL v2.5
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium">National Asset Management System</p>
+              <p className="text-[11px] text-slate-400 font-medium">System Asset Management Branch & Associates</p>
             </div>
           </div>
 

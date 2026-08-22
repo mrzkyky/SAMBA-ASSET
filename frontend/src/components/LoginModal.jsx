@@ -43,11 +43,11 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
         
         {/* Modal Header */}
         <div className="p-6 bg-slate-950 border-b border-slate-800 text-center relative">
-          <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 mb-3">
-            <Network className="w-6 h-6" />
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-white border border-slate-700 p-1 flex items-center justify-center shadow-lg shadow-cyan-500/20 mb-3 overflow-hidden">
+            <img src="/favicon.png" alt="SAMBA Logo" className="w-full h-full object-contain rounded-xl" />
           </div>
-          <h2 className="text-xl font-bold text-white">Masuk Sistem Manajemen Aset</h2>
-          <p className="text-xs text-slate-400 mt-1">National Asset Management System • Terproteksi JWT</p>
+          <h2 className="text-xl font-bold text-white">Masuk Sistem SAMBA Asset</h2>
+          <p className="text-xs text-slate-400 mt-1">System Asset Management Branch & Associates • Terproteksi JWT</p>
         </div>
 
         {/* Login Form */}
