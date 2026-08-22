@@ -270,51 +270,16 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
             <div>
               {customLogoUrl ? (
                 <div className="w-full">
-                  <img src={customLogoUrl} alt="Kop Surat Logo" className="w-full max-h-[140px] object-contain" />
+                  <img src={customLogoUrl} alt="Custom Kop Surat Logo" className="w-full max-h-[160px] object-contain" />
                 </div>
               ) : (
-                /* OFFICIAL RAPID NETWORK KOP SURAT BANNER */
-                <div className="bg-[#182b58] text-white px-8 py-5 relative overflow-hidden flex items-center justify-between border-b-4 border-[#1e3a78] print:bg-[#182b58] print:text-white">
-                  
-                  {/* Decorative Background Arrow Graphic */}
-                  <div className="absolute right-0 top-0 bottom-0 w-48 pointer-events-none opacity-90">
-                    <svg viewBox="0 0 160 100" fill="none" className="w-full h-full">
-                      <path d="M110 100 L140 25 L128 25 L148 5 L168 25 L156 25 L126 100 Z" fill="#ffffff" />
-                      <path d="M135 100 L158 45 L148 45 L160 20 L172 45 L162 45 L145 100 Z" fill="#ffffff" opacity="0.6" />
-                    </svg>
-                  </div>
-
-                  {/* Left Brand Identity */}
-                  <div className="z-10 flex items-center space-x-3">
-                    <div className="text-left">
-                      <div className="text-[11px] font-semibold tracking-wider text-slate-300 uppercase">
-                        {bastData.companyName}
-                      </div>
-                      <div className="text-2xl font-black tracking-tight text-white flex items-center space-x-1">
-                        <span>Rapid Network</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Company Details */}
-                  <div className="text-right z-10 pr-20 text-[10px] leading-tight space-y-0.5 text-slate-200">
-                    <div className="font-semibold text-slate-300 uppercase tracking-wide">
-                      {bastData.companyName}
-                    </div>
-                    <div className="text-lg font-extrabold text-white tracking-wide">
-                      {bastData.brandName}
-                    </div>
-                    <div className="flex items-center justify-end space-x-2 text-[9.5px] text-slate-300 pt-0.5">
-                      <span>✉ {bastData.companyEmail}</span>
-                      <span>📞 {bastData.companyPhone}</span>
-                      <span>📱 {bastData.companyWA}</span>
-                    </div>
-                    <div className="flex items-center justify-end space-x-2 text-[9.5px] text-slate-300">
-                      <span>📸 {bastData.companyInstagram}</span>
-                      <span>🌐 {bastData.companyWebsite}</span>
-                    </div>
-                  </div>
-
+                /* DEFAULT OFFICIAL RAPID NETWORK HEADER IMAGE BANNER */
+                <div className="w-full">
+                  <img
+                    src="/images/bast_header.png"
+                    alt="PT Media Cepat Indonesia - Rapid Network Header"
+                    className="w-full h-auto block object-cover"
+                  />
                 </div>
               )}
 
@@ -448,20 +413,12 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
             </div>
 
             {/* BOTTOM CONTAINER: FOOTER KOP SURAT */}
-            <div className="bg-[#182b58] text-white px-8 py-3 flex items-center justify-between border-t-4 border-[#1e3a78] mt-8 print:bg-[#182b58] print:text-white">
-              <div className="flex items-center space-x-2">
-                <span className="text-xl font-black italic tracking-tighter text-white">rapid</span>
-                <span className="text-[9px] font-bold bg-white text-[#182b58] px-1.5 py-0.5 rounded tracking-widest uppercase">
-                  NETWORK
-                </span>
-              </div>
-              <div className="text-right text-[9.5px] text-slate-200 leading-tight">
-                <div className="font-bold text-white">{bastData.companyName} - {bastData.brandName}</div>
-                <div className="text-slate-300">{bastData.companyAddress}</div>
-                <div className="text-slate-300">
-                  email: {bastData.companyEmail} | Phone: {bastData.companyPhone} | WhatsApp: {bastData.companyWA}
-                </div>
-              </div>
+            <div className="w-full mt-6">
+              <img
+                src="/images/bast_footer.png"
+                alt="PT Media Cepat Indonesia - Rapid Network Footer"
+                className="w-full h-auto block object-cover"
+              />
             </div>
 
           </div>
