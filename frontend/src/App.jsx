@@ -265,7 +265,7 @@ function App() {
       />
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
         
         {/* Dashboard Key Metrics Banner */}
         <StatsOverview stats={stats} />
