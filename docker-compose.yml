@@ -57,5 +57,15 @@ services:
     depends_on:
       - backend
 
+  # 4. Cloudflare Tunnel Service (Auto connects domain system-samba.my.id)
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: asset-cloudflared
+    restart: always
+    command: tunnel --no-autoupdate run --token eyJhIjoiNjg2ODcwZWMxNTVjMDQ2ZWU5MjE0OGIwZmQ3YWI2NWYiLCJ0IjoiNmFlNjRhN2YtNzBlZi00NjUwLTg5YmYtYmVhMWUyMzVlODFjIiwicyI6Ik16azJZamRrWVRJdE5qWmlZeTAwTURBNUxXRXpaRGN0TXpoa09XTTBObVptTTJFeiJ9
+    depends_on:
+      - frontend
+
 volumes:
   postgres_data:
+
