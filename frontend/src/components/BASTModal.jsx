@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Printer, FileText, Settings, ChevronDown, ChevronUp, Image as ImageIcon } from 'lucide-react';
 import { parseSNList } from './HierarchyView';
+import { DEFAULT_BAST_HEADER, DEFAULT_BAST_FOOTER } from '../assets/bastTemplates';
 
 const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
   const [showEditPanel, setShowEditPanel] = useState(false);
@@ -100,7 +101,7 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
   const snList = parseSNList(snText);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-sm overflow-y-auto">
       
       {/* Print CSS Overrides */}
       <style>{`
@@ -134,7 +135,7 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
         }
       `}</style>
 
-      <div className="w-full max-w-4xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="w-full max-w-4xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 my-auto">
         
         {/* Modal Header Bar */}
         <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between no-print">
@@ -264,24 +265,17 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
         {/* Printable Document Body (Exact Rapid Network Template Layout) */}
         <div className="p-0 bg-white text-slate-900 max-h-[75vh] overflow-y-auto font-sans shadow-inner" id="printable-bast">
           
-          <div className="min-h-[297mm] flex flex-col justify-between bg-white">
+          <div className="flex flex-col justify-between bg-white print:min-h-[297mm]">
             
             {/* TOP CONTAINER: HEADER KOP SURAT */}
             <div>
-              {customLogoUrl ? (
-                <div className="w-full">
-                  <img src={customLogoUrl} alt="Custom Kop Surat Logo" className="w-full max-h-[160px] object-contain" />
-                </div>
-              ) : (
-                /* DEFAULT OFFICIAL RAPID NETWORK HEADER IMAGE BANNER */
-                <div className="w-full">
-                  <img
-                    src="/images/bast_header.png"
-                    alt="PT Media Cepat Indonesia - Rapid Network Header"
-                    className="w-full h-auto block object-cover"
-                  />
-                </div>
-              )}
+              <div className="w-full">
+                <img
+                  src={customLogoUrl || DEFAULT_BAST_HEADER}
+                  alt="PT Media Cepat Indonesia - Rapid Network Header"
+                  className="w-full h-auto block object-cover"
+                />
+              </div>
 
               {/* DOCUMENT MAIN CONTENT */}
               <div className="px-10 py-6 space-y-5 text-slate-800 text-xs">
@@ -415,7 +409,7 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
             {/* BOTTOM CONTAINER: FOOTER KOP SURAT */}
             <div className="w-full mt-6">
               <img
-                src="/images/bast_footer.png"
+                src={DEFAULT_BAST_FOOTER}
                 alt="PT Media Cepat Indonesia - Rapid Network Footer"
                 className="w-full h-auto block object-cover"
               />
