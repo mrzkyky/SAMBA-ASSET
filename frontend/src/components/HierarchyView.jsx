@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, QrCode, Lock, ArrowRightLeft } from 'lucide-react';
+import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, QrCode, Lock, ArrowRightLeft, Layers } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
