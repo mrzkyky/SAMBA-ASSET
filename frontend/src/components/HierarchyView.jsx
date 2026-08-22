@@ -87,6 +87,92 @@ const HierarchyView = ({
     ? branches
     : (hierarchy ? hierarchy.map((h) => h.branch).filter(Boolean) : []);
 
+  // Filter hierarchy tree reactively based on selectedSegment and searchQuery
+  const filteredHierarchy = (hierarchy || []).map((branchGroup) => {
+    const { branch, site_groups } = branchGroup;
+
+    const filteredSiteGroups = (site_groups || []).map((siteGroup) => {
+      const { site, category_groups } = siteGroup;
+
+      const filteredCategoryGroups = (category_groups || []).map((catGroup) => {
+        const { category, assets } = catGroup;
+
+        const matchingAssets = (assets || []).filter((asset) => {
+          // Filter by Segment
+          if (selectedSegment && String(asset.segment_id) !== String(selectedSegment)) {
+            return false;
+          }
+
+          // Global Multi-field Search Filter
+          if (!searchQuery || !searchQuery.trim()) return true;
+          const q = searchQuery.toLowerCase().trim();
+
+          const matchSN = asset.serial_number && asset.serial_number.toLowerCase().includes(q);
+          const matchBrand = asset.brand && asset.brand.toLowerCase().includes(q);
+          const matchModel = asset.model && asset.model.toLowerCase().includes(q);
+          const matchLocation = asset.location_detail && asset.location_detail.toLowerCase().includes(q);
+          const matchNotes = asset.notes && asset.notes.toLowerCase().includes(q);
+          const matchStatus = asset.status && asset.status.toLowerCase().includes(q);
+          const matchSegment = asset.segment?.name && asset.segment.name.toLowerCase().includes(q);
+          const matchSiteName = site?.site_name && site.site_name.toLowerCase().includes(q);
+          const matchPartner = site?.partner_name && site.partner_name.toLowerCase().includes(q);
+          const matchAddress = site?.address && site.address.toLowerCase().includes(q);
+          const matchCategory = category?.name && category.name.toLowerCase().includes(q);
+          const matchBranchName = branch?.name && branch.name.toLowerCase().includes(q);
+          const matchBranchCode = branch?.code && branch.code.toLowerCase().includes(q);
+
+          return (
+            matchSN ||
+            matchBrand ||
+            matchModel ||
+            matchLocation ||
+            matchNotes ||
+            matchStatus ||
+            matchSegment ||
+            matchSiteName ||
+            matchPartner ||
+            matchAddress ||
+            matchCategory ||
+            matchBranchName ||
+            matchBranchCode
+          );
+        });
+
+        return {
+          ...catGroup,
+          assets: matchingAssets,
+        };
+      }).filter((catGroup) => catGroup.assets.length > 0);
+
+      const totalMatchingUnits = filteredCategoryGroups.reduce((acc, cat) => {
+        return acc + cat.assets.reduce((sum, a) => sum + a.unit_count, 0);
+      }, 0);
+
+      return {
+        ...siteGroup,
+        category_groups: filteredCategoryGroups,
+        totalMatchingUnits,
+      };
+    }).filter((siteGroup) => {
+      // If there is an active search or segment filter, only keep sites with matching devices
+      if (searchQuery || selectedSegment) {
+        return siteGroup.category_groups.length > 0;
+      }
+      return true;
+    });
+
+    return {
+      ...branchGroup,
+      site_groups: filteredSiteGroups,
+    };
+  }).filter((branchGroup) => {
+    // If there is an active search or segment filter, only keep branches with matching sites
+    if (searchQuery || selectedSegment) {
+      return branchGroup.site_groups.length > 0;
+    }
+    return true;
+  });
+
   return (
     <div className="space-y-6">
       
@@ -121,12 +207,12 @@ const HierarchyView = ({
               <button
                 key={b.id}
                 type="button"
-                disabled={isBranchAdmin && user.branch_id !== b.id}
+                disabled={isBranchAdmin && String(b.id) !== selectedBranch}
                 onClick={() => setSelectedBranch(String(b.id))}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50 ${
                   selectedBranch === String(b.id)
                     ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25'
-                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800 disabled:opacity-40'
+                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
                 }`}
               >
                 {b.name} ({b.code})
@@ -135,17 +221,18 @@ const HierarchyView = ({
           </div>
         </div>
 
-        {/* Segment Layanan Quick Filters */}
+        {/* Segment Filter Header Tabs */}
         {segments && segments.length > 0 && (
           <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">
-              Segmen Layanan:
+            <span className="text-xs font-bold text-slate-400 mr-1 flex items-center space-x-1">
+              <Layers className="w-3.5 h-3.5 text-violet-400" />
+              <span>Filter Segmen:</span>
             </span>
             <button
               type="button"
               onClick={() => setSelectedSegment('')}
               className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-                !selectedSegment
+                selectedSegment === ''
                   ? 'bg-violet-500 text-white shadow-md shadow-violet-500/20'
                   : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
               }`}
@@ -185,14 +272,16 @@ const HierarchyView = ({
       )}
 
       {/* HIRARKI CONTENT (Level 1 -> Level 2 -> Level 3 -> Level 4) */}
-      {hierarchy.length === 0 ? (
+      {filteredHierarchy.length === 0 ? (
         <div className="p-12 text-center rounded-2xl bg-slate-900/60 border border-slate-800">
           <Server className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-          <h3 className="text-slate-300 font-semibold">Tidak Ada Data Aset Ditemukan</h3>
+          <h3 className="text-slate-300 font-semibold">
+            {searchQuery ? `Tidak Ada Aset Ditemukan untuk "${searchQuery}"` : 'Tidak Ada Data Aset Ditemukan'}
+          </h3>
           <p className="text-slate-500 text-xs mt-1">Coba sesuaikan filter branch atau kata kunci pencarian Anda.</p>
         </div>
       ) : (
-        hierarchy.map((branchGroup) => {
+        filteredHierarchy.map((branchGroup) => {
           const { branch, site_groups } = branchGroup;
 
           return (
@@ -211,7 +300,7 @@ const HierarchyView = ({
                         {branch.code}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">Provinsi: {branch.province} • {site_groups.length} Site Spesifik</p>
+                    <p className="text-xs text-slate-400 mt-0.5">Provinsi: {branch.province} • {site_groups.length} Site Aktif</p>
                   </div>
                 </div>
               </div>
@@ -222,23 +311,8 @@ const HierarchyView = ({
                   <p className="text-xs text-slate-500 italic p-3">Belum ada site/mitra terdaftar di cabang ini.</p>
                 ) : (
                   site_groups.map((siteGroup) => {
-                    const { site, category_groups } = siteGroup;
-                    const isOpen = openSites[site.id] !== false; // Open by default
-
-                    const totalSiteAssets = category_groups.reduce((acc, cat) => {
-                      const matchingAssets = cat.assets.filter((a) => {
-                        if (selectedSegment && String(a.segment_id) !== String(selectedSegment)) return false;
-                        if (!searchQuery) return true;
-                        const q = searchQuery.toLowerCase();
-                        return (
-                          a.serial_number.toLowerCase().includes(q) ||
-                          a.brand.toLowerCase().includes(q) ||
-                          a.model.toLowerCase().includes(q) ||
-                          (a.notes && a.notes.toLowerCase().includes(q))
-                        );
-                      });
-                      return acc + matchingAssets.reduce((sum, a) => sum + a.unit_count, 0);
-                    }, 0);
+                    const { site, category_groups, totalMatchingUnits } = siteGroup;
+                    const isOpen = openSites[site.id] !== false || Boolean(searchQuery); // Auto-open when searching
 
                     return (
                       <div key={site.id} className="rounded-xl bg-slate-950/60 border border-slate-800/80 overflow-hidden">
@@ -271,7 +345,7 @@ const HierarchyView = ({
 
                           <div className="flex items-center space-x-3">
                             <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
-                              {totalSiteAssets} Unit Perangkat
+                              {totalMatchingUnits} Unit Perangkat
                             </span>
                           </div>
                         </div>
@@ -279,30 +353,13 @@ const HierarchyView = ({
                         {/* ACCORDION CONTENT (Level 3 Category & Level 4 Assets) */}
                         {isOpen && (
                           <div className="p-4 border-t border-slate-800/60 bg-slate-900/30 space-y-5">
-                            {totalSiteAssets === 0 ? (
+                            {category_groups.length === 0 ? (
                               <p className="text-xs text-slate-500 italic p-2">
-                                {selectedSegment
-                                  ? 'Belum ada aset dengan segmen ini di site ini. Klik "Tabel Master Aset" atau Edit Aset untuk menentukan segmennya.'
-                                  : 'Belum ada aset terdaftar pada site ini.'}
+                                Belum ada aset terdaftar pada site ini.
                               </p>
                             ) : (
                               category_groups.map((catGroup) => {
-                                const { category, assets } = catGroup;
-
-                                const filteredAssets = assets.filter((a) => {
-                                  if (selectedSegment && String(a.segment_id) !== String(selectedSegment)) {
-                                    return false;
-                                  }
-                                  if (!searchQuery) return true;
-                                  const q = searchQuery.toLowerCase();
-                                  return (
-                                    a.serial_number.toLowerCase().includes(q) ||
-                                    a.brand.toLowerCase().includes(q) ||
-                                    a.model.toLowerCase().includes(q) ||
-                                    (a.notes && a.notes.toLowerCase().includes(q)) ||
-                                    (a.segment?.name && a.segment.name.toLowerCase().includes(q))
-                                  );
-                                });
+                                const { category, assets: filteredAssets } = catGroup;
 
                                 if (filteredAssets.length === 0) return null;
 

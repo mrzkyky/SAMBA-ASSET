@@ -194,6 +194,11 @@ function App() {
     fetchAssetsTableData();
   }, [fetchStats, fetchMasterData, fetchHierarchyData, fetchAssetsTableData]);
 
+  // Reset pagination to page 1 whenever search query or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedBranch, selectedCategory, selectedSegment, selectedStatus]);
+
   // Effect Trigger on Filter & Tab Changes
   useEffect(() => {
     if (token) {
