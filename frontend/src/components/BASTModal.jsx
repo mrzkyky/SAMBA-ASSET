@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Printer, FileText, Settings, ChevronDown, ChevronUp, Image as ImageIcon } from 'lucide-react';
 import { parseSNList } from './HierarchyView';
-import { DEFAULT_BAST_HEADER, DEFAULT_BAST_FOOTER } from '../assets/bastTemplates';
 
 const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
   const [showEditPanel, setShowEditPanel] = useState(false);
@@ -145,7 +144,7 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
             </div>
             <div>
               <h3 className="text-sm font-bold text-white">Preview & cetak Dokumen Resmi BAST</h3>
-              <p className="text-[11px] text-slate-400">Template Kop Surat resmi PT Media Cepat Indonesia - Rapid Network</p>
+              <p className="text-[11px] text-slate-400">Template Vector Kop Surat resmi PT Media Cepat Indonesia - Rapid Network</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -262,20 +261,62 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
           </div>
         )}
 
-        {/* Printable Document Body (Exact Rapid Network Template Layout) */}
+        {/* Printable Document Body (High Quality Vector Vector HTML/CSS Layout) */}
         <div className="p-0 bg-white text-slate-900 max-h-[75vh] overflow-y-auto font-sans shadow-inner" id="printable-bast">
           
-          <div className="flex flex-col justify-between bg-white print:min-h-[297mm]">
+          <div className="flex flex-col justify-between bg-white min-h-[280mm] print:min-h-[297mm]">
             
             {/* TOP CONTAINER: HEADER KOP SURAT */}
             <div>
-              <div className="w-full">
-                <img
-                  src={customLogoUrl || DEFAULT_BAST_HEADER}
-                  alt="PT Media Cepat Indonesia - Rapid Network Header"
-                  className="w-full h-auto block object-cover"
-                />
-              </div>
+              {customLogoUrl ? (
+                <div className="w-full">
+                  <img src={customLogoUrl} alt="Custom Kop Surat Logo" className="w-full max-h-[160px] object-contain" />
+                </div>
+              ) : (
+                /* OFFICIAL RAPID NETWORK VECTOR HTML/CSS KOP SURAT BANNER */
+                <div className="bg-[#182b58] text-white px-8 py-5 relative overflow-hidden flex items-center justify-between border-b-4 border-[#1e3a78] print:bg-[#182b58] print:text-white">
+                  
+                  {/* Decorative Background Arrow Graphic */}
+                  <div className="absolute right-0 top-0 bottom-0 w-56 pointer-events-none opacity-95">
+                    <svg viewBox="0 0 160 100" fill="none" className="w-full h-full">
+                      <path d="M110 100 L140 25 L128 25 L148 5 L168 25 L156 25 L126 100 Z" fill="#ffffff" />
+                      <path d="M135 100 L158 45 L148 45 L160 20 L172 45 L162 45 L145 100 Z" fill="#ffffff" opacity="0.65" />
+                    </svg>
+                  </div>
+
+                  {/* Left Brand Identity */}
+                  <div className="z-10 flex items-center space-x-3">
+                    <div className="text-left">
+                      <div className="text-[11px] font-bold tracking-widest text-slate-200 uppercase">
+                        {bastData.companyName}
+                      </div>
+                      <div className="text-2xl font-black tracking-tight text-white flex items-center space-x-1">
+                        <span>Rapid Network</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Company Details */}
+                  <div className="text-right z-10 pr-20 text-[10px] leading-tight space-y-0.5 text-slate-200">
+                    <div className="font-bold text-slate-200 uppercase tracking-wide text-[10.5px]">
+                      {bastData.companyName}
+                    </div>
+                    <div className="text-xl font-black text-white tracking-wide">
+                      {bastData.brandName}
+                    </div>
+                    <div className="flex items-center justify-end space-x-2 text-[9.5px] text-slate-200 pt-0.5 font-medium">
+                      <span>✉ {bastData.companyEmail}</span>
+                      <span>📞 {bastData.companyPhone}</span>
+                      <span>📱 {bastData.companyWA}</span>
+                    </div>
+                    <div className="flex items-center justify-end space-x-2 text-[9.5px] text-slate-200 font-medium">
+                      <span>📸 {bastData.companyInstagram}</span>
+                      <span>🌐 {bastData.companyWebsite}</span>
+                    </div>
+                  </div>
+
+                </div>
+              )}
 
               {/* DOCUMENT MAIN CONTENT */}
               <div className="px-10 py-6 space-y-5 text-slate-800 text-xs">
@@ -406,13 +447,21 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
               </div>
             </div>
 
-            {/* BOTTOM CONTAINER: FOOTER KOP SURAT */}
-            <div className="w-full mt-6">
-              <img
-                src={DEFAULT_BAST_FOOTER}
-                alt="PT Media Cepat Indonesia - Rapid Network Footer"
-                className="w-full h-auto block object-cover"
-              />
+            {/* BOTTOM CONTAINER: FOOTER KOP SURAT (VECTOR HTML/CSS) */}
+            <div className="bg-[#182b58] text-white px-8 py-3.5 flex items-center justify-between border-t-4 border-[#1e3a78] mt-8 print:bg-[#182b58] print:text-white">
+              <div className="flex items-center space-x-2">
+                <span className="text-xl font-black italic tracking-tighter text-white">rapid</span>
+                <span className="text-[9px] font-bold bg-white text-[#182b58] px-1.5 py-0.5 rounded tracking-widest uppercase">
+                  NETWORK
+                </span>
+              </div>
+              <div className="text-right text-[9.5px] text-slate-200 leading-tight">
+                <div className="font-bold text-white">{bastData.companyName} - {bastData.brandName}</div>
+                <div className="text-slate-300">{bastData.companyAddress}</div>
+                <div className="text-slate-300">
+                  email: {bastData.companyEmail} | Phone: {bastData.companyPhone} | WhatsApp: {bastData.companyWA}
+                </div>
+              </div>
             </div>
 
           </div>
