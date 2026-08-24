@@ -35,10 +35,49 @@ func Register(c *gin.Context) {
 	input.Email = strings.TrimSpace(strings.ToLower(input.Email))
 
 	// Check if username or email already exists
-	var count int64
-	config.DB.Model(&models.User{}).Where("username = ? OR email = ?", input.Username, input.Email).Count(&count)
-	if count > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Username atau Email sudah terdaftar. Silakan gunakan email/username lain."})
+	var existingUser models.User
+	if err := config.DB.Where("username = ? OR email = ?", input.Username, input.Email).First(&existingUser).Error; err == nil {
+		// If the account is already active and verified, reject duplicate
+		if existingUser.IsVerified {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Username atau Email sudah terdaftar dan aktif. Silakan langsung masuk (login) atau gunakan email lain."})
+			return
+		}
+
+		// If user exists BUT NOT VERIFIED yet, update pending registration with fresh credentials & new OTP
+		hashedPassword, err := utils.HashPassword(input.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengenkripsi password"})
+			return
+		}
+
+		otpCode := generateSecureOTP()
+		expiresAt := time.Now().Add(15 * time.Minute)
+
+		existingUser.Username = input.Username
+		existingUser.Email = input.Email
+		existingUser.PasswordHash = hashedPassword
+		existingUser.Role = "Auditor"
+		existingUser.BranchID = input.BranchID
+		existingUser.VerificationOTP = otpCode
+		existingUser.OTPExpiresAt = &expiresAt
+
+		if err := config.DB.Save(&existingUser).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memperbarui data pendaftaran"})
+			return
+		}
+
+		// Dispatch fresh OTP email in background
+		go func(toEmail, username, otp string) {
+			_ = utils.SendOTPEmail(toEmail, username, otp)
+		}(existingUser.Email, existingUser.Username, otpCode)
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Pendaftaran diperbarui! Kode verifikasi (OTP) 6-digit baru telah dikirim ke email Anda.",
+			"data": gin.H{
+				"email":    existingUser.Email,
+				"username": existingUser.Username,
+			},
+		})
 		return
 	}
 
