@@ -32,12 +32,6 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
     performLogin(username, password);
   };
 
-  const handleQuickDemo = (demoUser, demoPass) => {
-    setUsername(demoUser);
-    setPassword(demoPass);
-    performLogin(demoUser, demoPass);
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
       <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -103,34 +97,6 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
             <span>{loading ? 'Memverifikasi Sesi...' : 'Masuk ke Dashboard'}</span>
           </button>
         </form>
-
-        {/* Quick Demo Login Preset Buttons */}
-        <div className="p-4 bg-slate-950/60 border-t border-slate-800 text-center space-y-2">
-          <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Coba Akun Demo Cepat (1-Klik):</p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('admin', 'admin123')}
-              className="px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs font-semibold transition-all active:scale-95 shadow-sm"
-            >
-              Super Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('admin_brebes', 'brebes123')}
-              className="px-3 py-1.5 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/30 text-xs font-semibold transition-all active:scale-95 shadow-sm"
-            >
-              Admin Brebes
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('auditor', 'auditor123')}
-              className="px-3 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-semibold transition-all active:scale-95 shadow-sm"
-            >
-              Auditor
-            </button>
-          </div>
-        </div>
 
       </div>
     </div>
