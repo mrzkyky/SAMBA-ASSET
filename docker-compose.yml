@@ -37,6 +37,13 @@ services:
       DB_PASSWORD: postgrespassword
       DB_NAME: asset_db
       PORT: 8080
+      # Google / Gmail SMTP Email Configuration
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_EMAIL: ${SMTP_EMAIL:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      APP_URL: ${APP_URL:-https://system-samba.my.id}
+      APP_NAME: "SAMBA Asset Management"
     ports:
       # Mapping Host Port 8088 -> Container Internal Port 8080
       - "8088:8080"

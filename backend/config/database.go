@@ -99,6 +99,12 @@ func InitDB() *gorm.DB {
 	// Drop old status check constraint if exists so 'Pasif' status is accepted safely
 	_ = DB.Exec("ALTER TABLE assets DROP CONSTRAINT IF EXISTS assets_status_check;").Error
 
+	// Explicitly ensure user verification columns exist and existing seed users are marked verified
+	DB.Exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;")
+	DB.Exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_otp VARCHAR(10);")
+	DB.Exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_expires_at TIMESTAMP WITH TIME ZONE;")
+	DB.Exec("UPDATE users SET is_verified = TRUE WHERE is_verified IS NULL OR username IN ('admin', 'admin_brebes', 'auditor');")
+
 	// Ensure default seeds exist safely
 	seedBranchesAndSites()
 	seedCategories()

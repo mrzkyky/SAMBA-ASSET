@@ -27,6 +27,7 @@ import {
   getSegments,
   getAssets,
   deleteAsset,
+  getUsers,
 } from './api';
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
   const [sites, setSites] = useState([]);
   const [categories, setCategories] = useState([]);
   const [segments, setSegments] = useState([]);
+  const [usersList, setUsersList] = useState([]);
   const [assetsData, setAssetsData] = useState({ data: [], total: 0, page: 1, limit: 10, total_pages: 1 });
 
   // Pagination State for Master Asset Table
@@ -88,9 +90,13 @@ function App() {
       getProfile()
         .then((u) => {
           setUser(u);
-          localStorage.setItem('user', JSON.stringify(u));
         })
-        .catch(() => handleLogout());
+        .catch(() => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setToken(null);
+          setUser(null);
+        });
     }
   }, [token, user]);
 
@@ -124,7 +130,7 @@ function App() {
     }
   }, []);
 
-  // Fetch Master Data Lists (Branches, Sites, Categories, Segments)
+  // Fetch Master Data Lists (Branches, Sites, Categories, Segments, Users)
   const fetchMasterData = useCallback(async () => {
     try {
       const results = await Promise.allSettled([
@@ -132,6 +138,7 @@ function App() {
         getSites(),
         getCategories(),
         getSegments(),
+        getUsers().catch(() => []),
       ]);
 
       if (results[0].status === 'fulfilled' && Array.isArray(results[0].value)) {
@@ -145,6 +152,9 @@ function App() {
       }
       if (results[3].status === 'fulfilled' && Array.isArray(results[3].value)) {
         setSegments(results[3].value);
+      }
+      if (results[4].status === 'fulfilled' && Array.isArray(results[4].value)) {
+        setUsersList(results[4].value);
       }
     } catch (err) {
       console.error('Gagal mengambil data master:', err);
@@ -338,7 +348,7 @@ function App() {
 
         {/* Tab 5: User Management RBAC (Super Admin) */}
         {activeTab === 'users' && user?.role === 'Super Admin' && (
-          <UserManager users={[]} branches={branches} onRefresh={refreshAllData} />
+          <UserManager users={usersList} branches={branches} onRefresh={refreshAllData} />
         )}
 
         {/* Level 1: Branch Management */}

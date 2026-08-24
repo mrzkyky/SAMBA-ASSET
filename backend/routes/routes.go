@@ -28,6 +28,9 @@ func SetupRouter() *gin.Engine {
 	{
 		// Auth Public Routes
 		api.POST("/auth/login", handlers.Login)
+		api.POST("/auth/register", handlers.Register)
+		api.POST("/auth/verify-email", handlers.VerifyEmail)
+		api.POST("/auth/resend-otp", handlers.ResendOTP)
 
 		// Public Stats Endpoint
 		api.GET("/stats", handlers.GetDashboardStats)

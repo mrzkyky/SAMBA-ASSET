@@ -5,20 +5,39 @@ import (
 )
 
 type User struct {
-	ID           uint      `gorm:"primaryKey" json:"id"`
-	Username     string    `gorm:"size:50;uniqueIndex;not null" json:"username"`
-	Email        string    `gorm:"size:100;uniqueIndex;not null" json:"email"`
-	PasswordHash string    `gorm:"size:255;not null" json:"-"`
-	Role         string    `gorm:"size:20;default:'Auditor';index" json:"role"` // 'Super Admin', 'Branch Admin', 'Auditor'
-	BranchID     *uint     `gorm:"index" json:"branch_id"`                      // Nullable for Super Admin
-	Branch       *Branch   `gorm:"foreignKey:BranchID" json:"branch,omitempty"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID              uint       `gorm:"primaryKey" json:"id"`
+	Username        string     `gorm:"size:50;uniqueIndex;not null" json:"username"`
+	Email           string     `gorm:"size:100;uniqueIndex;not null" json:"email"`
+	PasswordHash    string     `gorm:"size:255;not null" json:"-"`
+	Role            string     `gorm:"size:20;default:'Auditor';index" json:"role"` // 'Super Admin', 'Branch Admin', 'Auditor'
+	BranchID        *uint      `gorm:"index" json:"branch_id"`                      // Nullable for Super Admin
+	Branch          *Branch    `gorm:"foreignKey:BranchID" json:"branch,omitempty"`
+	IsVerified      bool       `gorm:"default:false" json:"is_verified"`
+	VerificationOTP string     `gorm:"size:10" json:"-"`
+	OTPExpiresAt    *time.Time `json:"-"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
 }
 
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
+}
+
+type RegisterRequest struct {
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+	BranchID *uint  `json:"branch_id"`
+}
+
+type VerifyEmailRequest struct {
+	Email string `json:"email" binding:"required"`
+	OTP   string `json:"otp" binding:"required"`
+}
+
+type ResendOTPRequest struct {
+	Email string `json:"email" binding:"required"`
 }
 
 type LoginResponse struct {
@@ -27,12 +46,13 @@ type LoginResponse struct {
 }
 
 type UserDTO struct {
-	ID       uint    `json:"id"`
-	Username string  `json:"username"`
-	Email    string  `json:"email"`
-	Role     string  `json:"role"`
-	BranchID *uint   `json:"branch_id"`
-	Branch   *Branch `json:"branch,omitempty"`
+	ID         uint    `json:"id"`
+	Username   string  `json:"username"`
+	Email      string  `json:"email"`
+	Role       string  `json:"role"`
+	BranchID   *uint   `json:"branch_id"`
+	Branch     *Branch `json:"branch,omitempty"`
+	IsVerified bool    `json:"is_verified"`
 }
 
 type CreateUserRequest struct {
