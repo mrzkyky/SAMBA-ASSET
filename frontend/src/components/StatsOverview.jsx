@@ -1,19 +1,22 @@
 import React from 'react';
 import { Building2, MapPin, Tag, Box, CheckCircle2, AlertTriangle, RefreshCw, MinusCircle } from 'lucide-react';
 
-const StatsOverview = ({ stats }) => {
+const StatsOverview = ({ stats, selectedBranch = '', branches = [], user = null }) => {
   if (!stats) return null;
+
+  const currentBranch = branches?.find((b) => String(b.id) === String(selectedBranch));
+  const isBranchScoped = Boolean(selectedBranch && currentBranch);
 
   const cards = [
     {
-      label: 'Cabang Daerah',
-      value: stats.total_branches,
+      label: isBranchScoped ? 'Cakupan Cabang' : 'Cabang Daerah',
+      value: isBranchScoped ? currentBranch.name : stats.total_branches,
       icon: Building2,
       color: 'from-blue-500 to-indigo-600',
       textColor: 'text-blue-400',
       bgColor: 'bg-blue-500/10',
       borderColor: 'border-blue-500/20',
-      subtext: 'Level 1 Hirarki',
+      subtext: isBranchScoped ? `Kode: ${currentBranch.code} • ${currentBranch.province || 'Regional'}` : 'Level 1 Hirarki Nasional',
     },
     {
       label: 'Mitra & Site Spesifik',
@@ -23,7 +26,7 @@ const StatsOverview = ({ stats }) => {
       textColor: 'text-cyan-400',
       bgColor: 'bg-cyan-500/10',
       borderColor: 'border-cyan-500/20',
-      subtext: 'Level 2 Hirarki',
+      subtext: isBranchScoped ? `Site di Cabang ${currentBranch.name}` : 'Level 2 Hirarki Nasional',
     },
     {
       label: 'Kategori Perangkat',
@@ -33,7 +36,7 @@ const StatsOverview = ({ stats }) => {
       textColor: 'text-purple-400',
       bgColor: 'bg-purple-500/10',
       borderColor: 'border-purple-500/20',
-      subtext: 'Level 3 Hirarki',
+      subtext: isBranchScoped ? `Kategori Aktif di ${currentBranch.name}` : 'Level 3 Hirarki Nasional',
     },
     {
       label: 'Total Unit Aset',
@@ -43,7 +46,7 @@ const StatsOverview = ({ stats }) => {
       textColor: 'text-emerald-400',
       bgColor: 'bg-emerald-500/10',
       borderColor: 'border-emerald-500/20',
-      subtext: `${stats.total_assets} Data Rekord`,
+      subtext: isBranchScoped ? `${stats.total_assets} Rekord Aset ${currentBranch.name}` : `${stats.total_assets} Data Rekord Nasional`,
     },
   ];
 
@@ -61,10 +64,12 @@ const StatsOverview = ({ stats }) => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{card.label}</p>
-                  <h3 className="text-2xl font-bold text-white mt-1">{card.value}</h3>
-                  <p className="text-xs text-slate-500 mt-1">{card.subtext}</p>
+                  <h3 className={`font-bold text-white mt-1 ${isBranchScoped && idx === 0 ? 'text-xl sm:text-2xl truncate max-w-[180px]' : 'text-2xl'}`} title={String(card.value)}>
+                    {card.value}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 truncate">{card.subtext}</p>
                 </div>
-                <div className={`p-3 rounded-xl ${card.bgColor} ${card.textColor}`}>
+                <div className={`p-3 rounded-xl ${card.bgColor} ${card.textColor} shrink-0`}>
                   <Icon className="w-6 h-6" />
                 </div>
               </div>
@@ -76,7 +81,16 @@ const StatsOverview = ({ stats }) => {
       {/* Status Breakdown Bar */}
       <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center space-x-2">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Status Perangkat Nasional:</span>
+          {isBranchScoped ? (
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Status Perangkat Cabang:</span>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                {currentBranch.name} ({currentBranch.code})
+              </span>
+            </div>
+          ) : (
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Status Perangkat Nasional (Seluruh Cabang):</span>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-4">

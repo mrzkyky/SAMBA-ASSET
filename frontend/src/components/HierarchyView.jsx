@@ -61,6 +61,7 @@ const HierarchyView = ({
 
   const isAuditor = user?.role === 'Auditor';
   const isBranchAdmin = user?.role === 'Branch Admin';
+  const isBranchScoped = isBranchAdmin || (user?.role !== 'Super Admin' && Boolean(user?.branch_id));
 
   const toggleSite = (siteId) => {
     setOpenSites((prev) => ({
@@ -189,7 +190,7 @@ const HierarchyView = ({
 
           {/* Branch Selector Pills */}
           <div className="flex flex-wrap items-center gap-2">
-            {!isBranchAdmin && (
+            {!isBranchScoped && (
               <button
                 type="button"
                 onClick={() => setSelectedBranch('')}
@@ -207,7 +208,7 @@ const HierarchyView = ({
               <button
                 key={b.id}
                 type="button"
-                disabled={isBranchAdmin && String(b.id) !== selectedBranch}
+                disabled={isBranchScoped && String(b.id) !== selectedBranch}
                 onClick={() => setSelectedBranch(String(b.id))}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50 ${
                   selectedBranch === String(b.id)

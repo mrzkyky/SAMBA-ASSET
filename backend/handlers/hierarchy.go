@@ -2,32 +2,86 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"asset-management-backend/config"
 	"asset-management-backend/models"
 	"github.com/gin-gonic/gin"
 )
 
-// GetDashboardStats returns dashboard key performance indicators
+// GetDashboardStats returns dashboard key performance indicators (filtered by branch_id if specified)
 func GetDashboardStats(c *gin.Context) {
+	branchID := strings.TrimSpace(c.Query("branch_id"))
 	var stats models.StatsResponse
 
-	config.DB.Model(&models.Branch{}).Count(&stats.TotalBranches)
-	config.DB.Model(&models.Site{}).Count(&stats.TotalSites)
-	config.DB.Model(&models.Category{}).Count(&stats.TotalCategories)
-	config.DB.Model(&models.Asset{}).Count(&stats.TotalAssets)
+	if branchID != "" {
+		// Specific Branch Stats
+		config.DB.Model(&models.Branch{}).Where("id = ?", branchID).Count(&stats.TotalBranches)
+		config.DB.Model(&models.Site{}).Where("branch_id = ?", branchID).Count(&stats.TotalSites)
 
-	// Sum unit counts
-	var unitSum struct {
-		TotalUnits int64
+		// Distinct categories that have assets in this branch
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ?", branchID).
+			Distinct("assets.category_id").
+			Count(&stats.TotalCategories)
+
+		// Total asset records
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ?", branchID).
+			Count(&stats.TotalAssets)
+
+		// Sum unit counts
+		var unitSum struct {
+			TotalUnits int64
+		}
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ?", branchID).
+			Select("COALESCE(SUM(assets.unit_count), 0) as total_units").
+			Scan(&unitSum)
+		stats.TotalUnits = unitSum.TotalUnits
+
+		// Status breakdown
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ? AND assets.status = ?", branchID, "Aktif").
+			Count(&stats.ActiveAssets)
+
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ? AND assets.status = ?", branchID, "Pasif").
+			Count(&stats.PassiveAssets)
+
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ? AND assets.status = ?", branchID, "Rusak").
+			Count(&stats.DamagedAssets)
+
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ? AND assets.status = ?", branchID, "Cadangan").
+			Count(&stats.BackupAssets)
+	} else {
+		// All Branches (National)
+		config.DB.Model(&models.Branch{}).Count(&stats.TotalBranches)
+		config.DB.Model(&models.Site{}).Count(&stats.TotalSites)
+		config.DB.Model(&models.Category{}).Count(&stats.TotalCategories)
+		config.DB.Model(&models.Asset{}).Count(&stats.TotalAssets)
+
+		// Sum unit counts
+		var unitSum struct {
+			TotalUnits int64
+		}
+		config.DB.Model(&models.Asset{}).Select("COALESCE(SUM(unit_count), 0) as total_units").Scan(&unitSum)
+		stats.TotalUnits = unitSum.TotalUnits
+
+		config.DB.Model(&models.Asset{}).Where("status = ?", "Aktif").Count(&stats.ActiveAssets)
+		config.DB.Model(&models.Asset{}).Where("status = ?", "Pasif").Count(&stats.PassiveAssets)
+		config.DB.Model(&models.Asset{}).Where("status = ?", "Rusak").Count(&stats.DamagedAssets)
+		config.DB.Model(&models.Asset{}).Where("status = ?", "Cadangan").Count(&stats.BackupAssets)
 	}
-	config.DB.Model(&models.Asset{}).Select("COALESCE(SUM(unit_count), 0) as total_units").Scan(&unitSum)
-	stats.TotalUnits = unitSum.TotalUnits
-
-	config.DB.Model(&models.Asset{}).Where("status = ?", "Aktif").Count(&stats.ActiveAssets)
-	config.DB.Model(&models.Asset{}).Where("status = ?", "Pasif").Count(&stats.PassiveAssets)
-	config.DB.Model(&models.Asset{}).Where("status = ?", "Rusak").Count(&stats.DamagedAssets)
-	config.DB.Model(&models.Asset{}).Where("status = ?", "Cadangan").Count(&stats.BackupAssets)
 
 	c.JSON(http.StatusOK, gin.H{"data": stats})
 }

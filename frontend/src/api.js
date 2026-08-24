@@ -81,8 +81,10 @@ export const deleteUser = async (id) => {
 };
 
 // Dashboard Stats & Hierarchy
-export const getStats = async () => {
-  const response = await api.get('/stats');
+export const getStats = async (branchId = '') => {
+  const response = await api.get('/stats', {
+    params: branchId ? { branch_id: branchId } : {},
+  });
   return response.data.data;
 };
 

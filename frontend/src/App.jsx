@@ -113,22 +113,22 @@ function App() {
     localStorage.removeItem('user');
   };
 
-  // Enforce Branch Admin scope filter automatically
+  // Enforce branch filter automatically for branch-assigned users (e.g. Branch Admin)
   useEffect(() => {
-    if (user?.role === 'Branch Admin' && user.branch_id) {
+    if (user?.branch_id && user.role !== 'Super Admin') {
       setSelectedBranch(String(user.branch_id));
     }
   }, [user]);
 
-  // Fetch Stats Data
+  // Fetch Stats Data (scoped to selectedBranch or National)
   const fetchStats = useCallback(async () => {
     try {
-      const data = await getStats();
+      const data = await getStats(selectedBranch);
       setStats(data);
     } catch (err) {
       console.error('Gagal mengambil statistik dashboard:', err);
     }
-  }, []);
+  }, [selectedBranch]);
 
   // Fetch Master Data Lists (Branches, Sites, Categories, Segments, Users)
   const fetchMasterData = useCallback(async () => {
@@ -283,7 +283,12 @@ function App() {
       <main className="w-full px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
         
         {/* Dashboard Key Metrics Banner */}
-        <StatsOverview stats={stats} />
+        <StatsOverview
+          stats={stats}
+          selectedBranch={selectedBranch}
+          branches={branches}
+          user={user}
+        />
 
         {/* Tab 1: 4-Level Hierarchy View */}
         {activeTab === 'hierarchy' && (

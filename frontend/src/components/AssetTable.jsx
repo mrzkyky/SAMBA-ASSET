@@ -61,6 +61,8 @@ const AssetTable = ({
 
   const isAuditor = user?.role === 'Auditor';
   const isBranchAdmin = user?.role === 'Branch Admin';
+  const isBranchScoped = isBranchAdmin || (user?.role !== 'Super Admin' && Boolean(user?.branch_id));
+  const currentBranch = branches?.find((b) => String(b.id) === String(selectedBranch));
 
   const handleCopy = (sn) => {
     navigator.clipboard.writeText(sn);
@@ -75,7 +77,7 @@ const AssetTable = ({
       <div className="p-5 border-b border-slate-800 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-            <span>Daftar Master Aset Nasional</span>
+            <span>{currentBranch ? `Daftar Master Aset Cabang ${currentBranch.name}` : 'Daftar Master Aset Nasional'}</span>
             <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-cyan-400 font-semibold">
               {total} Total Rekord
             </span>
@@ -84,7 +86,7 @@ const AssetTable = ({
           <div className="flex flex-wrap items-center gap-3">
             {/* Branch Filter */}
             <select
-              disabled={isBranchAdmin}
+              disabled={isBranchScoped}
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
               className="bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 disabled:opacity-60"
