@@ -582,9 +582,9 @@ const HierarchyView = ({
                                             </div>
 
                                             {asset.notes && (
-                                              <p className="text-[11px] text-slate-500 italic line-clamp-1 bg-slate-900/40 px-2 py-1 rounded">
+                                              <div className="text-[11px] text-slate-400 italic bg-slate-950/70 border border-slate-800/80 px-2.5 py-1.5 rounded-lg whitespace-pre-wrap break-words leading-relaxed">
                                                 "{asset.notes}"
-                                              </p>
+                                              </div>
                                             )}
                                           </div>
                                         );

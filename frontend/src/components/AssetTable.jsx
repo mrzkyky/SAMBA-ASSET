@@ -211,7 +211,7 @@ const AssetTable = ({
               <th className="py-3.5 px-4">Kategori & Jenis</th>
               <th className="py-3.5 px-4">Merek & Tipe</th>
               <th className="py-3.5 px-4">Daftar Serial Number</th>
-              <th className="py-3.5 px-4">Lokasi Detail</th>
+              <th className="py-3.5 px-4">Lokasi & Catatan</th>
               <th className="py-3.5 px-4 text-center">Unit</th>
               <th className="py-3.5 px-4 text-center">Status</th>
               <th className="py-3.5 px-4 text-center">Kondisi</th>
@@ -318,8 +318,13 @@ const AssetTable = ({
                         </div>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400">
-                      {asset.location_detail}
+                    <td className="py-3.5 px-4 text-slate-400 max-w-xs">
+                      <div className="font-medium text-slate-300">{asset.location_detail || 'Main Rack'}</div>
+                      {asset.notes && (
+                        <div className="text-[11px] text-slate-400 italic mt-1 bg-slate-950/70 p-1.5 rounded border border-slate-800/70 whitespace-pre-wrap break-words leading-relaxed">
+                          "{asset.notes}"
+                        </div>
+                      )}
                     </td>
                     <td className="py-3.5 px-4 text-center font-bold text-slate-200">
                       {asset.unit_count}
