@@ -57,81 +57,33 @@ const Header = ({
     <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 shadow-2xl">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         
-        {/* Top Header Row */}
-        <div className="py-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/60">
+        {/* Top Header Row: Logo/Title & User Profile */}
+        <div className="py-2.5 sm:py-3 flex items-center justify-between gap-2 border-b border-slate-800/60">
           
           {/* Logo & Title */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-cyan-500/25 border border-cyan-500/30 bg-slate-950 flex items-center justify-center shrink-0">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-lg shadow-cyan-500/25 border border-cyan-500/30 bg-slate-950 flex items-center justify-center shrink-0">
               <img src={sambaIcon} alt="SAMBA Logo" className="w-full h-full object-contain" />
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h1 className="text-base font-extrabold text-white tracking-tight">SAMBA ASSET</h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                  NATIONAL v2.5
+            <div className="min-w-0">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                <h1 className="text-sm sm:text-base font-extrabold text-white tracking-tight truncate">SAMBA ASSET</h1>
+                <span className="px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shrink-0">
+                  v2.5
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium">System Asset Management Branch & Associates</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">System Asset Management</p>
             </div>
           </div>
 
-          {/* Search Bar & Primary Actions */}
-          <div className="flex flex-1 max-w-xl items-center space-x-2">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Pencarian Global (SN, Merek, Tipe, Site, Cabang, Kategori, Segmen)..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-all shadow-inner"
-              />
-            </div>
-
-            {/* QR Scanner Trigger */}
-            <button
-              type="button"
-              onClick={onOpenQRScannerModal}
-              className="px-3 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 text-xs font-semibold flex items-center space-x-1.5 transition-all shrink-0 active:scale-95 shadow-sm"
-              title="Pindai Kamera QR Code"
-            >
-              <QrCode className="w-4 h-4" />
-              <span className="hidden sm:inline">Pindai QR</span>
-            </button>
-
-            {/* Export CSV Button */}
-            <button
-              type="button"
-              onClick={handleExportCSV}
-              className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold flex items-center space-x-1.5 transition-all shrink-0 active:scale-95"
-              title="Unduh Laporan CSV"
-            >
-              <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Ekspor CSV</span>
-            </button>
-
-            {/* Create Asset Trigger (RBAC Filter) */}
-            {!isAuditor && (
-              <button
-                type="button"
-                onClick={onOpenAssetModal}
-                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs flex items-center space-x-1.5 shadow-lg shadow-cyan-500/20 transition-all shrink-0 active:scale-95"
-              >
-                <Plus className="w-4 h-4 stroke-[3]" />
-                <span className="hidden sm:inline">Tambah Aset</span>
-              </button>
-            )}
-          </div>
-
-          {/* User Profile Pill */}
+          {/* User Profile & Logout */}
           {user && (
-            <div className="flex items-center space-x-3 shrink-0">
-              <div className="flex items-center space-x-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
-                <UserCheck className="w-4 h-4 text-cyan-400" />
-                <div className="text-left">
-                  <div className="text-xs font-bold text-white leading-tight">{user.username}</div>
-                  <div className="text-[10px] text-cyan-400 font-semibold leading-tight">
+            <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+              <div className="flex items-center space-x-1.5 sm:space-x-2 bg-slate-900 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-slate-800 max-w-[150px] sm:max-w-none">
+                <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0" />
+                <div className="text-left min-w-0">
+                  <div className="text-[11px] sm:text-xs font-bold text-white leading-tight truncate">{user.username}</div>
+                  <div className="text-[9px] sm:text-[10px] text-cyan-400 font-semibold leading-tight truncate">
                     {user.role} {user.branch ? `(${user.branch.code})` : ''}
                   </div>
                 </div>
@@ -140,7 +92,7 @@ const Header = ({
               <button
                 type="button"
                 onClick={onLogout}
-                className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-900 transition-colors"
+                className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-900 transition-colors shrink-0"
                 title="Keluar (Logout)"
               >
                 <LogOut className="w-4 h-4" />
@@ -149,8 +101,57 @@ const Header = ({
           )}
         </div>
 
+        {/* Search Bar & Action Buttons Row */}
+        <div className="py-2.5 flex items-center gap-2 border-b border-slate-800/40">
+          <div className="relative flex-1 min-w-0">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Cari SN, Merek, Site, Model..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-all shadow-inner"
+            />
+          </div>
+
+          {/* QR Scanner Trigger */}
+          <button
+            type="button"
+            onClick={onOpenQRScannerModal}
+            className="p-2 sm:px-3 sm:py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 text-xs font-semibold flex items-center space-x-1.5 transition-all shrink-0 active:scale-95 shadow-sm"
+            title="Pindai Kamera QR Code"
+          >
+            <QrCode className="w-4 h-4" />
+            <span className="hidden md:inline">Pindai QR</span>
+          </button>
+
+          {/* Export CSV Button */}
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold flex items-center space-x-1.5 transition-all shrink-0 active:scale-95"
+            title="Unduh Laporan CSV"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden md:inline">Ekspor CSV</span>
+          </button>
+
+          {/* Create Asset Trigger (RBAC Filter) */}
+          {!isAuditor && (
+            <button
+              type="button"
+              onClick={onOpenAssetModal}
+              className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs flex items-center space-x-1.5 shadow-lg shadow-cyan-500/20 transition-all shrink-0 active:scale-95"
+              title="Tambah Aset Baru"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span className="hidden sm:inline">Tambah Aset</span>
+            </button>
+          )}
+        </div>
+
         {/* Tab Navigation Row */}
-        <div className="flex items-center space-x-1 overflow-x-auto py-2 scrollbar-none">
+        <div className="flex items-center space-x-1.5 overflow-x-auto py-2 no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('hierarchy')}

@@ -230,23 +230,23 @@ const HierarchyView = ({
     <div className="space-y-6">
       
       {/* LEVEL 1: Branch & Segment Navigation & Filter */}
-      <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-3.5 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-3 sm:space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <div className="flex items-center space-x-2 text-cyan-400 text-xs font-semibold uppercase tracking-wider">
-              <Building2 className="w-4 h-4" />
+            <div className="flex items-center space-x-1.5 text-cyan-400 text-[11px] sm:text-xs font-semibold uppercase tracking-wider">
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Level 1: Branch / Cabang Daerah</span>
             </div>
-            <h2 className="text-lg font-bold text-white mt-1">Pilih Cabang Utama</h2>
+            <h2 className="text-base sm:text-lg font-bold text-white mt-0.5 sm:mt-1">Pilih Cabang Utama</h2>
           </div>
 
           {/* Branch Selector Pills */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {!isBranchScoped && (
               <button
                 type="button"
                 onClick={() => setSelectedBranch('')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
                   selectedBranch === ''
                     ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25'
                     : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
@@ -262,7 +262,7 @@ const HierarchyView = ({
                 type="button"
                 disabled={isBranchScoped && String(b.id) !== selectedBranch}
                 onClick={() => setSelectedBranch(String(b.id))}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50 ${
+                className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50 ${
                   selectedBranch === String(b.id)
                     ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25'
                     : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
@@ -276,15 +276,15 @@ const HierarchyView = ({
 
         {/* Segment Filter Header Tabs */}
         {segments && segments.length > 0 && (
-          <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-slate-400 mr-1 flex items-center space-x-1">
+          <div className="pt-2.5 sm:pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span className="text-[11px] sm:text-xs font-bold text-slate-400 mr-1 flex items-center space-x-1">
               <Layers className="w-3.5 h-3.5 text-violet-400" />
               <span>Filter Segmen:</span>
             </span>
             <button
               type="button"
               onClick={() => setSelectedSegment('')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all ${
                 selectedSegment === ''
                   ? 'bg-violet-500 text-white shadow-md shadow-violet-500/20'
                   : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
@@ -297,7 +297,7 @@ const HierarchyView = ({
                 key={seg.id}
                 type="button"
                 onClick={() => setSelectedSegment(String(seg.id))}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all flex items-center space-x-1.5 ${
                   selectedSegment === String(seg.id)
                     ? 'text-white shadow-md'
                     : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
@@ -326,9 +326,9 @@ const HierarchyView = ({
 
       {/* HIRARKI CONTENT (Level 1 -> Level 2 -> Level 3 -> Level 4) */}
       {filteredHierarchy.length === 0 ? (
-        <div className="p-12 text-center rounded-2xl bg-slate-900/60 border border-slate-800">
-          <Server className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-          <h3 className="text-slate-300 font-semibold">
+        <div className="p-8 sm:p-12 text-center rounded-2xl bg-slate-900/60 border border-slate-800">
+          <Server className="w-10 h-10 sm:w-12 sm:h-12 text-slate-600 mx-auto mb-3" />
+          <h3 className="text-slate-300 text-sm sm:text-base font-semibold">
             {searchQuery ? `Tidak Ada Aset Ditemukan untuk "${searchQuery}"` : 'Tidak Ada Data Aset Ditemukan'}
           </h3>
           <p className="text-slate-500 text-xs mt-1">Coba sesuaikan filter branch atau kata kunci pencarian Anda.</p>
@@ -341,31 +341,31 @@ const HierarchyView = ({
             <div key={branch.id} className="rounded-2xl bg-slate-900/80 border border-slate-800 overflow-hidden shadow-xl">
               
               {/* BRANCH HEADER (Level 1 Header) */}
-              <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/30 border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                    <Building2 className="w-5 h-5" />
+              <div className="p-3.5 sm:p-5 bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/30 border-b border-slate-800 flex items-center justify-between gap-2">
+                <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shrink-0">
+                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <h3 className="text-base font-bold text-white">{branch.name}</h3>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <h3 className="text-sm sm:text-base font-bold text-white truncate">{branch.name}</h3>
+                      <span className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
                         {branch.code}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">Provinsi: {branch.province} • {site_groups.length} Site Aktif</p>
+                    <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">Provinsi: {branch.province} • {site_groups.length} Site Aktif</p>
                   </div>
                 </div>
               </div>
 
               {/* LEVEL 2: Mitra & Site Spesifik Accordions */}
-              <div className="p-4 sm:p-6 space-y-4">
+              <div className="p-3 sm:p-6 space-y-3 sm:space-y-4">
                 {site_groups.length === 0 ? (
                   <p className="text-xs text-slate-500 italic p-3">Belum ada site/mitra terdaftar di cabang ini.</p>
                 ) : (
                   site_groups.map((siteGroup) => {
                     const { site, category_groups, totalMatchingUnits } = siteGroup;
-                    const isOpen = openSites[site.id] !== false || Boolean(searchQuery); // Auto-open when searching
+                    const isOpen = openSites[site.id] !== false || Boolean(searchQuery);
 
                     return (
                       <div key={site.id} className="rounded-xl bg-slate-950/60 border border-slate-800/80 overflow-hidden">
@@ -373,39 +373,41 @@ const HierarchyView = ({
                         {/* SITE ACCORDION HEADER (Level 2) */}
                         <div
                           onClick={() => toggleSite(site.id)}
-                          className="w-full p-4 flex items-center justify-between hover:bg-slate-900/60 cursor-pointer transition-colors text-left select-none"
+                          className="w-full p-3 sm:p-4 flex items-center justify-between gap-2 hover:bg-slate-900/60 cursor-pointer transition-colors text-left select-none"
                         >
-                          <div className="flex items-center space-x-3">
-                            {isOpen ? (
-                              <ChevronDown className="w-4 h-4 text-cyan-400" />
-                            ) : (
-                              <ChevronRight className="w-4 h-4 text-slate-500" />
-                            )}
-                            <div className="p-2 rounded-lg bg-teal-500/10 text-teal-400">
-                              <MapPin className="w-4 h-4" />
+                          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                            <div className="shrink-0 text-cyan-400">
+                              {isOpen ? (
+                                <ChevronDown className="w-4 h-4" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4 text-slate-500" />
+                              )}
                             </div>
-                            <div>
-                              <div className="flex items-center space-x-2">
-                                <span className="text-xs font-bold text-cyan-400">{site.partner_name}</span>
-                                <span className="text-slate-600">•</span>
-                                <h4 className="text-sm font-semibold text-slate-200">{site.site_name}</h4>
+                            <div className="p-1.5 sm:p-2 rounded-lg bg-teal-500/10 text-teal-400 shrink-0">
+                              <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                                <span className="text-xs font-bold text-cyan-400 break-words">{site.partner_name}</span>
+                                <span className="text-slate-600 hidden sm:inline">•</span>
+                                <h4 className="text-xs sm:text-sm font-semibold text-slate-200 break-words">{site.site_name}</h4>
                               </div>
                               {site.address && (
-                                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{site.address}</p>
+                                <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5 break-words line-clamp-1">{site.address}</p>
                               )}
                             </div>
                           </div>
 
-                          <div className="flex items-center space-x-3">
-                            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
-                              {totalMatchingUnits} Unit Perangkat
+                          <div className="shrink-0">
+                            <span className="px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700 whitespace-nowrap">
+                              {totalMatchingUnits} Unit
                             </span>
                           </div>
                         </div>
 
                         {/* ACCORDION CONTENT (Level 3 Category & Level 4 Assets) */}
                         {isOpen && (
-                          <div className="p-4 border-t border-slate-800/60 bg-slate-900/30 space-y-5">
+                          <div className="p-3 sm:p-4 border-t border-slate-800/60 bg-slate-900/30 space-y-4 sm:space-y-5">
                             {category_groups.length === 0 ? (
                               <p className="text-xs text-slate-500 italic p-2">
                                 Belum ada aset terdaftar pada site ini.
@@ -417,11 +419,11 @@ const HierarchyView = ({
                                 if (filteredAssets.length === 0) return null;
 
                                 return (
-                                  <div key={category.id} className="space-y-3">
+                                  <div key={category.id} className="space-y-2.5 sm:space-y-3">
                                     
                                     {/* LEVEL 3: Category Badge Header */}
-                                    <div className="flex items-center space-x-2">
-                                      <Tag className="w-3.5 h-3.5 text-purple-400" />
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                      <Tag className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                                       <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
                                         Level 3: Kategori {category.name}
                                       </span>
@@ -442,49 +444,56 @@ const HierarchyView = ({
                                         return (
                                           <div
                                             key={asset.id}
-                                            className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-all space-y-3 relative group shadow-sm"
+                                            className="p-3 sm:p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-all space-y-2.5 relative group shadow-sm"
                                           >
-                                            <div className="flex items-start justify-between">
-                                              <div>
-                                                <div className="flex items-center space-x-2">
-                                                  <span className="text-xs font-bold text-cyan-400">{asset.brand}</span>
+                                            {/* Card Top: Brand/Model on left & Status/Condition on right */}
+                                            <div className="flex items-start justify-between gap-2">
+                                              <div className="min-w-0 flex-1">
+                                                <div className="flex flex-wrap items-center gap-1">
+                                                  <span className="text-xs font-bold text-cyan-400 break-words">{asset.brand}</span>
                                                   <span className="text-slate-600">/</span>
-                                                  <span className="text-xs font-semibold text-slate-200">{asset.model}</span>
-                                                </div>
-                                                <div className="flex items-center space-x-2 mt-1">
-                                                  <span
-                                                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold"
-                                                    style={{
-                                                      backgroundColor: `${segmentColor}18`,
-                                                      color: segmentColor,
-                                                      border: `1px solid ${segmentColor}35`,
-                                                    }}
-                                                  >
-                                                    <span
-                                                      className="w-1.5 h-1.5 rounded-full mr-1"
-                                                      style={{ backgroundColor: segmentColor }}
-                                                    />
-                                                    {segmentName}
-                                                  </span>
-                                                  {asset.asset_type && (
-                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                                                      {asset.asset_type}
-                                                    </span>
-                                                  )}
-                                                  <p className="text-[11px] text-slate-400 flex items-center">
-                                                    <Box className="w-3 h-3 mr-1 text-slate-500" />
-                                                    <span className="text-slate-300 font-medium">{asset.location_detail}</span>
-                                                  </p>
+                                                  <span className="text-xs font-semibold text-slate-200 break-words">{asset.model}</span>
                                                 </div>
                                               </div>
-                                              <div className="flex flex-col space-y-1 items-end shrink-0">
+                                              <div className="flex flex-wrap items-center gap-1 justify-end shrink-0 max-w-[50%]">
                                                 <StatusBadge status={asset.status} />
                                                 <ConditionBadge condition={asset.condition} />
                                               </div>
                                             </div>
 
+                                            {/* Badges: Segment & Asset Type */}
+                                            <div className="flex flex-wrap items-center gap-1.5">
+                                              <span
+                                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0"
+                                                style={{
+                                                  backgroundColor: `${segmentColor}18`,
+                                                  color: segmentColor,
+                                                  border: `1px solid ${segmentColor}35`,
+                                                }}
+                                              >
+                                                <span
+                                                  className="w-1.5 h-1.5 rounded-full mr-1"
+                                                  style={{ backgroundColor: segmentColor }}
+                                                />
+                                                {segmentName}
+                                              </span>
+                                              {asset.asset_type && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shrink-0">
+                                                  {asset.asset_type}
+                                                </span>
+                                              )}
+                                            </div>
+
+                                            {/* Location Detail on its own clear line */}
+                                            <div className="flex items-start text-[11px] text-slate-400">
+                                              <Box className="w-3.5 h-3.5 mr-1.5 text-slate-500 shrink-0 mt-0.5" />
+                                              <span className="text-slate-300 font-medium break-words leading-snug">
+                                                {asset.location_detail || 'Main Rack'}
+                                              </span>
+                                            </div>
+
                                             {/* Multi-SN List Display */}
-                                            <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1.5">
+                                            <div className="p-2 sm:p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1.5">
                                               <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 border-b border-slate-800/80 pb-1">
                                                 <span>Daftar Serial Number ({snList.length}):</span>
                                                 {snList.length > 3 && (
@@ -501,7 +510,7 @@ const HierarchyView = ({
                                               <div className="space-y-1 max-h-32 overflow-y-auto">
                                                 {displaySNs.map((sn, idx) => (
                                                   <div key={idx} className="flex items-center justify-between font-mono text-[11px] bg-slate-950 px-2 py-0.5 rounded border border-slate-800/60">
-                                                    <span className="text-cyan-400 font-semibold truncate max-w-[180px]">{sn}</span>
+                                                    <span className="text-cyan-400 font-semibold truncate max-w-[170px] sm:max-w-[180px]">{sn}</span>
                                                     <button
                                                       type="button"
                                                       onClick={(e) => handleCopySN(e, sn)}
@@ -520,12 +529,12 @@ const HierarchyView = ({
                                             </div>
 
                                             {/* Actions: QR, Mutasi, Edit/Delete */}
-                                            <div className="flex items-center justify-between pt-1 border-t border-slate-900 text-xs">
-                                              <span className="text-[11px] text-slate-500">
-                                                Jumlah: <strong className="text-slate-300">{asset.unit_count} Unit</strong>
+                                            <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1.5 border-t border-slate-900 text-xs">
+                                              <span className="text-[11px] text-slate-400">
+                                                Jumlah: <strong className="text-slate-200">{asset.unit_count} Unit</strong>
                                               </span>
 
-                                              <div className="flex items-center space-x-1">
+                                              <div className="flex items-center space-x-1 shrink-0">
                                                 {/* QR Print Button */}
                                                 <button
                                                   type="button"
@@ -582,7 +591,7 @@ const HierarchyView = ({
                                             </div>
 
                                             {asset.notes && (
-                                              <div className="text-[11px] text-slate-400 italic bg-slate-950/70 border border-slate-800/80 px-2.5 py-1.5 rounded-lg whitespace-pre-wrap break-words leading-relaxed">
+                                              <div className="text-[11px] text-slate-400 italic bg-slate-950/70 border border-slate-800/80 p-2 rounded-lg whitespace-pre-wrap break-words leading-relaxed">
                                                 "{asset.notes}"
                                               </div>
                                             )}

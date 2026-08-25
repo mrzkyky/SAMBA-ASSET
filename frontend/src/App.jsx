@@ -280,7 +280,7 @@ function App() {
       />
 
       {/* Main Content Area */}
-      <main className="w-full px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
+      <main className="w-full px-2.5 sm:px-6 lg:px-8 mt-3 sm:mt-6 space-y-4 sm:space-y-6">
         
         {/* Dashboard Key Metrics Banner */}
         <StatsOverview
