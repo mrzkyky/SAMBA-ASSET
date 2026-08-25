@@ -190,6 +190,39 @@ const Header = ({
             <span>Histori Mutasi & BAST</span>
           </button>
 
+          {/* Level 2: Site Management (Super Admin & Branch Admin) */}
+          {(isSuperAdmin || user?.role === 'Branch Admin') && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('sites')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
+                activeTab === 'sites'
+                  ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <MapPin className="w-4 h-4" />
+              <span>Site (L2)</span>
+            </button>
+          )}
+
+          {/* Level 3: Category Management (Super Admin & Branch Admin) */}
+          {(isSuperAdmin || user?.role === 'Branch Admin') && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('categories')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
+                activeTab === 'categories'
+                  ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <Tag className="w-4 h-4" />
+              <span>Kategori (L3)</span>
+            </button>
+          )}
+
+          {/* Super Admin Specific Management Tabs */}
           {isSuperAdmin && (
             <>
               <button
@@ -229,32 +262,6 @@ const Header = ({
               >
                 <Building2 className="w-4 h-4" />
                 <span>Cabang (L1)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('sites')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
-                  activeTab === 'sites'
-                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <MapPin className="w-4 h-4" />
-                <span>Site (L2)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('categories')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
-                  activeTab === 'categories'
-                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <Tag className="w-4 h-4" />
-                <span>Kategori (L3)</span>
               </button>
 
               <button

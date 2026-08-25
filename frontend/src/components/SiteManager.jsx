@@ -2,12 +2,24 @@ import React, { useState } from 'react';
 import { MapPin, Plus, Edit2, Trash2, X } from 'lucide-react';
 import { createSite, updateSite, deleteSite } from '../api';
 
-const SiteManager = ({ sites, branches, onRefresh }) => {
+const SiteManager = ({ sites, branches, user, onRefresh }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSite, setEditingSite] = useState(null);
   const [formData, setFormData] = useState({ branch_id: '', partner_name: '', site_name: '', address: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const isBranchScoped = user?.role === 'Branch Admin' || (user?.role !== 'Super Admin' && Boolean(user?.branch_id));
+  const userBranchId = user?.branch_id ? String(user.branch_id) : '';
+  const currentBranch = branches?.find((b) => String(b.id) === userBranchId);
+
+  const displayedSites = isBranchScoped && userBranchId
+    ? sites.filter((s) => String(s.branch_id) === userBranchId)
+    : sites;
+
+  const defaultBranchId = isBranchScoped && userBranchId
+    ? userBranchId
+    : (branches[0]?.id ? String(branches[0].id) : '');
 
   const handleOpenForm = (site = null) => {
     setError('');
@@ -21,7 +33,12 @@ const SiteManager = ({ sites, branches, onRefresh }) => {
       });
     } else {
       setEditingSite(null);
-      setFormData({ branch_id: branches[0]?.id ? String(branches[0].id) : '', partner_name: '', site_name: '', address: '' });
+      setFormData({
+        branch_id: defaultBranchId,
+        partner_name: '',
+        site_name: '',
+        address: '',
+      });
     }
     setIsFormOpen(true);
   };
@@ -29,7 +46,7 @@ const SiteManager = ({ sites, branches, onRefresh }) => {
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setEditingSite(null);
-    setFormData({ branch_id: '', partner_name: '', site_name: '', address: '' });
+    setFormData({ branch_id: defaultBranchId, partner_name: '', site_name: '', address: '' });
     setError('');
   };
 
@@ -38,7 +55,11 @@ const SiteManager = ({ sites, branches, onRefresh }) => {
     setLoading(true);
     setError('');
     try {
-      const payload = { ...formData, branch_id: parseInt(formData.branch_id, 10) };
+      const branchIdToSave = isBranchScoped && userBranchId
+        ? parseInt(userBranchId, 10)
+        : parseInt(formData.branch_id, 10);
+
+      const payload = { ...formData, branch_id: branchIdToSave };
       if (editingSite) {
         await updateSite(editingSite.id, payload);
       } else {
@@ -71,9 +92,16 @@ const SiteManager = ({ sites, branches, onRefresh }) => {
         <div>
           <h2 className="text-lg font-bold text-white flex items-center space-x-2">
             <MapPin className="w-5 h-5 text-teal-400" />
-            <span>Kelola Mitra & Site Spesifik (Level 2)</span>
+            <span>
+              Kelola Mitra & Site Spesifik (Level 2)
+              {isBranchScoped && currentBranch ? ` - Cabang ${currentBranch.name}` : ''}
+            </span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">Tambah, edit, atau hapus site tempat perangkat berada.</p>
+          <p className="text-xs text-slate-400 mt-0.5">
+            {isBranchScoped && currentBranch
+              ? `Tambah, edit, atau kelola site mitra yang berada di wilayah Cabang ${currentBranch.name}.`
+              : 'Tambah, edit, atau hapus site tempat perangkat berada.'}
+          </p>
         </div>
 
         <button
@@ -99,7 +127,7 @@ const SiteManager = ({ sites, branches, onRefresh }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800">
-            {sites.map((s) => (
+            {displayedSites.map((s) => (
               <tr key={s.id} className="hover:bg-slate-800/40">
                 <td className="py-3 px-4 text-cyan-400 font-semibold">{s.branch?.name || '-'}</td>
                 <td className="py-3 px-4 font-bold text-white">{s.partner_name}</td>
@@ -127,6 +155,13 @@ const SiteManager = ({ sites, branches, onRefresh }) => {
                 </td>
               </tr>
             ))}
+            {displayedSites.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-slate-500">
+                  Belum ada data site untuk cabang ini. Silakan klik "Tambah Site".
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -150,9 +185,10 @@ const SiteManager = ({ sites, branches, onRefresh }) => {
               <label className="text-[11px] text-slate-400 block mb-1">Induk Cabang / Branch *</label>
               <select
                 required
+                disabled={isBranchScoped}
                 value={formData.branch_id}
                 onChange={(e) => setFormData({ ...formData, branch_id: e.target.value })}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-teal-500 focus:outline-none"
+                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-teal-500 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 <option value="">Pilih Cabang</option>
                 {branches.map((b) => (
@@ -161,6 +197,9 @@ const SiteManager = ({ sites, branches, onRefresh }) => {
                   </option>
                 ))}
               </select>
+              {isBranchScoped && currentBranch && (
+                <p className="text-[10px] text-teal-400 mt-1">Otomatis terikat ke cabang Anda: {currentBranch.name}.</p>
+              )}
             </div>
             <div>
               <label className="text-[11px] text-slate-400 block mb-1">Nama Mitra / Partner * (misal: Mitra Telkom)</label>

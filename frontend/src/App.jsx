@@ -361,14 +361,14 @@ function App() {
           <BranchManager branches={branches} onRefresh={refreshAllData} />
         )}
 
-        {/* Level 2: Site Management */}
-        {activeTab === 'sites' && user?.role === 'Super Admin' && (
-          <SiteManager sites={sites} branches={branches} onRefresh={refreshAllData} />
+        {/* Level 2: Site Management (Super Admin & Branch Admin) */}
+        {activeTab === 'sites' && (user?.role === 'Super Admin' || user?.role === 'Branch Admin') && (
+          <SiteManager sites={sites} branches={branches} user={user} onRefresh={refreshAllData} />
         )}
 
-        {/* Level 3: Category Management */}
-        {activeTab === 'categories' && user?.role === 'Super Admin' && (
-          <CategoryManager categories={categories} onRefresh={refreshAllData} />
+        {/* Level 3: Category Management (Super Admin & Branch Admin) */}
+        {activeTab === 'categories' && (user?.role === 'Super Admin' || user?.role === 'Branch Admin') && (
+          <CategoryManager categories={categories} user={user} onRefresh={refreshAllData} />
         )}
 
         {/* Segment Management */}

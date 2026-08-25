@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Tag, Plus, Edit2, Trash2, X } from 'lucide-react';
 import { createCategory, updateCategory, deleteCategory } from '../api';
 
-const CategoryManager = ({ categories, onRefresh }) => {
+const CategoryManager = ({ categories, user, onRefresh }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({ name: '' });
