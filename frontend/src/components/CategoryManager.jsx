@@ -80,6 +80,49 @@ const CategoryManager = ({ categories, user, onRefresh }) => {
         </button>
       </div>
 
+      {/* Form Editor Panel (Rendered on TOP) */}
+      {isFormOpen && (
+        <div className="p-5 rounded-xl bg-slate-950 border border-purple-500/30 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 shadow-2xl">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 className="text-sm font-bold text-purple-400">
+              {editingCategory ? `Edit Kategori: ${editingCategory.name}` : 'Tambah Kategori Perangkat Baru'}
+            </h3>
+            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {error && <p className="text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20">{error}</p>}
+
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3">
+            <input
+              type="text"
+              required
+              placeholder="Nama Kategori (misal: Firewall)"
+              value={formData.name}
+              onChange={(e) => setFormData({ name: e.target.value })}
+              className="w-full sm:flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:border-purple-500 focus:outline-none"
+            />
+            <div className="flex items-center space-x-2 self-end sm:self-auto">
+              <button
+                type="button"
+                onClick={handleCloseForm}
+                className="px-3.5 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-700"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 rounded-lg bg-purple-500 text-slate-950 font-bold text-xs shadow-lg shadow-purple-500/20 active:scale-95"
+              >
+                {loading ? 'Menyimpan...' : 'Simpan'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs text-slate-300">
@@ -124,49 +167,6 @@ const CategoryManager = ({ categories, user, onRefresh }) => {
           </tbody>
         </table>
       </div>
-
-      {/* Form Editor Panel */}
-      {isFormOpen && (
-        <div className="p-5 rounded-xl bg-slate-950 border border-purple-500/30 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h3 className="text-sm font-bold text-purple-400">
-              {editingCategory ? `Edit Kategori: ${editingCategory.name}` : 'Tambah Kategori Perangkat Baru'}
-            </h3>
-            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {error && <p className="text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20">{error}</p>}
-
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3">
-            <input
-              type="text"
-              required
-              placeholder="Nama Kategori (misal: Firewall)"
-              value={formData.name}
-              onChange={(e) => setFormData({ name: e.target.value })}
-              className="w-full sm:flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:border-purple-500 focus:outline-none"
-            />
-            <div className="flex items-center space-x-2 self-end sm:self-auto">
-              <button
-                type="button"
-                onClick={handleCloseForm}
-                className="px-3.5 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-700"
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 rounded-lg bg-purple-500 text-slate-950 font-bold text-xs shadow-lg shadow-purple-500/20 active:scale-95"
-              >
-                {loading ? 'Menyimpan...' : 'Simpan'}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
     </div>
   );
 };

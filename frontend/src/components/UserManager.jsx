@@ -154,92 +154,9 @@ const UserManager = ({ users = [], branches = [], onRefresh }) => {
         </div>
       )}
 
-      {/* User List Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
-            <tr>
-              <th className="py-3 px-4">Pengguna</th>
-              <th className="py-3 px-4">Email Terdaftar</th>
-              <th className="py-3 px-4 text-center">Tingkat Akses (Role)</th>
-              <th className="py-3 px-4">Cakupan Cabang</th>
-              <th className="py-3 px-4 text-center">Status Akun</th>
-              <th className="py-3 px-4 text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800">
-            {users.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="py-8 text-center text-slate-500">
-                  Tidak ada data pengguna atau sedang memuat...
-                </td>
-              </tr>
-            ) : (
-              users.map((u) => (
-                <tr key={u.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3 px-4 font-bold text-white">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-mono font-bold text-xs uppercase">
-                        {u.username.charAt(0)}
-                      </div>
-                      <span>{u.username}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-slate-300">
-                    <div className="flex items-center space-x-1.5">
-                      <Mail className="w-3.5 h-3.5 text-slate-500" />
-                      <span>{u.email}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <RoleBadge role={u.role} />
-                  </td>
-                  <td className="py-3 px-4 font-semibold text-cyan-400">
-                    {u.branch ? `${u.branch.name} (${u.branch.code})` : 'Seluruh Indonesia (Nasional)'}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    {u.is_verified ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Aktif
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        <Clock className="w-3 h-3 mr-1" />
-                        Menunggu OTP
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end space-x-1.5">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenForm(u)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-colors"
-                        title="Ubah Hak Akses / Password"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(u.id, u.username)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
-                        title="Hapus Akun Pengguna"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Form Dialog Panel */}
+      {/* Form Dialog Panel (Rendered on TOP) */}
       {isFormOpen && (
-        <div className="p-6 rounded-2xl bg-slate-950 border border-cyan-500/30 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="p-6 rounded-2xl bg-slate-950 border border-cyan-500/30 space-y-4 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h3 className="text-sm font-bold text-cyan-400 flex items-center space-x-2">
@@ -250,7 +167,7 @@ const UserManager = ({ users = [], branches = [], onRefresh }) => {
                 {!editingUser ? 'Sistem akan otomatis mengirimkan email resmi berisi kredensial dan hak akses ke email bersangkutan.' : 'Perubahan role akan langsung aktif saat pengguna melakukan aksi berikutnya.'}
               </p>
             </div>
-            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white">
+            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white p-1 rounded-lg hover:bg-slate-800">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -356,6 +273,89 @@ const UserManager = ({ users = [], branches = [], onRefresh }) => {
           </form>
         </div>
       )}
+
+      {/* User List Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-xs text-slate-300">
+          <thead className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+            <tr>
+              <th className="py-3 px-4">Pengguna</th>
+              <th className="py-3 px-4">Email Terdaftar</th>
+              <th className="py-3 px-4 text-center">Tingkat Akses (Role)</th>
+              <th className="py-3 px-4">Cakupan Cabang</th>
+              <th className="py-3 px-4 text-center">Status Akun</th>
+              <th className="py-3 px-4 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-800">
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="py-8 text-center text-slate-500">
+                  Tidak ada data pengguna atau sedang memuat...
+                </td>
+              </tr>
+            ) : (
+              users.map((u) => (
+                <tr key={u.id} className="hover:bg-slate-800/40 transition-colors">
+                  <td className="py-3 px-4 font-bold text-white">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-mono font-bold text-xs uppercase">
+                        {u.username.charAt(0)}
+                      </div>
+                      <span>{u.username}</span>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-slate-300">
+                    <div className="flex items-center space-x-1.5">
+                      <Mail className="w-3.5 h-3.5 text-slate-500" />
+                      <span>{u.email}</span>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <RoleBadge role={u.role} />
+                  </td>
+                  <td className="py-3 px-4 font-semibold text-cyan-400">
+                    {u.branch ? `${u.branch.name} (${u.branch.code})` : 'Seluruh Indonesia (Nasional)'}
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    {u.is_verified ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Aktif
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Menunggu OTP
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end space-x-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenForm(u)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-colors"
+                        title="Ubah Hak Akses / Password"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(u.id, u.username)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                        title="Hapus Akun Pengguna"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

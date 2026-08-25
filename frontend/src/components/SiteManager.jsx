@@ -114,66 +114,14 @@ const SiteManager = ({ sites, branches, user, onRefresh }) => {
         </button>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
-            <tr>
-              <th className="py-3 px-4">Induk Branch</th>
-              <th className="py-3 px-4">Nama Mitra / Partner</th>
-              <th className="py-3 px-4">Nama Site Spesifik</th>
-              <th className="py-3 px-4">Alamat / Lokasi</th>
-              <th className="py-3 px-4 text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800">
-            {displayedSites.map((s) => (
-              <tr key={s.id} className="hover:bg-slate-800/40">
-                <td className="py-3 px-4 text-cyan-400 font-semibold">{s.branch?.name || '-'}</td>
-                <td className="py-3 px-4 font-bold text-white">{s.partner_name}</td>
-                <td className="py-3 px-4 text-slate-200">{s.site_name}</td>
-                <td className="py-3 px-4 text-slate-400">{s.address || '-'}</td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex items-center justify-end space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenForm(s)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 active:scale-95"
-                      title="Edit Site"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(s.id)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 active:scale-95"
-                      title="Hapus Site"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {displayedSites.length === 0 && (
-              <tr>
-                <td colSpan={5} className="py-8 text-center text-slate-500">
-                  Belum ada data site untuk cabang ini. Silakan klik "Tambah Site".
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Form Editor Panel */}
+      {/* Form Editor Panel (Rendered on TOP so user doesn't need to scroll down) */}
       {isFormOpen && (
-        <div className="p-5 rounded-xl bg-slate-950 border border-teal-500/30 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="p-5 rounded-xl bg-slate-950 border border-teal-500/30 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 shadow-2xl">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <h3 className="text-sm font-bold text-teal-400">
               {editingSite ? `Edit Site: ${editingSite.site_name}` : 'Tambah Site / Mitra Baru'}
             </h3>
-            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white">
+            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white p-1 rounded-lg hover:bg-slate-800">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -252,6 +200,58 @@ const SiteManager = ({ sites, branches, user, onRefresh }) => {
           </form>
         </div>
       )}
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-xs text-slate-300">
+          <thead className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+            <tr>
+              <th className="py-3 px-4">Induk Branch</th>
+              <th className="py-3 px-4">Nama Mitra / Partner</th>
+              <th className="py-3 px-4">Nama Site Spesifik</th>
+              <th className="py-3 px-4">Alamat / Lokasi</th>
+              <th className="py-3 px-4 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-800">
+            {displayedSites.map((s) => (
+              <tr key={s.id} className="hover:bg-slate-800/40">
+                <td className="py-3 px-4 text-cyan-400 font-semibold">{s.branch?.name || '-'}</td>
+                <td className="py-3 px-4 font-bold text-white">{s.partner_name}</td>
+                <td className="py-3 px-4 text-slate-200">{s.site_name}</td>
+                <td className="py-3 px-4 text-slate-400">{s.address || '-'}</td>
+                <td className="py-3 px-4 text-right">
+                  <div className="flex items-center justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenForm(s)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 active:scale-95"
+                      title="Edit Site"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(s.id)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 active:scale-95"
+                      title="Hapus Site"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {displayedSites.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-slate-500">
+                  Belum ada data site untuk cabang ini. Silakan klik "Tambah Site".
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

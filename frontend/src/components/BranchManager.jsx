@@ -124,69 +124,14 @@ const BranchManager = ({ branches: initialBranches, onRefresh }) => {
         </div>
       </div>
 
-      {/* Branch Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
-            <tr>
-              <th className="py-3 px-4">Kode Cabang</th>
-              <th className="py-3 px-4">Nama Cabang</th>
-              <th className="py-3 px-4">Provinsi</th>
-              <th className="py-3 px-4 text-center">Jumlah Site</th>
-              <th className="py-3 px-4 text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800">
-            {branches.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="py-8 text-center text-slate-500">
-                  Belum ada data cabang. Klik "+ Tambah Cabang" untuk membuat cabang baru.
-                </td>
-              </tr>
-            ) : (
-              branches.map((b) => (
-                <tr key={b.id} className="hover:bg-slate-800/40">
-                  <td className="py-3 px-4 font-mono font-bold text-cyan-400">{b.code}</td>
-                  <td className="py-3 px-4 font-semibold text-white">{b.name}</td>
-                  <td className="py-3 px-4 text-slate-400">{b.province}</td>
-                  <td className="py-3 px-4 text-center font-bold text-slate-300">
-                    {b.sites ? b.sites.length : 0}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end space-x-2">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenForm(b)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 active:scale-95"
-                        title="Edit Cabang"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(b.id)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 active:scale-95"
-                        title="Hapus Cabang"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Form Editor Panel */}
+      {/* Form Editor Panel (Rendered on TOP) */}
       {isFormOpen && (
-        <div className="p-5 rounded-xl bg-slate-950 border border-cyan-500/30 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="p-5 rounded-xl bg-slate-950 border border-cyan-500/30 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 shadow-2xl">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <h3 className="text-sm font-bold text-cyan-400">
               {editingBranch ? `Edit Cabang: ${editingBranch.name}` : 'Tambah Cabang Daerah Baru'}
             </h3>
-            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white">
+            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white p-1 rounded-lg hover:bg-slate-800">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -246,6 +191,61 @@ const BranchManager = ({ branches: initialBranches, onRefresh }) => {
           </form>
         </div>
       )}
+
+      {/* Branch Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-xs text-slate-300">
+          <thead className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+            <tr>
+              <th className="py-3 px-4">Kode Cabang</th>
+              <th className="py-3 px-4">Nama Cabang</th>
+              <th className="py-3 px-4">Provinsi</th>
+              <th className="py-3 px-4 text-center">Jumlah Site</th>
+              <th className="py-3 px-4 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-800">
+            {branches.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="py-8 text-center text-slate-500">
+                  Belum ada data cabang. Klik "+ Tambah Cabang" untuk membuat cabang baru.
+                </td>
+              </tr>
+            ) : (
+              branches.map((b) => (
+                <tr key={b.id} className="hover:bg-slate-800/40">
+                  <td className="py-3 px-4 font-mono font-bold text-cyan-400">{b.code}</td>
+                  <td className="py-3 px-4 font-semibold text-white">{b.name}</td>
+                  <td className="py-3 px-4 text-slate-400">{b.province}</td>
+                  <td className="py-3 px-4 text-center font-bold text-slate-300">
+                    {b.sites ? b.sites.length : 0}
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenForm(b)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 active:scale-95"
+                        title="Edit Cabang"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(b.id)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 active:scale-95"
+                        title="Hapus Cabang"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -90,43 +90,14 @@ const SegmentManager = ({ segments: initialSegments, onRefresh }) => {
         </div>
       </div>
 
-      {/* Segment Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {segments.length === 0 ? (
-          <div className="col-span-full py-8 text-center text-slate-500 text-sm">
-            Belum ada data segmen. Klik "+ Tambah Segmen" untuk membuat segmen baru.
-          </div>
-        ) : (
-          segments.map((seg) => (
-            <div key={seg.id} className="p-4 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-all group">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center space-x-2.5">
-                  <div className="w-4 h-4 rounded-full ring-2 ring-offset-1 ring-offset-slate-950" style={{ backgroundColor: seg.color, ringColor: seg.color }} />
-                  <span className="font-bold text-white text-sm">{seg.name}</span>
-                </div>
-                <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button type="button" onClick={() => handleOpenForm(seg)} className="p-1 rounded-lg text-slate-400 hover:text-violet-400 hover:bg-slate-800">
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button type="button" onClick={() => handleDelete(seg.id)} className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-              <p className="text-xs text-slate-400 leading-relaxed">{seg.description || 'Tidak ada deskripsi'}</p>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Form */}
+      {/* Form Editor Panel (Rendered on TOP) */}
       {isFormOpen && (
-        <div className="p-5 rounded-xl bg-slate-950 border border-violet-500/30 space-y-4">
+        <div className="p-5 rounded-xl bg-slate-950 border border-violet-500/30 space-y-4 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <h3 className="text-sm font-bold text-violet-400">
               {editingSegment ? `Edit Segmen: ${editingSegment.name}` : 'Tambah Segmen Layanan Baru'}
             </h3>
-            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
+            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white p-1 rounded-lg hover:bg-slate-800"><X className="w-4 h-4" /></button>
           </div>
 
           {error && <p className="text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20">{error}</p>}
@@ -169,6 +140,35 @@ const SegmentManager = ({ segments: initialSegments, onRefresh }) => {
           </form>
         </div>
       )}
+
+      {/* Segment Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {segments.length === 0 ? (
+          <div className="col-span-full py-8 text-center text-slate-500 text-sm">
+            Belum ada data segmen. Klik "+ Tambah Segmen" untuk membuat segmen baru.
+          </div>
+        ) : (
+          segments.map((seg) => (
+            <div key={seg.id} className="p-4 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-all group">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-4 h-4 rounded-full ring-2 ring-offset-1 ring-offset-slate-950" style={{ backgroundColor: seg.color, ringColor: seg.color }} />
+                  <span className="font-bold text-white text-sm">{seg.name}</span>
+                </div>
+                <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button type="button" onClick={() => handleOpenForm(seg)} className="p-1 rounded-lg text-slate-400 hover:text-violet-400 hover:bg-slate-800">
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button type="button" onClick={() => handleDelete(seg.id)} className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">{seg.description || 'Tidak ada deskripsi'}</p>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
