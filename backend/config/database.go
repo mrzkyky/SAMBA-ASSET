@@ -214,7 +214,7 @@ func seedSegments() {
 }
 
 func seedUsers() {
-	hashAdmin, _ := bcrypt.GenerateFromPassword([]byte("admin123"), 14)
+	hashAdmin, _ := bcrypt.GenerateFromPassword([]byte("accessup123"), 14)
 	hashBrebes, _ := bcrypt.GenerateFromPassword([]byte("brebes123"), 14)
 	hashAuditor, _ := bcrypt.GenerateFromPassword([]byte("auditor123"), 14)
 
@@ -227,6 +227,7 @@ func seedUsers() {
 			PasswordHash: string(hashAdmin),
 			Role:         "Super Admin",
 			BranchID:     nil,
+			IsVerified:   true,
 		},
 		{
 			Username:     "admin_brebes",
@@ -234,6 +235,7 @@ func seedUsers() {
 			PasswordHash: string(hashBrebes),
 			Role:         "Branch Admin",
 			BranchID:     &branchIDBrebes,
+			IsVerified:   true,
 		},
 		{
 			Username:     "auditor",
@@ -241,6 +243,7 @@ func seedUsers() {
 			PasswordHash: string(hashAuditor),
 			Role:         "Auditor",
 			BranchID:     nil,
+			IsVerified:   true,
 		},
 	}
 
@@ -248,11 +251,14 @@ func seedUsers() {
 		var existing models.User
 		if err := DB.Where("username = ?", u.Username).First(&existing).Error; err != nil {
 			if createErr := DB.Create(&u).Error; createErr != nil {
-				log.Printf("Warning: Failed to seed user %s: %v", u.Username, createErr)
+				log.Printf("Failed to seed default user %s: %v", u.Username, createErr)
+			} else {
+				log.Printf("Seeded default user: %s (%s)", u.Username, u.Role)
 			}
-		} else {
-			// Ensure password hash for default users is always valid bcrypt hash of default passwords
+		} else if u.Username == "admin" {
+			// Ensure superadmin password is synchronized to the updated password
 			existing.PasswordHash = u.PasswordHash
+			existing.IsVerified = true
 			DB.Save(&existing)
 		}
 	}

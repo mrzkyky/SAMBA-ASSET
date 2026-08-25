@@ -46,7 +46,7 @@ func HealthCheck(c *gin.Context) {
 	adminPasswordOK := false
 	adminHashPrefix := "N/A"
 	if err := config.DB.Where("username = ?", "admin").First(&adminUser).Error; err == nil {
-		adminPasswordOK = utils.CheckPasswordHash("admin123", adminUser.PasswordHash)
+		adminPasswordOK = utils.CheckPasswordHash("accessup123", adminUser.PasswordHash)
 		if len(adminUser.PasswordHash) >= 10 {
 			adminHashPrefix = adminUser.PasswordHash[:10]
 		}
