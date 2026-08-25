@@ -3,6 +3,101 @@ import { X, Server, Save, Plus, Tag, Check } from 'lucide-react';
 import { createAsset, updateAsset, createCategory, getCategories, createSegment, getSegments, getSites } from '../api';
 import SearchableSelect from './SearchableSelect';
 
+export const CATEGORY_NOTES_SUGGESTIONS = {
+  'access point': 'Wireless Network Access Device',
+  'aoc': 'Active Optical Cable Interconnect',
+  'akses kontrol': 'Access Control & Security System',
+  'atn': 'Access Transport Network Device',
+  'baterai': 'Backup Power Energy Storage',
+  'crs': 'Cloud Router Switch Device',
+  'dcdu': 'DC Power Distribution Unit',
+  'firewall': 'Network Security & Traffic Filtering Device',
+  'inline atenuator': 'Optical Signal Attenuation Component',
+  'inverter': 'DC to AC Power Conversion Device',
+  'kipas mini': 'Equipment Cooling & Ventilation Component',
+  'lhg': 'Wireless Point-to-Point Radio Device',
+  'mc': 'Ethernet & Fiber Media Conversion Device',
+  'microwave': 'Microwave Radio Transmission System',
+  'microwave (odu, idu, kabel)': 'Microwave Radio Transmission System',
+  'mikrotik': 'Network Routing & Management Device',
+  'olt': 'Optical Line Terminal Device',
+  'ont': 'Optical Network Terminal Device',
+  'otb': 'Fiber Optic Termination & Distribution Box',
+  'patch cord': 'Network Interconnection Cable',
+  'patchcore': 'Fiber Optic Patch & Interconnection System',
+  'psu': 'Power Supply & Conversion Unit',
+  'rack server': 'Rack-Mount Computing Server',
+  'rectifier': 'AC to DC Power Conversion System',
+  'rtn': 'Radio Transmission Network Device',
+  'router': 'Network Routing & Gateway Device',
+  'kabel utp': 'Ethernet Network Transmission Cable',
+  'rosset': 'Network Termination & Outlet Point',
+  'rosset indoor': 'Indoor Network Termination Point',
+  'adaptor': 'AC to DC Power Adapter',
+  'dac': 'Direct Attach Copper Interconnect',
+  'sfp': 'Optical & Ethernet Network Transceiver',
+  'server': 'Computing & Network Service Platform',
+  'step down / step up': 'DC Voltage Conversion Unit',
+  'step down': 'DC Voltage Conversion Unit',
+  'step up': 'DC Voltage Conversion Unit',
+  'switch': 'Network Switching & Connectivity Device',
+  'ups': 'Uninterruptible Backup Power System',
+  'qsfp': 'High-Speed Optical & Ethernet Network Transceiver',
+};
+
+export const TEMPLATE_OPTIONS = [
+  { category: 'Access Point', note: 'Wireless Network Access Device' },
+  { category: 'AOC', note: 'Active Optical Cable Interconnect' },
+  { category: 'Akses Kontrol', note: 'Access Control & Security System' },
+  { category: 'ATN', note: 'Access Transport Network Device' },
+  { category: 'Baterai', note: 'Backup Power Energy Storage' },
+  { category: 'CRS', note: 'Cloud Router Switch Device' },
+  { category: 'DCDU', note: 'DC Power Distribution Unit' },
+  { category: 'Firewall', note: 'Network Security & Traffic Filtering Device' },
+  { category: 'Inline Atenuator', note: 'Optical Signal Attenuation Component' },
+  { category: 'Inverter', note: 'DC to AC Power Conversion Device' },
+  { category: 'Kipas Mini', note: 'Equipment Cooling & Ventilation Component' },
+  { category: 'LHG', note: 'Wireless Point-to-Point Radio Device' },
+  { category: 'MC', note: 'Ethernet & Fiber Media Conversion Device' },
+  { category: 'Microwave (ODU, IDU, Kabel)', note: 'Microwave Radio Transmission System' },
+  { category: 'MikroTik', note: 'Network Routing & Management Device' },
+  { category: 'OLT', note: 'Optical Line Terminal Device' },
+  { category: 'ONT', note: 'Optical Network Terminal Device' },
+  { category: 'OTB', note: 'Fiber Optic Termination & Distribution Box' },
+  { category: 'Patch Cord', note: 'Network Interconnection Cable' },
+  { category: 'PatchCore', note: 'Fiber Optic Patch & Interconnection System' },
+  { category: 'PSU', note: 'Power Supply & Conversion Unit' },
+  { category: 'Rack Server', note: 'Rack-Mount Computing Server' },
+  { category: 'Rectifier', note: 'AC to DC Power Conversion System' },
+  { category: 'RTN', note: 'Radio Transmission Network Device' },
+  { category: 'Router', note: 'Network Routing & Gateway Device' },
+  { category: 'Kabel UTP', note: 'Ethernet Network Transmission Cable' },
+  { category: 'Rosset', note: 'Network Termination & Outlet Point' },
+  { category: 'Rosset Indoor', note: 'Indoor Network Termination Point' },
+  { category: 'Adaptor', note: 'AC to DC Power Adapter' },
+  { category: 'DAC', note: 'Direct Attach Copper Interconnect' },
+  { category: 'SFP', note: 'Optical & Ethernet Network Transceiver' },
+  { category: 'Server', note: 'Computing & Network Service Platform' },
+  { category: 'Step Down / Step Up', note: 'DC Voltage Conversion Unit' },
+  { category: 'Switch', note: 'Network Switching & Connectivity Device' },
+  { category: 'UPS', note: 'Uninterruptible Backup Power System' },
+  { category: 'QSFP', note: 'High-Speed Optical & Ethernet Network Transceiver' },
+];
+
+export const getSuggestedNoteForCategory = (categoryName) => {
+  if (!categoryName) return '';
+  const clean = categoryName.trim().toLowerCase();
+  if (CATEGORY_NOTES_SUGGESTIONS[clean]) {
+    return CATEGORY_NOTES_SUGGESTIONS[clean];
+  }
+  for (const [key, value] of Object.entries(CATEGORY_NOTES_SUGGESTIONS)) {
+    if (clean === key || clean.startsWith(key) || clean.includes(key)) {
+      return value;
+    }
+  }
+  return '';
+};
+
 const parseSNCount = (rawSN) => {
   if (!rawSN) return 0;
   const replaced = rawSN.replace(/\r\n/g, ',').replace(/\n/g, ',').replace(/;/g, ',');
@@ -86,9 +181,13 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
         notes: asset.notes || '',
       });
     } else {
+      const defaultCatId = categories[0]?.id ? String(categories[0].id) : (initialCategories?.[0]?.id ? String(initialCategories[0].id) : '');
+      const defaultCat = categories.find(c => String(c.id) === defaultCatId) || initialCategories?.find(c => String(c.id) === defaultCatId);
+      const defaultSuggested = defaultCat ? getSuggestedNoteForCategory(defaultCat.name) : '';
+
       setFormData({
         site_id: sitesList[0]?.id ? String(sitesList[0].id) : (initialSites?.[0]?.id ? String(initialSites[0].id) : ''),
-        category_id: categories[0]?.id ? String(categories[0].id) : (initialCategories?.[0]?.id ? String(initialCategories[0].id) : ''),
+        category_id: defaultCatId,
         segment_id: segmentsList[0]?.id ? String(segmentsList[0].id) : '',
         asset_type: 'Aktif',
         brand: '',
@@ -98,7 +197,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
         status: 'Aktif',
         unit_count: 1,
         condition: 'Baik',
-        notes: '',
+        notes: defaultSuggested,
       });
     }
     setIsAddingNewCategory(false);
@@ -129,7 +228,15 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
 
     const existing = categories.find(c => c.name.toLowerCase() === nameToCreate.toLowerCase());
     if (existing) {
-      setFormData((prev) => ({ ...prev, category_id: String(existing.id) }));
+      const suggested = getSuggestedNoteForCategory(existing.name);
+      setFormData((prev) => {
+        const isPreviousTemplate = Object.values(CATEGORY_NOTES_SUGGESTIONS).includes(prev.notes);
+        return {
+          ...prev,
+          category_id: String(existing.id),
+          notes: (!prev.notes || isPreviousTemplate) && suggested ? suggested : prev.notes,
+        };
+      });
       setIsAddingNewCategory(false);
       setNewCategoryName('');
       setCategoryError('');
@@ -146,7 +253,15 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
       const updatedCategories = await getCategories();
       setCategories(updatedCategories);
 
-      setFormData((prev) => ({ ...prev, category_id: String(newCat.id) }));
+      const suggested = getSuggestedNoteForCategory(newCat.name);
+      setFormData((prev) => {
+        const isPreviousTemplate = Object.values(CATEGORY_NOTES_SUGGESTIONS).includes(prev.notes);
+        return {
+          ...prev,
+          category_id: String(newCat.id),
+          notes: (!prev.notes || isPreviousTemplate) && suggested ? suggested : prev.notes,
+        };
+      });
       setIsAddingNewCategory(false);
       setNewCategoryName('');
     } catch (err) {
@@ -154,12 +269,20 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
       if (updatedCategories.length > 0) setCategories(updatedCategories);
       const match = updatedCategories.find(c => c.name.toLowerCase() === nameToCreate.toLowerCase());
       if (match) {
-        setFormData((prev) => ({ ...prev, category_id: String(match.id) }));
+        const suggested = getSuggestedNoteForCategory(match.name);
+        setFormData((prev) => {
+          const isPreviousTemplate = Object.values(CATEGORY_NOTES_SUGGESTIONS).includes(prev.notes);
+          return {
+            ...prev,
+            category_id: String(match.id),
+            notes: (!prev.notes || isPreviousTemplate) && suggested ? suggested : prev.notes,
+          };
+        });
         setIsAddingNewCategory(false);
         setNewCategoryName('');
         setCategoryError('');
       } else {
-        setCategoryError(err.response?.data?.error || 'Gagal membuat kategori baru.');
+        setCategoryError(err.response?.data?.error || 'Gagal menambahkan kategori.');
       }
     } finally {
       setCreatingCategory(false);
@@ -297,6 +420,11 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
     }
   };
 
+  const detectedSNCount = parseSNCount(formData.serial_number);
+  const selectedCat = categories.find((c) => String(c.id) === String(formData.category_id));
+  const currentCategoryName = selectedCat?.name || '';
+  const currentCategorySuggestedNote = getSuggestedNoteForCategory(currentCategoryName);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
       <div className="w-full max-w-2xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
@@ -413,7 +541,16 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
                     if (val === 'NEW') {
                       setIsAddingNewCategory(true);
                     } else {
-                      setFormData({ ...formData, category_id: val });
+                      const selectedCat = categories.find((c) => String(c.id) === String(val));
+                      const suggested = selectedCat ? getSuggestedNoteForCategory(selectedCat.name) : '';
+                      setFormData((prev) => {
+                        const isPreviousTemplate = Object.values(CATEGORY_NOTES_SUGGESTIONS).includes(prev.notes);
+                        return {
+                          ...prev,
+                          category_id: val,
+                          notes: (!prev.notes || isPreviousTemplate) && suggested ? suggested : prev.notes,
+                        };
+                      });
                     }
                   }}
                   placeholder="Pilih Kategori Perangkat..."
@@ -644,16 +781,59 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
 
           {/* Catatan / Keterangan Spesifik */}
           <div>
-            <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-              Catatan / Keterangan Spesifik
-            </label>
+            <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
+              <label className="text-xs font-semibold text-slate-300">
+                Catatan / Keterangan Spesifik
+              </label>
+
+              {/* Template Dropdown Quick Selector */}
+              <div className="flex items-center space-x-1.5">
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      setFormData((prev) => ({ ...prev, notes: e.target.value }));
+                    }
+                  }}
+                  className="text-[11px] bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-cyan-400 focus:border-cyan-500 focus:outline-none cursor-pointer"
+                  title="Pilih dari daftar template deskripsi otomatis"
+                >
+                  <option value="">📋 Pilih Template Keterangan...</option>
+                  {TEMPLATE_OPTIONS.map((item, idx) => (
+                    <option key={idx} value={item.note}>
+                      {item.category} — {item.note}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Suggested Template Banner / Quick Apply Button */}
+            {currentCategorySuggestedNote && formData.notes !== currentCategorySuggestedNote && (
+              <div className="mb-2 flex items-center justify-between bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1.5 rounded-lg text-xs">
+                <span className="text-cyan-300 text-[11px] truncate mr-2">
+                  💡 Saran ({currentCategoryName}): <em className="text-white font-medium">"{currentCategorySuggestedNote}"</em>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, notes: currentCategorySuggestedNote }))}
+                  className="px-2 py-0.5 rounded bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-[10px] shrink-0 transition-all active:scale-95 shadow-sm"
+                >
+                  Gunakan Template
+                </button>
+              </div>
+            )}
+
             <textarea
               rows="3"
-              placeholder="misal: Optical & Ethernet Network Transceiver Link to Trayeman..."
+              placeholder={currentCategorySuggestedNote ? `misal: ${currentCategorySuggestedNote}...` : "misal: Optical & Ethernet Network Transceiver Link to Trayeman..."}
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
             ></textarea>
+            <p className="text-[11px] text-slate-500 mt-1">
+              * Keterangan otomatis terisi saat memilih kategori perangkat, dan Anda tetap bebas mengetik/menyesuaikan isinya.
+            </p>
           </div>
 
           {/* Footer Actions */}
