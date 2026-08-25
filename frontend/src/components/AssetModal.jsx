@@ -333,8 +333,6 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
     }
   };
 
-  const detectedSNCount = parseSNCount(formData.serial_number);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
