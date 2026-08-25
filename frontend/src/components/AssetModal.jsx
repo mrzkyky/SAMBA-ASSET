@@ -18,12 +18,14 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
     site_id: '',
     category_id: '',
     segment_id: '',
+    asset_type: 'Aktif',
     brand: '',
     model: '',
     serial_number: '',
     location_detail: 'Main Rack',
-    unit_count: 1,
     status: 'Aktif',
+    unit_count: 1,
+    condition: 'Baik',
     notes: '',
   });
 
@@ -73,12 +75,14 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
         site_id: String(asset.site_id || ''),
         category_id: String(asset.category_id || ''),
         segment_id: asset.segment_id ? String(asset.segment_id) : '',
+        asset_type: asset.asset_type || 'Aktif',
         brand: asset.brand || '',
         model: asset.model || '',
         serial_number: asset.serial_number || '',
         location_detail: asset.location_detail || 'Main Rack',
-        unit_count: asset.unit_count || 1,
         status: asset.status || 'Aktif',
+        unit_count: asset.unit_count || 1,
+        condition: asset.condition || 'Baik',
         notes: asset.notes || '',
       });
     } else {
@@ -86,12 +90,14 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
         site_id: sitesList[0]?.id ? String(sitesList[0].id) : (initialSites?.[0]?.id ? String(initialSites[0].id) : ''),
         category_id: categories[0]?.id ? String(categories[0].id) : (initialCategories?.[0]?.id ? String(initialCategories[0].id) : ''),
         segment_id: segmentsList[0]?.id ? String(segmentsList[0].id) : '',
+        asset_type: 'Aktif',
         brand: '',
         model: '',
         serial_number: '',
         location_detail: 'Main Rack',
-        unit_count: 1,
         status: 'Aktif',
+        unit_count: 1,
+        condition: 'Baik',
         notes: '',
       });
     }
@@ -116,21 +122,11 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
     }));
   };
 
-  const handleCategorySelectChange = (e) => {
-    const val = e.target.value;
-    if (val === 'NEW') {
-      setIsAddingNewCategory(true);
-    } else {
-      setFormData({ ...formData, category_id: val });
-    }
-  };
-
   const handleInlineCreateCategory = async (e) => {
     e.preventDefault();
     const nameToCreate = newCategoryName.trim();
     if (!nameToCreate) return;
 
-    // Check if category already exists in current list
     const existing = categories.find(c => c.name.toLowerCase() === nameToCreate.toLowerCase());
     if (existing) {
       setFormData((prev) => ({ ...prev, category_id: String(existing.id) }));
@@ -147,16 +143,13 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
       const res = await createCategory({ name: nameToCreate });
       const newCat = res.data;
 
-      // Refresh categories list
       const updatedCategories = await getCategories();
       setCategories(updatedCategories);
 
-      // Auto select newly created category
       setFormData((prev) => ({ ...prev, category_id: String(newCat.id) }));
       setIsAddingNewCategory(false);
       setNewCategoryName('');
     } catch (err) {
-      // If error (e.g. backend duplicate), refresh & match
       const updatedCategories = await getCategories().catch(() => []);
       if (updatedCategories.length > 0) setCategories(updatedCategories);
       const match = updatedCategories.find(c => c.name.toLowerCase() === nameToCreate.toLowerCase());
@@ -173,21 +166,11 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
     }
   };
 
-  const handleSegmentSelectChange = (e) => {
-    const val = e.target.value;
-    if (val === 'NEW') {
-      setIsAddingNewSegment(true);
-    } else {
-      setFormData({ ...formData, segment_id: val });
-    }
-  };
-
   const handleInlineCreateSegment = async (e) => {
     e.preventDefault();
     const nameToCreate = newSegmentName.trim();
     if (!nameToCreate) return;
 
-    // Check if segment already exists in current list
     const existing = segmentsList.find(s => s.name.toLowerCase() === nameToCreate.toLowerCase());
     if (existing) {
       setFormData((prev) => ({ ...prev, segment_id: String(existing.id) }));
@@ -204,16 +187,13 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
       const res = await createSegment({ name: nameToCreate });
       const newSeg = res.data;
 
-      // Refresh segments list
       const updatedSegments = await getSegments();
       setSegmentsList(updatedSegments);
 
-      // Auto select newly created segment
       setFormData((prev) => ({ ...prev, segment_id: String(newSeg.id) }));
       setIsAddingNewSegment(false);
       setNewSegmentName('');
     } catch (err) {
-      // If error (e.g. backend duplicate), refresh & match
       const updatedSegments = await getSegments().catch(() => []);
       if (updatedSegments.length > 0) setSegmentsList(updatedSegments);
       const match = updatedSegments.find(s => s.name.toLowerCase() === nameToCreate.toLowerCase());
@@ -291,12 +271,14 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
         site_id: parseInt(formData.site_id, 10),
         category_id: finalCategoryId,
         segment_id: finalSegmentId,
+        asset_type: formData.asset_type || 'Aktif',
         brand: formData.brand.trim(),
         model: formData.model.trim(),
         serial_number: formData.serial_number.trim(),
         location_detail: formData.location_detail || 'Main Rack',
-        unit_count: parseInt(formData.unit_count, 10) || 1,
         status: formData.status || 'Aktif',
+        unit_count: parseInt(formData.unit_count, 10) || 1,
+        condition: formData.condition || 'Baik',
         notes: formData.notes || '',
       };
 
@@ -317,10 +299,10 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="w-full max-w-2xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
         
         {/* Header */}
-        <div className="p-5 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-5 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
               <Server className="w-5 h-5" />
@@ -344,7 +326,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
         </div>
 
         {/* Body Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
           {error && (
             <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium">
               {error}
@@ -353,10 +335,10 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            {/* Site Dropdown */}
+            {/* Row 1 - Left: Lokasi Site & Mitra */}
             <div>
               <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-                Lokasi Site & Mitra (Level 2) *
+                Lokasi Site & Mitra *
               </label>
               <SearchableSelect
                 required
@@ -373,11 +355,11 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
               />
             </div>
 
-            {/* Category Dropdown & Quick Add Toggle */}
+            {/* Row 1 - Right: Kategori */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-semibold text-slate-300">
-                  Kategori Perangkat (Level 3) *
+                  Kategori *
                 </label>
                 {!isAddingNewCategory && (
                   <button
@@ -446,11 +428,11 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
               )}
             </div>
 
-            {/* Segment Layanan Dropdown & Quick Add */}
+            {/* Row 2 - Left: Segmen Layanan */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-semibold text-slate-300">
-                  Segmen Layanan (Jenis Aset)
+                  Segmen Layanan
                 </label>
                 {!isAddingNewSegment && (
                   <button
@@ -522,7 +504,25 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
               )}
             </div>
 
-            {/* Brand */}
+            {/* Row 2 - Right: Jenis Asset * */}
+            <div>
+              <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                Jenis Asset *
+              </label>
+              <select
+                required
+                value={formData.asset_type}
+                onChange={(e) => setFormData({ ...formData, asset_type: e.target.value })}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+              >
+                <option value="Aktif">Aktif</option>
+                <option value="Pasif">Pasif</option>
+                <option value="Interconnect">Interconnect</option>
+                <option value="Power">Power</option>
+              </select>
+            </div>
+
+            {/* Row 3 - Left: Merek / Brand * */}
             <div>
               <label className="text-xs font-semibold text-slate-300 block mb-1.5">
                 Merek / Brand *
@@ -530,14 +530,14 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
               <input
                 type="text"
                 required
-                placeholder="misal: TP-Link, Cisco, MikroTik"
+                placeholder="misal: Rapid, TP-Link, Cisco"
                 value={formData.brand}
                 onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
               />
             </div>
 
-            {/* Model */}
+            {/* Row 3 - Right: Tipe / Model * */}
             <div>
               <label className="text-xs font-semibold text-slate-300 block mb-1.5">
                 Tipe / Model *
@@ -545,69 +545,72 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
               <input
                 type="text"
                 required
-                placeholder="misal: TP-Link ES210GMP / Catalyst 2960X"
+                placeholder="misal: SFP Rapid-1,25G-20KM"
                 value={formData.model}
                 onChange={(e) => setFormData({ ...formData, model: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
               />
             </div>
 
-            {/* Location Detail / Rack */}
+            {/* Row 4 - Left: Lokasi Detail / Rack */}
             <div>
               <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-                Lokasi Detail / Rak
+                Lokasi Detail / Rack
               </label>
               <input
                 type="text"
-                placeholder="misal: Sub Rack / Rack 01 - U12"
+                placeholder="misal: Main Rack / Sub Rack 01"
                 value={formData.location_detail}
                 onChange={(e) => setFormData({ ...formData, location_detail: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
               />
             </div>
 
-            {/* Status */}
+            {/* Row 4 - Right: Status * */}
             <div>
               <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-                Status Perangkat *
+                Status *
               </label>
               <select
+                required
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
               >
                 <option value="Aktif">Aktif</option>
-                <option value="Pasif">Pasif</option>
-                <option value="Cadangan">Cadangan / Spare</option>
+                <option value="Nonaktif">Nonaktif</option>
+                <option value="Maintenance">Maintenance</option>
                 <option value="Rusak">Rusak</option>
+                <option value="Retired">Retired</option>
+                <option value="Hilang">Hilang</option>
               </select>
             </div>
           </div>
 
-          {/* Smart Multi-SN Textarea */}
+          {/* Serial Number (Dukungan Multi-SN) * */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-semibold text-slate-300">
-                Serial Number (Dukungan Multi-SN) *
+                Serial Number *
               </label>
               <span className="text-[11px] font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
-                Dideteksi: {detectedSNCount} Serial Number
+                Detected: {detectedSNCount} Serial Number
               </span>
             </div>
             <textarea
               rows="3"
               required
-              placeholder={`Masukkan 1 atau lebih Serial Number (pisahkan dengan koma atau tekan Enter)\nContoh:\n22640H5003558, 22640H5003559, 22640H5003560`}
+              placeholder={`Masukkan 1 atau lebih Serial Number (pisahkan dengan koma atau tekan Enter)\nContoh:\nEW3BU4542, EW3BU4543`}
               value={formData.serial_number}
               onChange={handleSNChange}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-cyan-400 focus:border-cyan-500 focus:outline-none"
             ></textarea>
             <p className="text-[11px] text-slate-500 mt-1">
-              * Anda bisa menyalin-menempel (*paste*) 9 Serial Number sekaligus (pisahkan dengan koma atau Enter).
+              * Anda bisa menyalin-menempel (*paste*) Serial Number sekaligus (pisahkan dengan koma atau Enter).
             </p>
           </div>
 
-          {/* Unit Count */}
+          {/* Jumlah Unit Terpasang */}
           <div>
             <label className="text-xs font-semibold text-slate-300 block mb-1.5">
               Jumlah Unit Terpasang
@@ -622,14 +625,31 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
             />
           </div>
 
-          {/* Notes */}
+          {/* Kondisi Perangkat */}
+          <div>
+            <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+              Kondisi Perangkat
+            </label>
+            <select
+              required
+              value={formData.condition}
+              onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+            >
+              <option value="Baik">Baik</option>
+              <option value="Perlu Perbaikan">Perlu Perbaikan</option>
+              <option value="Rusak">Rusak</option>
+            </select>
+          </div>
+
+          {/* Catatan / Keterangan Spesifik */}
           <div>
             <label className="text-xs font-semibold text-slate-300 block mb-1.5">
               Catatan / Keterangan Spesifik
             </label>
             <textarea
-              rows="2"
-              placeholder="misal: Switch Distribusi AP di Lantai 1 s/d 3..."
+              rows="3"
+              placeholder="misal: Optical & Ethernet Network Transceiver Link to Trayeman..."
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"

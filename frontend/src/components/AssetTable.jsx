@@ -2,31 +2,87 @@ import React, { useState } from 'react';
 import { Search, Filter, Edit2, Trash2, ChevronLeft, ChevronRight, Copy, Check, QrCode, ArrowRightLeft } from 'lucide-react';
 import { parseSNList } from './HierarchyView';
 
-const StatusBadge = ({ status }) => {
+export const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
         Aktif
       </span>
     );
   }
-  if (status === 'Pasif') {
+  if (status === 'Nonaktif') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-        Pasif
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-400 border border-slate-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>
+        Nonaktif
+      </span>
+    );
+  }
+  if (status === 'Maintenance') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span>
+        Maintenance
       </span>
     );
   }
   if (status === 'Rusak') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mr-1.5"></span>
+        Rusak
+      </span>
+    );
+  }
+  if (status === 'Retired') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-purple-400 mr-1.5"></span>
+        Retired
+      </span>
+    );
+  }
+  if (status === 'Hilang') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30">
+        <span className="w-1.5 h-1.5 rounded-full bg-red-400 mr-1.5"></span>
+        Hilang
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+      {status || 'Aktif'}
+    </span>
+  );
+};
+
+export const ConditionBadge = ({ condition }) => {
+  if (condition === 'Baik') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        Baik
+      </span>
+    );
+  }
+  if (condition === 'Perlu Perbaikan') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        Perlu Perbaikan
+      </span>
+    );
+  }
+  if (condition === 'Rusak') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
         Rusak
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-      Cadangan / Spare
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+      {condition || 'Baik'}
     </span>
   );
 };
@@ -135,9 +191,11 @@ const AssetTable = ({
             >
               <option value="">Semua Status</option>
               <option value="Aktif">Aktif</option>
-              <option value="Pasif">Pasif</option>
-              <option value="Cadangan">Cadangan / Spare</option>
+              <option value="Nonaktif">Nonaktif</option>
+              <option value="Maintenance">Maintenance</option>
               <option value="Rusak">Rusak</option>
+              <option value="Retired">Retired</option>
+              <option value="Hilang">Hilang</option>
             </select>
           </div>
         </div>
@@ -150,19 +208,20 @@ const AssetTable = ({
             <tr>
               <th className="py-3.5 px-4">Info Branch / Site</th>
               <th className="py-3.5 px-4">Segmen Layanan</th>
-              <th className="py-3.5 px-4">Kategori</th>
+              <th className="py-3.5 px-4">Kategori & Jenis</th>
               <th className="py-3.5 px-4">Merek & Tipe</th>
               <th className="py-3.5 px-4">Daftar Serial Number</th>
               <th className="py-3.5 px-4">Lokasi Detail</th>
               <th className="py-3.5 px-4 text-center">Unit</th>
               <th className="py-3.5 px-4 text-center">Status</th>
+              <th className="py-3.5 px-4 text-center">Kondisi</th>
               <th className="py-3.5 px-4 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
             {assets.length === 0 ? (
               <tr>
-                <td colSpan="9" className="py-12 text-center text-slate-500">
+                <td colSpan="10" className="py-12 text-center text-slate-500">
                   Tidak ada aset yang memenuhi kriteria filter.
                 </td>
               </tr>
@@ -174,6 +233,7 @@ const AssetTable = ({
                 const categoryName = asset.category?.name || '-';
                 const segmentName = asset.segment?.name || 'Umum';
                 const segmentColor = asset.segment?.color || '#64748b';
+                const assetType = asset.asset_type || 'Aktif';
                 const snList = parseSNList(asset.serial_number);
 
                 return (
@@ -196,9 +256,14 @@ const AssetTable = ({
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="inline-flex px-2 py-0.5 rounded text-[11px] font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                        {categoryName}
-                      </span>
+                      <div className="flex flex-col space-y-1 items-start">
+                        <span className="inline-flex px-2 py-0.5 rounded text-[11px] font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          {categoryName}
+                        </span>
+                        <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                          {assetType}
+                        </span>
+                      </div>
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="font-bold text-white">{asset.brand}</div>
@@ -261,6 +326,9 @@ const AssetTable = ({
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       <StatusBadge status={asset.status} />
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      <ConditionBadge condition={asset.condition} />
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end space-x-2">

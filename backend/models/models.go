@@ -118,12 +118,14 @@ type Asset struct {
 	Category       *Category `gorm:"foreignKey:CategoryID" json:"category,omitempty"`
 	SegmentID      *uint     `gorm:"index" json:"segment_id"`
 	Segment        *Segment  `gorm:"foreignKey:SegmentID" json:"segment,omitempty"`
+	AssetType      string    `gorm:"size:50;default:'Aktif';index" json:"asset_type"` // 'Aktif', 'Pasif', 'Interconnect', 'Power'
 	Brand          string    `gorm:"size:100;not null" json:"brand"`
 	Model          string    `gorm:"size:100;not null" json:"model"`
 	SerialNumber   string    `gorm:"type:text;not null" json:"serial_number"`
 	LocationDetail string    `gorm:"size:100;default:'Main Rack'" json:"location_detail"`
 	UnitCount      int       `gorm:"default:1;not null" json:"unit_count"`
-	Status         string    `gorm:"size:20;default:'Aktif';index" json:"status"` // 'Aktif', 'Rusak', 'Cadangan'
+	Status         string    `gorm:"size:50;default:'Aktif';index" json:"status"`       // 'Aktif', 'Nonaktif', 'Maintenance', 'Rusak', 'Retired', 'Hilang'
+	Condition      string    `gorm:"size:50;default:'Baik';index" json:"condition"`     // 'Baik', 'Perlu Perbaikan', 'Rusak'
 	Notes          string    `gorm:"type:text" json:"notes"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`

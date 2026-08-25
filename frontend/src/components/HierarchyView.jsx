@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, QrCode, Lock, ArrowRightLeft, Layers } from 'lucide-react';
 
-const StatusBadge = ({ status }) => {
+export const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -10,11 +10,19 @@ const StatusBadge = ({ status }) => {
       </span>
     );
   }
-  if (status === 'Pasif') {
+  if (status === 'Nonaktif') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-        <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mr-1.5"></span>
-        Pasif
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-400 border border-slate-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>
+        Nonaktif
+      </span>
+    );
+  }
+  if (status === 'Maintenance') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span>
+        Maintenance
       </span>
     );
   }
@@ -26,10 +34,54 @@ const StatusBadge = ({ status }) => {
       </span>
     );
   }
+  if (status === 'Retired') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-purple-400 mr-1.5"></span>
+        Retired
+      </span>
+    );
+  }
+  if (status === 'Hilang') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30">
+        <span className="w-1.5 h-1.5 rounded-full bg-red-400 mr-1.5"></span>
+        Hilang
+      </span>
+    );
+  }
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span>
-      Cadangan / Spare
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+      {status || 'Aktif'}
+    </span>
+  );
+};
+
+export const ConditionBadge = ({ condition }) => {
+  if (condition === 'Baik') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        Baik
+      </span>
+    );
+  }
+  if (condition === 'Perlu Perbaikan') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        Perlu Perbaikan
+      </span>
+    );
+  }
+  if (condition === 'Rusak') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+        Rusak
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+      {condition || 'Baik'}
     </span>
   );
 };
@@ -414,13 +466,21 @@ const HierarchyView = ({
                                                     />
                                                     {segmentName}
                                                   </span>
+                                                  {asset.asset_type && (
+                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                                                      {asset.asset_type}
+                                                    </span>
+                                                  )}
                                                   <p className="text-[11px] text-slate-400 flex items-center">
                                                     <Box className="w-3 h-3 mr-1 text-slate-500" />
                                                     <span className="text-slate-300 font-medium">{asset.location_detail}</span>
                                                   </p>
                                                 </div>
                                               </div>
-                                              <StatusBadge status={asset.status} />
+                                              <div className="flex flex-col space-y-1 items-end shrink-0">
+                                                <StatusBadge status={asset.status} />
+                                                <ConditionBadge condition={asset.condition} />
+                                              </div>
                                             </div>
 
                                             {/* Multi-SN List Display */}

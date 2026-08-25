@@ -54,7 +54,7 @@ func GetAssets(c *gin.Context) {
 		Preload("Category").
 		Preload("Segment")
 
-	// Global Search Query (Serial Number, Brand, Model, Location, Notes, Site, Branch, Category, Segment)
+	// Global Search Query (Serial Number, Brand, Model, Location, Notes, Site, Branch, Category, Segment, AssetType, Condition)
 	search := strings.TrimSpace(c.Query("q"))
 	if search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
@@ -63,8 +63,8 @@ func GetAssets(c *gin.Context) {
 			Joins("LEFT JOIN categories ON categories.id = assets.category_id").
 			Joins("LEFT JOIN segments ON segments.id = assets.segment_id").
 			Where(
-				"LOWER(assets.serial_number) LIKE ? OR LOWER(assets.brand) LIKE ? OR LOWER(assets.model) LIKE ? OR LOWER(assets.location_detail) LIKE ? OR LOWER(assets.notes) LIKE ? OR LOWER(sites.site_name) LIKE ? OR LOWER(sites.partner_name) LIKE ? OR LOWER(branches.name) LIKE ? OR LOWER(branches.code) LIKE ? OR LOWER(categories.name) LIKE ? OR LOWER(segments.name) LIKE ?",
-				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+				"LOWER(assets.serial_number) LIKE ? OR LOWER(assets.brand) LIKE ? OR LOWER(assets.model) LIKE ? OR LOWER(assets.location_detail) LIKE ? OR LOWER(assets.notes) LIKE ? OR LOWER(assets.asset_type) LIKE ? OR LOWER(assets.status) LIKE ? OR LOWER(assets.condition) LIKE ? OR LOWER(sites.site_name) LIKE ? OR LOWER(sites.partner_name) LIKE ? OR LOWER(branches.name) LIKE ? OR LOWER(branches.code) LIKE ? OR LOWER(categories.name) LIKE ? OR LOWER(segments.name) LIKE ?",
+				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
 			)
 	}
 
@@ -87,10 +87,22 @@ func GetAssets(c *gin.Context) {
 		query = query.Where("assets.category_id = ?", categoryID)
 	}
 
-	// Filter by Status
+	// Filter by Asset Type (Aktif, Pasif, Interconnect, Power)
+	assetType := c.Query("asset_type")
+	if assetType != "" {
+		query = query.Where("assets.asset_type = ?", assetType)
+	}
+
+	// Filter by Status (Aktif, Nonaktif, Maintenance, Rusak, Retired, Hilang)
 	status := c.Query("status")
 	if status != "" {
 		query = query.Where("assets.status = ?", status)
+	}
+
+	// Filter by Condition (Baik, Perlu Perbaikan, Rusak)
+	condition := c.Query("condition")
+	if condition != "" {
+		query = query.Where("assets.condition = ?", condition)
 	}
 
 	// Filter by Segment
@@ -105,7 +117,10 @@ func GetAssets(c *gin.Context) {
 	// Sorting
 	sortBy := c.DefaultQuery("sort_by", "created_at")
 	order := c.DefaultQuery("order", "desc")
-	validSorts := map[string]bool{"id": true, "brand": true, "model": true, "serial_number": true, "status": true, "unit_count": true, "created_at": true}
+	validSorts := map[string]bool{
+		"id": true, "brand": true, "model": true, "serial_number": true,
+		"asset_type": true, "status": true, "condition": true, "unit_count": true, "created_at": true,
+	}
 	if !validSorts[sortBy] {
 		sortBy = "created_at"
 	}
@@ -150,8 +165,14 @@ func CreateAsset(c *gin.Context) {
 		return
 	}
 
+	if input.AssetType == "" {
+		input.AssetType = "Aktif"
+	}
 	if input.Status == "" {
 		input.Status = "Aktif"
+	}
+	if input.Condition == "" {
+		input.Condition = "Baik"
 	}
 
 	// Validate SegmentID: if 0 or invalid, set to nil to avoid FK violation
@@ -217,16 +238,28 @@ func UpdateAsset(c *gin.Context) {
 		finalUnitCount = snCount
 	}
 
+	if input.AssetType == "" {
+		input.AssetType = "Aktif"
+	}
+	if input.Status == "" {
+		input.Status = "Aktif"
+	}
+	if input.Condition == "" {
+		input.Condition = "Baik"
+	}
+
 	updateMap := map[string]interface{}{
 		"site_id":         input.SiteID,
 		"category_id":     input.CategoryID,
 		"segment_id":      input.SegmentID,
+		"asset_type":      input.AssetType,
 		"brand":           input.Brand,
 		"model":           input.Model,
 		"serial_number":   cleanSN,
 		"location_detail": input.LocationDetail,
 		"unit_count":      finalUnitCount,
 		"status":          input.Status,
+		"condition":       input.Condition,
 		"notes":           input.Notes,
 	}
 
@@ -278,8 +311,8 @@ func ExportAssets(c *gin.Context) {
 
 	header := []string{
 		"ID", "Kode Cabang", "Nama Cabang", "Mitra / Partner", "Nama Site",
-		"Kategori", "Merek", "Tipe / Model", "Serial Number",
-		"Lokasi Detail / Rak", "Jumlah Unit", "Status", "Catatan",
+		"Segmen Layanan", "Kategori", "Jenis Asset", "Merek", "Tipe / Model", "Serial Number",
+		"Lokasi Detail / Rak", "Jumlah Unit", "Status", "Kondisi", "Catatan",
 	}
 	if err := w.Write(header); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat header CSV"})
@@ -292,6 +325,7 @@ func ExportAssets(c *gin.Context) {
 		partnerName := ""
 		siteName := ""
 		categoryName := ""
+		segmentName := ""
 
 		if a.Site != nil {
 			partnerName = a.Site.PartnerName
@@ -304,6 +338,9 @@ func ExportAssets(c *gin.Context) {
 		if a.Category != nil {
 			categoryName = a.Category.Name
 		}
+		if a.Segment != nil {
+			segmentName = a.Segment.Name
+		}
 
 		record := []string{
 			fmt.Sprintf("%d", a.ID),
@@ -311,13 +348,16 @@ func ExportAssets(c *gin.Context) {
 			branchName,
 			partnerName,
 			siteName,
+			segmentName,
 			categoryName,
+			a.AssetType,
 			a.Brand,
 			a.Model,
 			a.SerialNumber,
 			a.LocationDetail,
 			fmt.Sprintf("%d", a.UnitCount),
 			a.Status,
+			a.Condition,
 			a.Notes,
 		}
 		_ = w.Write(record)
