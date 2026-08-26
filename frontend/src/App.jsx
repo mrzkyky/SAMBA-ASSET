@@ -51,6 +51,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSegment, setSelectedSegment] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedOwnership, setSelectedOwnership] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Data States
@@ -186,6 +187,7 @@ function App() {
         category_id: selectedCategory,
         segment_id: selectedSegment,
         status: selectedStatus,
+        ownership: selectedOwnership,
       };
       const res = await getAssets(params);
       setAssetsData(res);
@@ -194,7 +196,7 @@ function App() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchQuery, selectedBranch, selectedCategory, selectedSegment, selectedStatus]);
+  }, [currentPage, searchQuery, selectedBranch, selectedCategory, selectedSegment, selectedStatus, selectedOwnership]);
 
   // Global Data Refresh Trigger
   const refreshAllData = useCallback(() => {
@@ -207,14 +209,14 @@ function App() {
   // Reset pagination to page 1 whenever search query or filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedBranch, selectedCategory, selectedSegment, selectedStatus]);
+  }, [searchQuery, selectedBranch, selectedCategory, selectedSegment, selectedStatus, selectedOwnership]);
 
   // Effect Trigger on Filter & Tab Changes
   useEffect(() => {
     if (token) {
       refreshAllData();
     }
-  }, [token, activeTab, selectedBranch, selectedCategory, selectedSegment, selectedStatus, searchQuery, currentPage, refreshAllData]);
+  }, [token, activeTab, selectedBranch, selectedCategory, selectedSegment, selectedStatus, selectedOwnership, searchQuery, currentPage, refreshAllData]);
 
   // Handlers for Asset Modals
   const handleOpenCreateAssetModal = () => {
@@ -301,6 +303,8 @@ function App() {
             setSelectedBranch={setSelectedBranch}
             selectedSegment={selectedSegment}
             setSelectedSegment={setSelectedSegment}
+            selectedOwnership={selectedOwnership}
+            setSelectedOwnership={setSelectedOwnership}
             onEditAsset={handleOpenEditAssetModal}
             onDeleteAsset={handleDeleteAsset}
             onOpenQRCodeModal={handleOpenQRCodeModal}
@@ -329,6 +333,8 @@ function App() {
             setSelectedSegment={setSelectedSegment}
             selectedStatus={selectedStatus}
             setSelectedStatus={setSelectedStatus}
+            selectedOwnership={selectedOwnership}
+            setSelectedOwnership={setSelectedOwnership}
             branches={branches}
             categories={categories}
             segments={segments}

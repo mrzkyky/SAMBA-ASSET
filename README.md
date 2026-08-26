@@ -25,6 +25,7 @@ Pengorganisasian data terstruktur secara bertingkat:
 - **Level 3 (Perangkat & Serial Number)**: Detail spesifik perangkat jaringan lengkap dengan nomor seri dan jumlah unit terpasang.
 
 ### 2. Standarisasi Parameter & Klasifikasi Lengkap
+- **Status Kepemilikan**: `Aset Tetap` (Inventaris Milik Perusahaan), `Aset Hibah` (Dihibahkan ke Mitra/Instansi).
 - **Jenis Asset**: `Aktif`, `Pasif`, `Interconnect`, `Power`.
 - **Status Perangkat**: `Aktif`, `Nonaktif`, `Maintenance`, `Rusak`, `Retired`, `Hilang`.
 - **Kondisi Fisik**: `Baik`, `Perlu Perbaikan`, `Rusak`.

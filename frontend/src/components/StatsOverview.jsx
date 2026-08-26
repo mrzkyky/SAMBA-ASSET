@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, MapPin, Tag, Box, CheckCircle2, AlertTriangle, RefreshCw, MinusCircle } from 'lucide-react';
+import { Building2, MapPin, Tag, Box, CheckCircle2, AlertTriangle, RefreshCw, MinusCircle, Gift } from 'lucide-react';
 
 const StatsOverview = ({ stats, selectedBranch = '', branches = [], user = null }) => {
   if (!stats) return null;
@@ -78,22 +78,34 @@ const StatsOverview = ({ stats, selectedBranch = '', branches = [], user = null 
         })}
       </div>
 
-      {/* Status Breakdown Bar */}
+      {/* Status & Ownership Breakdown Bar */}
       <div className="p-3 sm:p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center justify-between gap-2.5 sm:gap-4">
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2">
           {isBranchScoped ? (
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">Status Perangkat Cabang:</span>
+              <span className="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">Cakupan Cabang:</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                 {currentBranch.name} ({currentBranch.code})
               </span>
             </div>
           ) : (
-            <span className="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">Status Perangkat Nasional:</span>
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">Ringkasan Nasional:</span>
           )}
+
+          {/* Ownership Breakdown Badges */}
+          <div className="flex items-center space-x-1.5 pl-0 sm:pl-2 border-l-0 sm:border-l sm:border-slate-800">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[11px] sm:text-xs font-semibold">
+              <Building2 className="w-3 h-3 mr-1 text-blue-400" />
+              Aset Tetap: <strong className="text-white ml-1">{stats.fixed_assets || 0}</strong>
+            </span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] sm:text-xs font-semibold">
+              <Gift className="w-3 h-3 mr-1 text-amber-400" />
+              Aset Hibah: <strong className="text-white ml-1">{stats.grant_assets || 0}</strong>
+            </span>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
           <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] sm:text-xs font-medium">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Aktif: <strong className="text-white ml-0.5">{stats.active_assets}</strong></span>

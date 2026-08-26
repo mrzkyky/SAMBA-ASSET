@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, QrCode, Lock, ArrowRightLeft, Layers } from 'lucide-react';
+import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, QrCode, Lock, ArrowRightLeft, Layers, Gift } from 'lucide-react';
 
 export const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
@@ -89,6 +89,23 @@ export const ConditionBadge = ({ condition }) => {
   );
 };
 
+export const OwnershipBadge = ({ ownership }) => {
+  if (ownership === 'Aset Hibah') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0 shadow-sm" title="Aset Hibah ke Mitra/Instansi">
+        <Gift className="w-3 h-3 mr-1 text-amber-400" />
+        Hibah
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0 shadow-sm" title="Aset Tetap Milik Perusahaan">
+      <Building2 className="w-3 h-3 mr-1 text-blue-400" />
+      Aset Tetap
+    </span>
+  );
+};
+
 export const parseSNList = (rawSN) => {
   if (!rawSN) return [];
   const replaced = rawSN.replace(/\r\n/g, ',').replace(/\n/g, ',').replace(/;/g, ',');
@@ -104,6 +121,8 @@ const HierarchyView = ({
   setSelectedBranch,
   selectedSegment,
   setSelectedSegment,
+  selectedOwnership,
+  setSelectedOwnership,
   onEditAsset,
   onDeleteAsset,
   onOpenQRCodeModal,
@@ -159,6 +178,11 @@ const HierarchyView = ({
             return false;
           }
 
+          // Filter by Ownership (Aset Tetap vs Aset Hibah)
+          if (selectedOwnership && (asset.ownership || 'Aset Tetap') !== selectedOwnership) {
+            return false;
+          }
+
           // Global Multi-field Search Filter
           if (!searchQuery || !searchQuery.trim()) return true;
           const q = searchQuery.toLowerCase().trim();
@@ -169,6 +193,7 @@ const HierarchyView = ({
           const matchLocation = asset.location_detail && asset.location_detail.toLowerCase().includes(q);
           const matchNotes = asset.notes && asset.notes.toLowerCase().includes(q);
           const matchStatus = asset.status && asset.status.toLowerCase().includes(q);
+          const matchOwnership = (asset.ownership || 'Aset Tetap').toLowerCase().includes(q);
           const matchSegment = asset.segment?.name && asset.segment.name.toLowerCase().includes(q);
           const matchSiteName = site?.site_name && site.site_name.toLowerCase().includes(q);
           const matchPartner = site?.partner_name && site.partner_name.toLowerCase().includes(q);
@@ -184,6 +209,7 @@ const HierarchyView = ({
             matchLocation ||
             matchNotes ||
             matchStatus ||
+            matchOwnership ||
             matchSegment ||
             matchSiteName ||
             matchPartner ||
@@ -210,8 +236,8 @@ const HierarchyView = ({
         totalMatchingUnits,
       };
     }).filter((siteGroup) => {
-      // If there is an active search or segment filter, only keep sites with matching devices
-      if (searchQuery || selectedSegment) {
+      // If there is an active search, segment filter, or ownership filter, only keep sites with matching devices
+      if (searchQuery || selectedSegment || selectedOwnership) {
         return siteGroup.category_groups.length > 0;
       }
       return true;
@@ -317,6 +343,49 @@ const HierarchyView = ({
             ))}
           </div>
         )}
+
+        {/* Ownership Filter Header Tabs */}
+        <div className="pt-2.5 sm:pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-400 mr-1 flex items-center space-x-1">
+            <Building2 className="w-3.5 h-3.5 text-blue-400" />
+            <span>Status Kepemilikan:</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setSelectedOwnership && setSelectedOwnership('')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all ${
+              !selectedOwnership
+                ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
+                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            Semua Kepemilikan
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedOwnership && setSelectedOwnership('Aset Tetap')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all flex items-center space-x-1 ${
+              selectedOwnership === 'Aset Tetap'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            <Building2 className="w-3 h-3 mr-1 text-blue-400" />
+            <span>Aset Tetap</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedOwnership && setSelectedOwnership('Aset Hibah')}
+            className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all flex items-center space-x-1 ${
+              selectedOwnership === 'Aset Hibah'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
+                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            <Gift className="w-3 h-3 mr-1 text-amber-400" />
+            <span>Aset Hibah</span>
+          </button>
+        </div>
       </div>
 
       {/* Auditor Banner Notification */}
@@ -464,8 +533,9 @@ const HierarchyView = ({
                                               </div>
                                             </div>
 
-                                            {/* Badges: Segment & Asset Type */}
+                                            {/* Badges: Ownership, Segment, Asset Type */}
                                             <div className="flex flex-wrap items-center gap-1.5">
+                                              <OwnershipBadge ownership={asset.ownership} />
                                               <span
                                                 className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0"
                                                 style={{

@@ -96,15 +96,18 @@ func InitDB() *gorm.DB {
 		log.Printf("Notice on add segment_id column: %v", alterSegErr)
 	}
 
-	// Explicitly ensure asset_type and condition columns exist on assets table
+	// Explicitly ensure asset_type, condition, and ownership columns exist on assets table
 	DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS asset_type VARCHAR(50) DEFAULT 'Aktif';")
 	DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS condition VARCHAR(50) DEFAULT 'Baik';")
+	DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS ownership VARCHAR(50) DEFAULT 'Aset Tetap';")
 	DB.Exec("ALTER TABLE assets ALTER COLUMN status TYPE VARCHAR(50);")
 	_ = DB.Exec("ALTER TABLE assets DROP CONSTRAINT IF EXISTS assets_status_check;").Error
 	_ = DB.Exec("ALTER TABLE assets DROP CONSTRAINT IF EXISTS assets_condition_check;").Error
 	_ = DB.Exec("ALTER TABLE assets DROP CONSTRAINT IF EXISTS assets_asset_type_check;").Error
+	_ = DB.Exec("ALTER TABLE assets DROP CONSTRAINT IF EXISTS assets_ownership_check;").Error
 	DB.Exec("UPDATE assets SET asset_type = 'Aktif' WHERE asset_type IS NULL OR asset_type = '';")
 	DB.Exec("UPDATE assets SET condition = 'Baik' WHERE condition IS NULL OR condition = '';")
+	DB.Exec("UPDATE assets SET ownership = 'Aset Tetap' WHERE ownership IS NULL OR ownership = '';")
 
 	// Explicitly ensure user verification columns exist and existing seed users are marked verified
 	DB.Exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;")

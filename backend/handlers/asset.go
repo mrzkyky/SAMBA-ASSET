@@ -54,7 +54,7 @@ func GetAssets(c *gin.Context) {
 		Preload("Category").
 		Preload("Segment")
 
-	// Global Search Query (Serial Number, Brand, Model, Location, Notes, Site, Branch, Category, Segment, AssetType, Condition)
+	// Global Search Query (Serial Number, Brand, Model, Location, Notes, Site, Branch, Category, Segment, AssetType, Condition, Ownership)
 	search := strings.TrimSpace(c.Query("q"))
 	if search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
@@ -63,8 +63,8 @@ func GetAssets(c *gin.Context) {
 			Joins("LEFT JOIN categories ON categories.id = assets.category_id").
 			Joins("LEFT JOIN segments ON segments.id = assets.segment_id").
 			Where(
-				"LOWER(assets.serial_number) LIKE ? OR LOWER(assets.brand) LIKE ? OR LOWER(assets.model) LIKE ? OR LOWER(assets.location_detail) LIKE ? OR LOWER(assets.notes) LIKE ? OR LOWER(assets.asset_type) LIKE ? OR LOWER(assets.status) LIKE ? OR LOWER(assets.condition) LIKE ? OR LOWER(sites.site_name) LIKE ? OR LOWER(sites.partner_name) LIKE ? OR LOWER(branches.name) LIKE ? OR LOWER(branches.code) LIKE ? OR LOWER(categories.name) LIKE ? OR LOWER(segments.name) LIKE ?",
-				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+				"LOWER(assets.serial_number) LIKE ? OR LOWER(assets.brand) LIKE ? OR LOWER(assets.model) LIKE ? OR LOWER(assets.location_detail) LIKE ? OR LOWER(assets.notes) LIKE ? OR LOWER(assets.asset_type) LIKE ? OR LOWER(assets.status) LIKE ? OR LOWER(assets.condition) LIKE ? OR LOWER(assets.ownership) LIKE ? OR LOWER(sites.site_name) LIKE ? OR LOWER(sites.partner_name) LIKE ? OR LOWER(branches.name) LIKE ? OR LOWER(branches.code) LIKE ? OR LOWER(categories.name) LIKE ? OR LOWER(segments.name) LIKE ?",
+				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
 			)
 	}
 
@@ -103,6 +103,12 @@ func GetAssets(c *gin.Context) {
 	condition := c.Query("condition")
 	if condition != "" {
 		query = query.Where("assets.condition = ?", condition)
+	}
+
+	// Filter by Ownership (Aset Tetap, Aset Hibah)
+	ownership := c.Query("ownership")
+	if ownership != "" {
+		query = query.Where("assets.ownership = ?", ownership)
 	}
 
 	// Filter by Segment
@@ -174,6 +180,9 @@ func CreateAsset(c *gin.Context) {
 	if input.Condition == "" {
 		input.Condition = "Baik"
 	}
+	if input.Ownership == "" {
+		input.Ownership = "Aset Tetap"
+	}
 
 	// Validate SegmentID: if 0 or invalid, set to nil to avoid FK violation
 	if input.SegmentID != nil {
@@ -208,8 +217,8 @@ func CreateAsset(c *gin.Context) {
 	if input.Site != nil {
 		siteInfo = fmt.Sprintf("%s (%s)", input.Site.SiteName, input.Site.PartnerName)
 	}
-	auditDetails := fmt.Sprintf("Menambahkan Aset Baru: %s / %s (SN: %s, %d Unit) di %s. Jenis: %s, Status: %s, Kondisi: %s",
-		input.Brand, input.Model, input.SerialNumber, input.UnitCount, siteInfo, input.AssetType, input.Status, input.Condition)
+	auditDetails := fmt.Sprintf("Menambahkan Aset Baru: %s / %s (SN: %s, %d Unit) di %s. Jenis: %s, Status: %s, Kondisi: %s, Kepemilikan: %s",
+		input.Brand, input.Model, input.SerialNumber, input.UnitCount, siteInfo, input.AssetType, input.Status, input.Condition, input.Ownership)
 	config.RecordAuditLog(userIDPtr, username, "TAMBAH_ASET", auditDetails, c.ClientIP())
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Aset berhasil ditambahkan", "data": input})
@@ -258,6 +267,9 @@ func UpdateAsset(c *gin.Context) {
 	if input.Condition == "" {
 		input.Condition = "Baik"
 	}
+	if input.Ownership == "" {
+		input.Ownership = "Aset Tetap"
+	}
 
 	// Calculate Delta Changes for Audit Log
 	changes := make([]string, 0)
@@ -282,6 +294,9 @@ func UpdateAsset(c *gin.Context) {
 	if oldAsset.Condition != input.Condition {
 		changes = append(changes, fmt.Sprintf("Kondisi: %s ➔ %s", oldAsset.Condition, input.Condition))
 	}
+	if oldAsset.Ownership != input.Ownership {
+		changes = append(changes, fmt.Sprintf("Kepemilikan: %s ➔ %s", oldAsset.Ownership, input.Ownership))
+	}
 	if oldAsset.SerialNumber != cleanSN {
 		changes = append(changes, fmt.Sprintf("Serial Number: %s ➔ %s", oldAsset.SerialNumber, cleanSN))
 	}
@@ -304,6 +319,7 @@ func UpdateAsset(c *gin.Context) {
 		"unit_count":      finalUnitCount,
 		"status":          input.Status,
 		"condition":       input.Condition,
+		"ownership":       input.Ownership,
 		"notes":           input.Notes,
 	}
 
@@ -392,6 +408,11 @@ func ExportAssets(c *gin.Context) {
 		query = query.Where("assets.site_id = ?", siteID)
 	}
 
+	ownership := c.Query("ownership")
+	if ownership != "" {
+		query = query.Where("assets.ownership = ?", ownership)
+	}
+
 	var assets []models.Asset
 	if err := query.Order("assets.id ASC").Find(&assets).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil data untuk ekspor"})
@@ -403,7 +424,7 @@ func ExportAssets(c *gin.Context) {
 
 	header := []string{
 		"ID", "Kode Cabang", "Nama Cabang", "Mitra / Partner", "Nama Site",
-		"Segmen Layanan", "Kategori", "Jenis Asset", "Merek", "Tipe / Model", "Serial Number",
+		"Segmen Layanan", "Kategori", "Jenis Asset", "Status Kepemilikan", "Merek", "Tipe / Model", "Serial Number",
 		"Lokasi Detail / Rak", "Jumlah Unit", "Status", "Kondisi", "Catatan",
 	}
 	if err := w.Write(header); err != nil {
@@ -434,6 +455,11 @@ func ExportAssets(c *gin.Context) {
 			segmentName = a.Segment.Name
 		}
 
+		ownershipVal := a.Ownership
+		if ownershipVal == "" {
+			ownershipVal = "Aset Tetap"
+		}
+
 		record := []string{
 			fmt.Sprintf("%d", a.ID),
 			branchCode,
@@ -443,6 +469,7 @@ func ExportAssets(c *gin.Context) {
 			segmentName,
 			categoryName,
 			a.AssetType,
+			ownershipVal,
 			a.Brand,
 			a.Model,
 			a.SerialNumber,

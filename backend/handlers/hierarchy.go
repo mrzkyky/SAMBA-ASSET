@@ -63,6 +63,16 @@ func GetDashboardStats(c *gin.Context) {
 			Joins("JOIN sites ON sites.id = assets.site_id").
 			Where("sites.branch_id = ? AND (assets.status = 'Maintenance' OR assets.condition = 'Perlu Perbaikan' OR assets.status = 'Cadangan')", branchID).
 			Count(&stats.BackupAssets)
+
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ? AND (assets.ownership = 'Aset Tetap' OR assets.ownership IS NULL OR assets.ownership = '')", branchID).
+			Count(&stats.FixedAssets)
+
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ? AND assets.ownership = 'Aset Hibah'", branchID).
+			Count(&stats.GrantAssets)
 	} else {
 		// All Branches (National)
 		config.DB.Model(&models.Branch{}).Count(&stats.TotalBranches)
@@ -81,6 +91,8 @@ func GetDashboardStats(c *gin.Context) {
 		config.DB.Model(&models.Asset{}).Where("status = 'Nonaktif' OR asset_type = 'Pasif' OR status = 'Pasif'").Count(&stats.PassiveAssets)
 		config.DB.Model(&models.Asset{}).Where("status = 'Rusak' OR condition = 'Rusak'").Count(&stats.DamagedAssets)
 		config.DB.Model(&models.Asset{}).Where("status = 'Maintenance' OR condition = 'Perlu Perbaikan' OR status = 'Cadangan'").Count(&stats.BackupAssets)
+		config.DB.Model(&models.Asset{}).Where("ownership = 'Aset Tetap' OR ownership IS NULL OR ownership = ''").Count(&stats.FixedAssets)
+		config.DB.Model(&models.Asset{}).Where("ownership = 'Aset Hibah'").Count(&stats.GrantAssets)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": stats})

@@ -126,6 +126,7 @@ type Asset struct {
 	UnitCount      int       `gorm:"default:1;not null" json:"unit_count"`
 	Status         string    `gorm:"size:50;default:'Aktif';index" json:"status"`       // 'Aktif', 'Nonaktif', 'Maintenance', 'Rusak', 'Retired', 'Hilang'
 	Condition      string    `gorm:"size:50;default:'Baik';index" json:"condition"`     // 'Baik', 'Perlu Perbaikan', 'Rusak'
+	Ownership      string    `gorm:"size:50;default:'Aset Tetap';index" json:"ownership"` // 'Aset Tetap', 'Aset Hibah'
 	Notes          string    `gorm:"type:text" json:"notes"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
@@ -178,6 +179,8 @@ type StatsResponse struct {
 	PassiveAssets   int64 `json:"passive_assets"`
 	DamagedAssets   int64 `json:"damaged_assets"`
 	BackupAssets    int64 `json:"backup_assets"`
+	FixedAssets     int64 `json:"fixed_assets"`
+	GrantAssets     int64 `json:"grant_assets"`
 }
 
 type CategoryGroupDTO struct {

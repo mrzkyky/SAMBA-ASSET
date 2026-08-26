@@ -121,6 +121,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
     status: 'Aktif',
     unit_count: 1,
     condition: 'Baik',
+    ownership: 'Aset Tetap',
     notes: '',
   });
 
@@ -178,6 +179,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
         status: asset.status || 'Aktif',
         unit_count: asset.unit_count || 1,
         condition: asset.condition || 'Baik',
+        ownership: asset.ownership || 'Aset Tetap',
         notes: asset.notes || '',
       });
     } else {
@@ -197,6 +199,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
         status: 'Aktif',
         unit_count: 1,
         condition: 'Baik',
+        ownership: 'Aset Tetap',
         notes: defaultSuggested,
       });
     }
@@ -745,36 +748,55 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
             </p>
           </div>
 
-          {/* Jumlah Unit Terpasang */}
-          <div>
-            <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-              Jumlah Unit Terpasang
-            </label>
-            <input
-              type="number"
-              min="1"
-              required
-              value={formData.unit_count}
-              onChange={(e) => setFormData({ ...formData, unit_count: parseInt(e.target.value, 10) || 1 })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
-            />
-          </div>
+          {/* Grid 3 Kolom: Jumlah Unit, Kondisi Perangkat, Status Kepemilikan */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Jumlah Unit Terpasang */}
+            <div>
+              <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                Jumlah Unit Terpasang *
+              </label>
+              <input
+                type="number"
+                min="1"
+                required
+                value={formData.unit_count}
+                onChange={(e) => setFormData({ ...formData, unit_count: parseInt(e.target.value, 10) || 1 })}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+              />
+            </div>
 
-          {/* Kondisi Perangkat */}
-          <div>
-            <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-              Kondisi Perangkat
-            </label>
-            <select
-              required
-              value={formData.condition}
-              onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
-            >
-              <option value="Baik">Baik</option>
-              <option value="Perlu Perbaikan">Perlu Perbaikan</option>
-              <option value="Rusak">Rusak</option>
-            </select>
+            {/* Kondisi Perangkat */}
+            <div>
+              <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                Kondisi Perangkat *
+              </label>
+              <select
+                required
+                value={formData.condition}
+                onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+              >
+                <option value="Baik">Baik</option>
+                <option value="Perlu Perbaikan">Perlu Perbaikan</option>
+                <option value="Rusak">Rusak</option>
+              </select>
+            </div>
+
+            {/* Status Kepemilikan Aset */}
+            <div>
+              <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                Status Kepemilikan *
+              </label>
+              <select
+                required
+                value={formData.ownership}
+                onChange={(e) => setFormData({ ...formData, ownership: e.target.value })}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none font-medium"
+              >
+                <option value="Aset Tetap">🏢 Aset Tetap (Perusahaan)</option>
+                <option value="Aset Hibah">🎁 Aset Hibah (Mitra)</option>
+              </select>
+            </div>
           </div>
 
           {/* Catatan / Keterangan Spesifik */}

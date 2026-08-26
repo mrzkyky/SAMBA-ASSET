@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Edit2, Trash2, ChevronLeft, ChevronRight, Copy, Check, QrCode, ArrowRightLeft } from 'lucide-react';
+import { Search, Filter, Edit2, Trash2, ChevronLeft, ChevronRight, Copy, Check, QrCode, ArrowRightLeft, Building2, Gift } from 'lucide-react';
 import { parseSNList } from './HierarchyView';
 
 export const StatusBadge = ({ status }) => {
@@ -90,6 +90,23 @@ export const ConditionBadge = ({ condition }) => {
   );
 };
 
+export const OwnershipBadge = ({ ownership }) => {
+  if (ownership === 'Aset Hibah') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm" title="Aset Hibah ke Mitra/Instansi">
+        <Gift className="w-3 h-3 mr-1 text-amber-400" />
+        Hibah
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-sm" title="Aset Tetap Milik Perusahaan">
+      <Building2 className="w-3 h-3 mr-1 text-blue-400" />
+      Aset Tetap
+    </span>
+  );
+};
+
 const AssetTable = ({
   user,
   assets,
@@ -108,6 +125,8 @@ const AssetTable = ({
   setSelectedSegment,
   selectedStatus,
   setSelectedStatus,
+  selectedOwnership,
+  setSelectedOwnership,
   branches,
   categories,
   segments,
@@ -200,6 +219,17 @@ const AssetTable = ({
               <option value="Retired">Retired</option>
               <option value="Hilang">Hilang</option>
             </select>
+
+            {/* Ownership Filter */}
+            <select
+              value={selectedOwnership}
+              onChange={(e) => setSelectedOwnership(e.target.value)}
+              className="bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500"
+            >
+              <option value="">Semua Kepemilikan</option>
+              <option value="Aset Tetap">🏢 Aset Tetap</option>
+              <option value="Aset Hibah">🎁 Aset Hibah</option>
+            </select>
           </div>
         </div>
       </div>
@@ -218,13 +248,14 @@ const AssetTable = ({
               <th className="py-3.5 px-4 text-center">Unit</th>
               <th className="py-3.5 px-4 text-center">Status</th>
               <th className="py-3.5 px-4 text-center">Kondisi</th>
+              <th className="py-3.5 px-4 text-center">Kepemilikan</th>
               <th className="py-3.5 px-4 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
             {assets.length === 0 ? (
               <tr>
-                <td colSpan="10" className="py-12 text-center text-slate-500">
+                <td colSpan="11" className="py-12 text-center text-slate-500">
                   Tidak ada aset yang memenuhi kriteria filter.
                 </td>
               </tr>
@@ -337,6 +368,9 @@ const AssetTable = ({
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       <ConditionBadge condition={asset.condition} />
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      <OwnershipBadge ownership={asset.ownership} />
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
