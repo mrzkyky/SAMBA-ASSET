@@ -61,27 +61,30 @@ export const StatusBadge = ({ status }) => {
 export const ConditionBadge = ({ condition }) => {
   if (condition === 'Baik') {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
         Baik
       </span>
     );
   }
   if (condition === 'Perlu Perbaikan') {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-sm">
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span>
         Perlu Perbaikan
       </span>
     );
   }
   if (condition === 'Rusak') {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 shadow-sm">
+        <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mr-1.5"></span>
         Rusak
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 shadow-sm">
       {condition || 'Baik'}
     </span>
   );
