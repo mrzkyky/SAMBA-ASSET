@@ -58,6 +58,11 @@ Pengorganisasian data terstruktur secara bertingkat:
 - Tampilan modern *dark-mode enterprise* yang responsif pada monitor desktop, tablet, maupun layar smartphone.
 - Mendukung instalasi sebagai aplikasi mandiri di Google Chrome Android/iOS (PWA).
 
+### 10. Riwayat Perubahan & Audit Trail Terperinci (Delta History)
+- **Pelacakan Edit & Salah Input**: Mencatat riwayat terakhir kali data aset diedit, siapa yang mengubah, kapan, dan perbandingan detail perubahan (**Nilai Lama ➔ Nilai Baru**).
+- **Akses Khusus Editor**: Menu dan riwayat audit hanya dapat diakses oleh akun yang berwenang mengedit (`Super Admin` dan `Branch Admin`).
+- **Pencarian Riwayat Real-Time**: Memudahkan pelacakan riwayat aset berdasarkan Serial Number, nama perangkat, site mitra, maupun username pengubah.
+
 ---
 
 ## 🛠️ Arsitektur Teknologi (Tech Stack)

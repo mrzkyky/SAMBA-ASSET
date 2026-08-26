@@ -28,6 +28,12 @@ func GetAuditLogs(c *gin.Context) {
 		query = query.Where("action = ?", actionFilter)
 	}
 
+	search := c.Query("q")
+	if search != "" {
+		pattern := "%" + search + "%"
+		query = query.Where("action ILIKE ? OR details ILIKE ? OR username ILIKE ?", pattern, pattern, pattern)
+	}
+
 	var total int64
 	query.Count(&total)
 

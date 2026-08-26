@@ -201,14 +201,25 @@ func CreateAsset(c *gin.Context) {
 	}
 
 	config.DB.Preload("Site.Branch").Preload("Category").Preload("Segment").First(&input, input.ID)
+
+	// Record Audit Log for Asset Creation
+	userIDPtr, username := getUserContext(c)
+	siteInfo := fmt.Sprintf("Site ID %d", input.SiteID)
+	if input.Site != nil {
+		siteInfo = fmt.Sprintf("%s (%s)", input.Site.SiteName, input.Site.PartnerName)
+	}
+	auditDetails := fmt.Sprintf("Menambahkan Aset Baru: %s / %s (SN: %s, %d Unit) di %s. Jenis: %s, Status: %s, Kondisi: %s",
+		input.Brand, input.Model, input.SerialNumber, input.UnitCount, siteInfo, input.AssetType, input.Status, input.Condition)
+	config.RecordAuditLog(userIDPtr, username, "TAMBAH_ASET", auditDetails, c.ClientIP())
+
 	c.JSON(http.StatusCreated, gin.H{"message": "Aset berhasil ditambahkan", "data": input})
 }
 
-// UpdateAsset updates an existing asset
+// UpdateAsset updates an existing asset and records delta change audit history
 func UpdateAsset(c *gin.Context) {
 	id := c.Param("id")
-	var asset models.Asset
-	if err := config.DB.First(&asset, id).Error; err != nil {
+	var oldAsset models.Asset
+	if err := config.DB.Preload("Site.Branch").Preload("Category").Preload("Segment").First(&oldAsset, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Aset tidak ditemukan"})
 		return
 	}
@@ -248,6 +259,39 @@ func UpdateAsset(c *gin.Context) {
 		input.Condition = "Baik"
 	}
 
+	// Calculate Delta Changes for Audit Log
+	changes := make([]string, 0)
+	if oldAsset.Brand != input.Brand || oldAsset.Model != input.Model {
+		changes = append(changes, fmt.Sprintf("Perangkat: %s %s ➔ %s %s", oldAsset.Brand, oldAsset.Model, input.Brand, input.Model))
+	}
+	if oldAsset.SiteID != input.SiteID {
+		changes = append(changes, fmt.Sprintf("Lokasi Site: ID %d ➔ ID %d", oldAsset.SiteID, input.SiteID))
+	}
+	if oldAsset.CategoryID != input.CategoryID {
+		changes = append(changes, fmt.Sprintf("Kategori: ID %d ➔ ID %d", oldAsset.CategoryID, input.CategoryID))
+	}
+	if oldAsset.AssetType != input.AssetType {
+		changes = append(changes, fmt.Sprintf("Jenis Asset: %s ➔ %s", oldAsset.AssetType, input.AssetType))
+	}
+	if oldAsset.LocationDetail != input.LocationDetail {
+		changes = append(changes, fmt.Sprintf("Lokasi Detail: %s ➔ %s", oldAsset.LocationDetail, input.LocationDetail))
+	}
+	if oldAsset.Status != input.Status {
+		changes = append(changes, fmt.Sprintf("Status: %s ➔ %s", oldAsset.Status, input.Status))
+	}
+	if oldAsset.Condition != input.Condition {
+		changes = append(changes, fmt.Sprintf("Kondisi: %s ➔ %s", oldAsset.Condition, input.Condition))
+	}
+	if oldAsset.SerialNumber != cleanSN {
+		changes = append(changes, fmt.Sprintf("Serial Number: %s ➔ %s", oldAsset.SerialNumber, cleanSN))
+	}
+	if oldAsset.UnitCount != finalUnitCount {
+		changes = append(changes, fmt.Sprintf("Jumlah Unit: %d ➔ %d", oldAsset.UnitCount, finalUnitCount))
+	}
+	if strings.TrimSpace(oldAsset.Notes) != strings.TrimSpace(input.Notes) {
+		changes = append(changes, fmt.Sprintf("Catatan: \"%s\" ➔ \"%s\"", oldAsset.Notes, input.Notes))
+	}
+
 	updateMap := map[string]interface{}{
 		"site_id":         input.SiteID,
 		"category_id":     input.CategoryID,
@@ -263,23 +307,71 @@ func UpdateAsset(c *gin.Context) {
 		"notes":           input.Notes,
 	}
 
-	if err := config.DB.Model(&models.Asset{}).Where("id = ?", asset.ID).Updates(updateMap).Error; err != nil {
+	if err := config.DB.Model(&models.Asset{}).Where("id = ?", oldAsset.ID).Updates(updateMap).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Gagal memperbarui aset: %v", err)})
 		return
 	}
 
-	config.DB.Preload("Site.Branch").Preload("Category").Preload("Segment").First(&asset, asset.ID)
-	c.JSON(http.StatusOK, gin.H{"message": "Aset berhasil diperbarui", "data": asset})
+	var updatedAsset models.Asset
+	config.DB.Preload("Site.Branch").Preload("Category").Preload("Segment").First(&updatedAsset, oldAsset.ID)
+
+	// Record Audit Log with Change Delta
+	changeSummary := "Diperbarui tanpa perubahan parameter utama"
+	if len(changes) > 0 {
+		changeSummary = strings.Join(changes, " | ")
+	}
+	siteName := "Site"
+	if oldAsset.Site != nil {
+		siteName = fmt.Sprintf("%s (%s)", oldAsset.Site.SiteName, oldAsset.Site.PartnerName)
+	}
+	auditDetails := fmt.Sprintf("Mengubah Aset #%d [%s / %s di %s]: %s",
+		oldAsset.ID, oldAsset.Brand, oldAsset.Model, siteName, changeSummary)
+
+	userIDPtr, username := getUserContext(c)
+	config.RecordAuditLog(userIDPtr, username, "EDIT_ASET", auditDetails, c.ClientIP())
+
+	c.JSON(http.StatusOK, gin.H{"message": "Aset berhasil diperbarui", "data": updatedAsset})
 }
 
-// DeleteAsset deletes an asset
+// DeleteAsset deletes an asset and records audit history
 func DeleteAsset(c *gin.Context) {
 	id := c.Param("id")
+	var asset models.Asset
+	if err := config.DB.Preload("Site").First(&asset, id).Error; err == nil {
+		siteName := "Site"
+		if asset.Site != nil {
+			siteName = fmt.Sprintf("%s (%s)", asset.Site.SiteName, asset.Site.PartnerName)
+		}
+		userIDPtr, username := getUserContext(c)
+		auditDetails := fmt.Sprintf("Menghapus Aset #%d: %s / %s (SN: %s) di %s",
+			asset.ID, asset.Brand, asset.Model, asset.SerialNumber, siteName)
+		config.RecordAuditLog(userIDPtr, username, "HAPUS_ASET", auditDetails, c.ClientIP())
+	}
+
 	if err := config.DB.Delete(&models.Asset{}, id).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menghapus aset"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Aset berhasil dihapus"})
+}
+
+// Helper to extract user info from gin context
+func getUserContext(c *gin.Context) (*uint, string) {
+	usernameVal, exists := c.Get("username")
+	username := "System"
+	if exists {
+		if uStr, ok := usernameVal.(string); ok && uStr != "" {
+			username = uStr
+		}
+	}
+
+	var userIDPtr *uint
+	if idVal, exists := c.Get("user_id"); exists {
+		if uid, ok := idVal.(uint); ok {
+			userIDPtr = &uid
+		}
+	}
+	return userIDPtr, username
 }
 
 // ExportAssets generates a CSV export for filtered assets

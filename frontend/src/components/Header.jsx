@@ -191,6 +191,22 @@ const Header = ({
             <span>Histori Mutasi & BAST</span>
           </button>
 
+          {/* Riwayat Perubahan & Audit Trail (Super Admin & Branch Admin) */}
+          {(isSuperAdmin || user?.role === 'Branch Admin') && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('audit')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
+                activeTab === 'audit'
+                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4 text-amber-400" />
+              <span>Riwayat Perubahan</span>
+            </button>
+          )}
+
           {/* Level 2: Site Management (Super Admin & Branch Admin) */}
           {(isSuperAdmin || user?.role === 'Branch Admin') && (
             <button
@@ -226,19 +242,6 @@ const Header = ({
           {/* Super Admin Specific Management Tabs */}
           {isSuperAdmin && (
             <>
-              <button
-                type="button"
-                onClick={() => setActiveTab('audit')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
-                  activeTab === 'audit'
-                    ? 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <ShieldCheck className="w-4 h-4 text-purple-400" />
-                <span>Audit Log</span>
-              </button>
-
               <button
                 type="button"
                 onClick={() => setActiveTab('users')}

@@ -346,8 +346,8 @@ function App() {
           />
         )}
 
-        {/* Tab 4: System Audit Trail Log (Super Admin) */}
-        {activeTab === 'audit' && user?.role === 'Super Admin' && (
+        {/* Tab 4: System Audit Trail Log & Edit History (Super Admin & Branch Admin) */}
+        {activeTab === 'audit' && (user?.role === 'Super Admin' || user?.role === 'Branch Admin') && (
           <AuditLogView />
         )}
 

@@ -103,8 +103,8 @@ func SetupRouter() *gin.Engine {
 				transfers.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateTransfer)
 			}
 
-			// System Audit Trail Logs Route
-			protected.GET("/audit-logs", middleware.RequireRoles("Super Admin"), handlers.GetAuditLogs)
+			// System Audit Trail Logs Route (Super Admin & Branch Admin)
+			protected.GET("/audit-logs", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.GetAuditLogs)
 
 			// User Management Routes (Super Admin Only)
 			users := protected.Group("/users")

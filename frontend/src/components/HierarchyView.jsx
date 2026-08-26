@@ -533,9 +533,16 @@ const HierarchyView = ({
 
                                             {/* Actions: QR, Mutasi, Edit/Delete */}
                                             <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1.5 border-t border-slate-900 text-xs">
-                                              <span className="text-[11px] text-slate-400">
-                                                Jumlah: <strong className="text-slate-200">{asset.unit_count} Unit</strong>
-                                              </span>
+                                              <div className="flex items-center space-x-2">
+                                                <span className="text-[11px] text-slate-400">
+                                                  Jumlah: <strong className="text-slate-200">{asset.unit_count} Unit</strong>
+                                                </span>
+                                                {asset.updated_at && (
+                                                  <span className="text-[10px] text-slate-500 hidden sm:inline" title={`Terakhir diupdate: ${new Date(asset.updated_at).toLocaleString('id-ID')}`}>
+                                                    • Update: {new Date(asset.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                                                  </span>
+                                                )}
+                                              </div>
 
                                               <div className="flex items-center space-x-1 shrink-0">
                                                 {/* QR Print Button */}
