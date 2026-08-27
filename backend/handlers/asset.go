@@ -56,6 +56,8 @@ func GetAssets(c *gin.Context) {
 
 	// Global Search Query (Serial Number, Brand, Model, Location, Notes, Site, Branch, Category, Segment, AssetType, Condition, Ownership)
 	search := strings.TrimSpace(c.Query("q"))
+	branchID := strings.TrimSpace(c.Query("branch_id"))
+
 	if search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
 		query = query.Joins("LEFT JOIN sites ON sites.id = assets.site_id").
@@ -66,13 +68,14 @@ func GetAssets(c *gin.Context) {
 				"LOWER(assets.serial_number) LIKE ? OR LOWER(assets.brand) LIKE ? OR LOWER(assets.model) LIKE ? OR LOWER(assets.location_detail) LIKE ? OR LOWER(assets.notes) LIKE ? OR LOWER(assets.asset_type) LIKE ? OR LOWER(assets.status) LIKE ? OR LOWER(assets.condition) LIKE ? OR LOWER(assets.ownership) LIKE ? OR LOWER(sites.site_name) LIKE ? OR LOWER(sites.partner_name) LIKE ? OR LOWER(branches.name) LIKE ? OR LOWER(branches.code) LIKE ? OR LOWER(categories.name) LIKE ? OR LOWER(segments.name) LIKE ?",
 				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
 			)
+	} else if branchID != "" {
+		// Only join sites if search hasn't already joined it
+		query = query.Joins("JOIN sites ON sites.id = assets.site_id")
 	}
 
 	// Filter by Branch
-	branchID := c.Query("branch_id")
 	if branchID != "" {
-		query = query.Joins("JOIN sites ON sites.id = assets.site_id").
-			Where("sites.branch_id = ?", branchID)
+		query = query.Where("sites.branch_id = ?", branchID)
 	}
 
 	// Filter by Site
