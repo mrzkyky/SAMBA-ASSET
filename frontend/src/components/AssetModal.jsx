@@ -449,6 +449,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
         status: formData.status || 'Aktif',
         unit_count: parseInt(formData.unit_count, 10) || 1,
         condition: formData.condition || 'Baik',
+        ownership: formData.ownership || 'Aset Tetap',
         notes: formData.notes || '',
       };
 
