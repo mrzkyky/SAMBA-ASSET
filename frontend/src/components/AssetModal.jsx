@@ -84,6 +84,20 @@ export const TEMPLATE_OPTIONS = [
   { category: 'QSFP', note: 'High-Speed Optical & Ethernet Network Transceiver' },
 ];
 
+export const DEFAULT_ASSET_TYPES = [
+  'Aktif',
+  'Pasif',
+  'Interconnect',
+  'Power',
+  'Kelistrikan',
+  'Radio & Transmisi',
+  'Optical & Fiber',
+  'Server & Komputasi',
+  'Security & CCTV',
+  'Tools & Instrument',
+  'Aksesoris & Rack',
+];
+
 export const getSuggestedNoteForCategory = (categoryName) => {
   if (!categoryName) return '';
   const clean = categoryName.trim().toLowerCase();
@@ -137,8 +151,40 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
   const [creatingSegment, setCreatingSegment] = useState(false);
   const [segmentError, setSegmentError] = useState('');
 
+  // Custom Asset Type State
+  const [customAssetTypes, setCustomAssetTypes] = useState(() => {
+    try {
+      const saved = localStorage.getItem('samba_custom_asset_types');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isAddingNewAssetType, setIsAddingNewAssetType] = useState(false);
+  const [newAssetTypeName, setNewAssetTypeName] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleAddNewAssetType = (e) => {
+    if (e) e.preventDefault();
+    const trimmed = newAssetTypeName.trim();
+    if (!trimmed) return;
+
+    if (!DEFAULT_ASSET_TYPES.includes(trimmed) && !customAssetTypes.includes(trimmed)) {
+      const updated = [...customAssetTypes, trimmed];
+      setCustomAssetTypes(updated);
+      try {
+        localStorage.setItem('samba_custom_asset_types', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Failed to persist custom asset type:', err);
+      }
+    }
+
+    setFormData((prev) => ({ ...prev, asset_type: trimmed }));
+    setIsAddingNewAssetType(false);
+    setNewAssetTypeName('');
+  };
 
   // Sync props or dynamically fetch if empty
   useEffect(() => {
@@ -644,20 +690,99 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
 
             {/* Row 2 - Right: Jenis Asset * */}
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-                Jenis Asset *
-              </label>
-              <select
-                required
-                value={formData.asset_type}
-                onChange={(e) => setFormData({ ...formData, asset_type: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
-              >
-                <option value="Aktif">Aktif</option>
-                <option value="Pasif">Pasif</option>
-                <option value="Interconnect">Interconnect</option>
-                <option value="Power">Power</option>
-              </select>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-slate-300">
+                  Jenis Asset *
+                </label>
+                {!isAddingNewAssetType ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingNewAssetType(true)}
+                    className="text-[11px] font-semibold text-cyan-400 hover:text-cyan-300 transition-colors flex items-center space-x-1"
+                  >
+                    <span>+ Jenis Baru</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddingNewAssetType(false);
+                      setNewAssetTypeName('');
+                    }}
+                    className="text-[11px] font-semibold text-slate-400 hover:text-slate-200 transition-colors"
+                  >
+                    Batal
+                  </button>
+                )}
+              </div>
+
+              {isAddingNewAssetType ? (
+                <div className="space-y-1.5 animate-in fade-in duration-150">
+                  <div className="flex items-center space-x-1.5">
+                    <input
+                      type="text"
+                      autoFocus
+                      placeholder="Nama jenis asset (misal: Kelistrikan, CCTV, Radio)..."
+                      value={newAssetTypeName}
+                      onChange={(e) => setNewAssetTypeName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddNewAssetType(e);
+                        }
+                      }}
+                      className="flex-1 bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddNewAssetType}
+                      disabled={!newAssetTypeName.trim()}
+                      className="px-3 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shrink-0 disabled:opacity-50"
+                    >
+                      Gunakan
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsAddingNewAssetType(false);
+                        setNewAssetTypeName('');
+                      }}
+                      className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white shrink-0 text-xs"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <SearchableSelect
+                  required
+                  value={formData.asset_type || 'Aktif'}
+                  onChange={(val) => {
+                    if (val === 'NEW') {
+                      setIsAddingNewAssetType(true);
+                    } else {
+                      setFormData({ ...formData, asset_type: val });
+                    }
+                  }}
+                  placeholder="Pilih Jenis Asset..."
+                  searchPlaceholder="Ketik untuk mencari jenis (misal: Aktif, Pasif, Kelistrikan)..."
+                  options={[
+                    ...Array.from(
+                      new Set([
+                        ...DEFAULT_ASSET_TYPES,
+                        ...customAssetTypes,
+                        ...(formData.asset_type ? [formData.asset_type] : []),
+                      ])
+                    ).map((t) => ({
+                      value: t,
+                      label: t,
+                      sublabel: ['Aktif', 'Pasif', 'Interconnect', 'Power'].includes(t) ? 'Kategori Standar' : 'Kustom / Tambahan',
+                    })),
+                  ]}
+                  onAddNew={() => setIsAddingNewAssetType(true)}
+                  addNewLabel="+ Tambah Jenis Asset Baru..."
+                />
+              )}
             </div>
 
             {/* Row 3 - Left: Merek / Brand * */}
