@@ -128,8 +128,6 @@ const ImportAssetModal = ({
 
   const fileInputRef = useRef(null);
 
-  if (!isOpen) return null;
-
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -309,6 +307,8 @@ const ImportAssetModal = ({
     setErrorMsg('');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
