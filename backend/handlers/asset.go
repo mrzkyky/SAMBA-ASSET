@@ -555,7 +555,18 @@ func ImportAssets(c *gin.Context) {
 		}
 	}
 
-	// Pre-load all sites, categories, and segments for in-memory resolution
+	// Pre-load all branches, sites, categories, and segments for in-memory resolution
+	var allBranches []models.Branch
+	config.DB.Find(&allBranches)
+
+	var defaultBranchID uint = 1
+	if len(allBranches) > 0 {
+		defaultBranchID = allBranches[0].ID
+	}
+	if userBranchID != nil && *userBranchID > 0 {
+		defaultBranchID = *userBranchID
+	}
+
 	var allSites []models.Site
 	config.DB.Preload("Branch").Find(&allSites)
 
@@ -596,14 +607,16 @@ func ImportAssets(c *gin.Context) {
 		model := strings.TrimSpace(item.Model)
 		rawSN := strings.TrimSpace(item.SerialNumber)
 
-		if brand == "" || model == "" || rawSN == "" {
-			importErrors = append(importErrors, ImportErrorDetail{
-				RowIndex: rowNumber,
-				Brand:    brand,
-				Model:    model,
-				Error:    "Merek, Tipe/Model, dan Serial Number wajib diisi",
-			})
-			continue
+		// Smart Fallbacks for essential fields if blank
+		if brand == "" {
+			if item.CategoryName != "" {
+				brand = item.CategoryName
+			} else {
+				brand = "Perangkat Jaringan"
+			}
+		}
+		if model == "" {
+			model = "Unit Standar"
 		}
 
 		// 1. Resolve Site
@@ -652,12 +665,61 @@ func ImportAssets(c *gin.Context) {
 			}
 		}
 
+		// Auto-Create Site if not found instead of failing
+		if !siteFound {
+			siteNameToCreate := strings.TrimSpace(item.SiteName)
+			if siteNameToCreate == "" {
+				siteNameToCreate = strings.TrimSpace(item.PartnerName)
+			}
+			if siteNameToCreate == "" {
+				if len(allSites) > 0 {
+					targetSite = allSites[0]
+					siteFound = true
+				} else {
+					siteNameToCreate = "Site Operasional Lapangan"
+				}
+			}
+
+			if !siteFound {
+				partnerNameToCreate := strings.TrimSpace(item.PartnerName)
+				if partnerNameToCreate == "" {
+					partnerNameToCreate = siteNameToCreate
+				}
+
+				branchForSite := defaultBranchID
+				// If branch_code or branch_name specified, match it
+				if item.BranchCode != "" || item.BranchName != "" {
+					for _, b := range allBranches {
+						if strings.EqualFold(b.Code, item.BranchCode) || strings.EqualFold(b.Name, item.BranchName) {
+							branchForSite = b.ID
+							break
+						}
+					}
+				}
+
+				newSite := models.Site{
+					BranchID:    branchForSite,
+					SiteName:    siteNameToCreate,
+					PartnerName: partnerNameToCreate,
+					Address:     "Alamat belum diatur (Hasil Auto-Import)",
+				}
+				if err := config.DB.Create(&newSite).Error; err == nil {
+					targetSite = newSite
+					siteFound = true
+					siteByID[newSite.ID] = newSite
+					siteByName[strings.ToLower(strings.TrimSpace(newSite.SiteName))] = newSite
+					siteByPartner[strings.ToLower(strings.TrimSpace(newSite.PartnerName))] = newSite
+					allSites = append(allSites, newSite)
+				}
+			}
+		}
+
 		if !siteFound {
 			importErrors = append(importErrors, ImportErrorDetail{
 				RowIndex: rowNumber,
 				Brand:    brand,
 				Model:    model,
-				Error:    fmt.Sprintf("Site tidak ditemukan untuk '%s' / '%s'. Silakan pilih Target Site atau buat Site terlebih dahulu.", item.SiteName, item.PartnerName),
+				Error:    fmt.Sprintf("Gagal menetapkan Site untuk baris ini."),
 			})
 			continue
 		}
@@ -671,6 +733,11 @@ func ImportAssets(c *gin.Context) {
 				Error:    fmt.Sprintf("Site '%s' bukan milik cabang yang ditugaskan kepada Anda", targetSite.SiteName),
 			})
 			continue
+		}
+
+		// Auto-generate SN if blank
+		if rawSN == "" || rawSN == "-" || strings.EqualFold(rawSN, "n/a") || strings.EqualFold(rawSN, "null") {
+			rawSN = fmt.Sprintf("SN-AUTO-%d-%d", targetSite.ID, rowNumber)
 		}
 
 		// 2. Resolve Category (Auto-create if new)

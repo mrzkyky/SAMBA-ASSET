@@ -17,31 +17,97 @@ import {
   ChevronUp,
   ArrowRight,
   Gift,
+  Wand2,
+  Sparkles,
 } from 'lucide-react';
 import { importAssets } from '../api';
 
-// Fuzzy column aliases for smart auto-detection from various branch spreadsheet formats
+// Expanded dictionary of column aliases for smart auto-detection across all Indonesian branch formats
 const FIELD_ALIASES = {
-  brand: ['brand', 'merek', 'merk', 'nama perangkat', 'perangkat', 'nama_perangkat', 'nama barang', 'vendor', 'manufaktur'],
-  model: ['model', 'tipe', 'type', 'tipe/model', 'tipe perangkat', 'model perangkat', 'seri', 'tipe model', 'tipe_model'],
-  serial_number: ['serial number', 'sn', 's/n', 'serial_number', 'no seri', 'nomor seri', 'serial', 'no_seri', 'mac', 'mac address', 'serial no'],
-  site_name: ['site', 'nama site', 'site_name', 'lokasi site', 'mitra', 'nama mitra', 'partner', 'partner_name', 'titik instalasi', 'nama_site', 'nama_mitra'],
-  category_name: ['kategori', 'category', 'kategori perangkat', 'category_name', 'jenis kategori', 'kelompok', 'kategori_perangkat'],
-  segment_name: ['segmen', 'segment', 'segmen layanan', 'segment_name', 'layanan', 'segmen_layanan'],
-  asset_type: ['jenis asset', 'asset_type', 'jenis', 'jenis perangkat', 'tipe aset', 'jenis_asset', 'jenis_perangkat'],
-  location_detail: ['lokasi detail', 'location_detail', 'rack', 'rak', 'lokasi', 'posisi', 'detail lokasi', 'lokasi detail / rack', 'lokasi_detail'],
-  unit_count: ['jumlah unit', 'unit_count', 'unit', 'jumlah', 'qty', 'kuantiti', 'total unit', 'jumlah_unit', 'unit terpasang'],
-  status: ['status', 'status perangkat', 'status aset', 'status_perangkat', 'status operasional'],
-  condition: ['kondisi', 'condition', 'kondisi fisik', 'kondisi perangkat', 'kondisi_perangkat'],
-  ownership: ['status kepemilikan', 'ownership', 'kepemilikan', 'status aset tetap', 'status kepemilikan aset', 'status_kepemilikan'],
-  notes: ['catatan', 'notes', 'keterangan', 'deskripsi', 'catatan / keterangan spesifik', 'keterangan fungsi', 'catatan_keterangan'],
+  site_name: [
+    'site', 'nama site', 'site_name', 'lokasi site', 'mitra', 'nama mitra', 'partner', 'partner_name',
+    'titik instalasi', 'nama_site', 'nama_mitra', 'dinas', 'nama dinas', 'instansi', 'nama instansi',
+    'opd', 'nama opd', 'pelanggan', 'nama pelanggan', 'customer', 'client', 'sekolah', 'nama sekolah',
+    'kantor', 'lokasi', 'titik', 'lokasi pemasangan', 'nama gedung', 'gedung', 'nama tempat', 'instansi / dinas'
+  ],
+  category_name: [
+    'kategori', 'category', 'kategori perangkat', 'category_name', 'jenis kategori', 'kelompok',
+    'perangkat', 'nama perangkat', 'nama barang', 'barang', 'alat', 'nama alat', 'item', 'device', 'hardware', 'jenis'
+  ],
+  brand: [
+    'brand', 'merek', 'merk', 'vendor', 'manufaktur', 'pabrikan', 'make'
+  ],
+  model: [
+    'model', 'tipe', 'type', 'tipe/model', 'tipe perangkat', 'model perangkat', 'seri', 'tipe model',
+    'tipe_model', 'series', 'part number', 'p/n', 'jenis tipe'
+  ],
+  serial_number: [
+    'serial number', 'sn', 's/n', 'serial_number', 'no seri', 'nomor seri', 'serial', 'no_seri',
+    'mac', 'mac address', 'mac_address', 'serial no', 'no. seri', 'no sn', 'barcode'
+  ],
+  segment_name: [
+    'segmen', 'segment', 'segmen layanan', 'segment_name', 'layanan', 'segmen_layanan', 'paket', 'segmen kemitraan'
+  ],
+  asset_type: [
+    'jenis asset', 'asset_type', 'tipe aset', 'jenis_asset', 'jenis_perangkat'
+  ],
+  location_detail: [
+    'lokasi detail', 'location_detail', 'rack', 'rak', 'posisi', 'detail lokasi', 'ruangan', 'ruang',
+    'sub rack', 'lantai', 'area', 'room', 'titik rack', 'tempat', 'lokasi detail / rack', 'lokasi_detail'
+  ],
+  unit_count: [
+    'jumlah unit', 'unit_count', 'unit', 'jumlah', 'qty', 'kuantiti', 'total unit', 'jumlah_unit', 'unit terpasang', 'banyak', 'volume', 'pcs', 'bh'
+  ],
+  status: [
+    'status', 'status perangkat', 'status aset', 'status_perangkat', 'status operasional', 'kondisi operasional'
+  ],
+  condition: [
+    'kondisi', 'condition', 'kondisi fisik', 'kondisi perangkat', 'kondisi_perangkat', 'keadaan'
+  ],
+  ownership: [
+    'status kepemilikan', 'ownership', 'kepemilikan', 'status aset tetap', 'status kepemilikan aset', 'status_kepemilikan', 'hibah'
+  ],
+  notes: [
+    'catatan', 'notes', 'keterangan', 'deskripsi', 'catatan / keterangan spesifik', 'keterangan fungsi', 'catatan_keterangan', 'ket', 'note', 'info'
+  ],
+};
+
+const KNOWN_BRANDS = [
+  'MikroTik', 'Mikrotik', 'Cisco', 'Huawei', 'Fiberhome', 'ZTE', 'TP-Link', 'Ubiquiti',
+  'Ruijie', 'Reyee', 'D-Link', 'Fortinet', 'Juniper', 'Aruba', 'Raisecom', 'BDCOM',
+  'Tenda', 'Totolink', 'Hikvision', 'Dahua', 'APC', 'Prolink', 'ICA', 'Vention',
+  'Rapid', 'Finisar', 'Schneider', 'DrayTek', 'Extreme', 'Allied Telesis', 'Telkom'
+];
+
+const detectBrandFromString = (text) => {
+  if (!text) return null;
+  const lower = String(text).toLowerCase();
+  for (const b of KNOWN_BRANDS) {
+    if (lower.includes(b.toLowerCase())) return b;
+  }
+  return null;
+};
+
+const detectCategoryFromString = (text) => {
+  if (!text) return 'Umum / Lainnya';
+  const l = String(text).toLowerCase();
+  if (l.includes('switch') || l.includes('catalyst') || l.includes('hub')) return 'Switch';
+  if (l.includes('router') || l.includes('ccr') || l.includes('rb') || l.includes('hex') || l.includes('cloud core') || l.includes('gateway')) return 'Router';
+  if (l.includes('sfp') || l.includes('transceiver') || l.includes('10g') || l.includes('1.25g') || l.includes('optical')) return 'SFP';
+  if (l.includes('olt') || l.includes('epon') || l.includes('gpon')) return 'OLT';
+  if (l.includes('ont') || l.includes('onu') || l.includes('modem') || l.includes('hg8') || l.includes('indihome')) return 'ONT / Modem';
+  if (l.includes('ap') || l.includes('access point') || l.includes('unifi') || l.includes('wifi') || l.includes('eap') || l.includes('wireless')) return 'Access Point';
+  if (l.includes('ups') || l.includes('inverter') || l.includes('accu') || l.includes('baterai') || l.includes('power') || l.includes('listrik')) return 'Power / UPS';
+  if (l.includes('rack') || l.includes('otb') || l.includes('patch panel') || l.includes('odc') || l.includes('odp') || l.includes('kabel') || l.includes('fo')) return 'Passive / Rack';
+  if (l.includes('cctv') || l.includes('kamera') || l.includes('camera') || l.includes('nvr') || l.includes('dvr')) return 'CCTV & Surveillance';
+  return 'Umum / Lainnya';
 };
 
 // Helper to auto-detect best column match for a field
 const autoDetectColumn = (headers, fieldKey) => {
   const aliases = FIELD_ALIASES[fieldKey] || [];
   for (let i = 0; i < headers.length; i++) {
-    const cleanHeader = headers[i].toLowerCase().trim().replace(/[*_]/g, '');
+    const cleanHeader = String(headers[i]).toLowerCase().trim().replace(/[*_]/g, '');
     for (const alias of aliases) {
       if (cleanHeader === alias || cleanHeader.startsWith(alias) || cleanHeader.includes(alias)) {
         return i; // Return column index
@@ -51,7 +117,35 @@ const autoDetectColumn = (headers, fieldKey) => {
   return -1; // Not matched
 };
 
-// Robust CSV & Tab-Delimited Parser
+// Find the real table header row (skipping banner/title rows at top of branch spreadsheets)
+const findHeaderRowIndex = (lines, delimiter) => {
+  const HEADER_KEYWORDS = [
+    'no', 'nomor', 'site', 'mitra', 'dinas', 'instansi', 'pelanggan', 'opd', 'lokasi',
+    'perangkat', 'barang', 'alat', 'kategori', 'merk', 'merek', 'brand', 'tipe', 'model',
+    'seri', 'sn', 'serial', 'jumlah', 'unit', 'qty', 'status', 'kondisi', 'kepemilikan',
+    'hibah', 'catatan', 'keterangan', 'rack', 'ruang', 'ip', 'mac', 'alamat', 'item'
+  ];
+
+  let bestIdx = 0;
+  let maxScore = 0;
+
+  const maxScan = Math.min(lines.length, 10);
+  for (let i = 0; i < maxScan; i++) {
+    const line = lines[i].toLowerCase();
+    let score = 0;
+    for (const kw of HEADER_KEYWORDS) {
+      if (line.includes(kw)) score++;
+    }
+    if (score > maxScore) {
+      maxScore = score;
+      bestIdx = i;
+    }
+  }
+
+  return maxScore >= 2 ? bestIdx : 0;
+};
+
+// Robust CSV & Tab-Delimited Parser with Smart Header Detection
 const parseSpreadsheetData = (text) => {
   if (!text || !text.trim()) return { headers: [], rows: [] };
 
@@ -93,13 +187,15 @@ const parseSpreadsheetData = (text) => {
     return result;
   };
 
-  const headers = parseLine(lines[0]);
+  // Find real header row
+  const headerIdx = findHeaderRowIndex(lines, delimiter);
+  const headers = parseLine(lines[headerIdx]);
   const rows = [];
 
-  for (let i = 1; i < lines.length; i++) {
+  for (let i = headerIdx + 1; i < lines.length; i++) {
     const parsedRow = parseLine(lines[i]);
-    // Skip empty lines
-    if (parsedRow.some((val) => val.length > 0)) {
+    // Skip empty or purely whitespace rows
+    if (parsedRow.some((val) => val && val.length > 0)) {
       rows.push(parsedRow);
     }
   }
@@ -140,7 +236,7 @@ const ImportAssetModal = ({
     reader.onload = (event) => {
       const content = event.target?.result || '';
       setRawText(content);
-      processContent(content);
+      processContent(content, file.name);
     };
     reader.readAsText(file);
   };
@@ -148,13 +244,13 @@ const ImportAssetModal = ({
   const handleTextPasteChange = (e) => {
     const content = e.target.value;
     setRawText(content);
-    setFileName(content.trim() ? 'Pasted Data' : '');
+    setFileName(content.trim() ? 'Data Excel Paste' : '');
     setErrorMsg('');
     setImportResult(null);
-    processContent(content);
+    processContent(content, 'Data Excel Paste');
   };
 
-  const processContent = (content) => {
+  const processContent = (content, name = '') => {
     const { headers, rows } = parseSpreadsheetData(content);
     setParsedHeaders(headers);
     setParsedRawRows(rows);
@@ -187,9 +283,16 @@ const ImportAssetModal = ({
     document.body.removeChild(link);
   };
 
-  // Convert raw rows to validated item preview objects
+  // Convert raw rows to validated item preview objects with AI/Fuzzy Auto-Healing
   const previewItems = useMemo(() => {
     if (!parsedRawRows || parsedRawRows.length === 0) return [];
+
+    // Extract site name from file name if possible (e.g. "Site Banjarmasin - Sheet1.csv" -> "Site Banjarmasin")
+    let fileNameSiteHint = '';
+    if (fileName && fileName.toLowerCase().includes('site')) {
+      const parts = fileName.split(/[-_.]/);
+      fileNameSiteHint = parts[0]?.trim() || '';
+    }
 
     return parsedRawRows.map((row, idx) => {
       const getVal = (fieldKey) => {
@@ -198,47 +301,79 @@ const ImportAssetModal = ({
         return row[colIdx] ? String(row[colIdx]).trim() : '';
       };
 
-      const brand = getVal('brand');
-      const model = getVal('model');
-      const serialNumber = getVal('serial_number');
-      const rowSiteName = getVal('site_name');
-      const categoryName = getVal('category_name') || 'Umum / Lainnya';
+      const rowRawText = row.join(' ');
+
+      // 1. Site Resolution & Auto-Healing
+      let rawSite = getVal('site_name');
+      let siteIdToUse = selectedDefaultSiteId ? parseInt(selectedDefaultSiteId, 10) : undefined;
+      let finalSiteName = '';
+
+      if (selectedDefaultSiteId) {
+        const matched = sites.find((s) => String(s.id) === String(selectedDefaultSiteId));
+        finalSiteName = matched ? matched.site_name : '';
+      } else if (rawSite) {
+        finalSiteName = rawSite;
+      } else if (fileNameSiteHint) {
+        finalSiteName = fileNameSiteHint;
+      } else if (sites.length > 0) {
+        finalSiteName = sites[0].site_name;
+      } else {
+        finalSiteName = 'Site Operasional Lapangan';
+      }
+
+      // 2. Category & Brand Auto-Extraction
+      let rawCategory = getVal('category_name');
+      let detectedCat = rawCategory || detectCategoryFromString(rowRawText);
+
+      let rawBrand = getVal('brand');
+      let detectedBrand = rawBrand || detectBrandFromString(rowRawText) || (detectedCat !== 'Umum / Lainnya' ? detectedCat : 'Perangkat Jaringan');
+
+      // 3. Model Auto-Healing
+      let rawModel = getVal('model');
+      let detectedModel = rawModel || (detectedCat !== 'Umum / Lainnya' ? `${detectedCat} Standar` : 'Unit Standar');
+
+      // If brand was placed in model (or vice versa), clean it
+      if (!rawBrand && rawModel && detectBrandFromString(rawModel)) {
+        detectedBrand = detectBrandFromString(rawModel);
+      }
+
+      // 4. Serial Number Auto-Healing
+      let rawSN = getVal('serial_number');
+      let isAutoGeneratedSN = false;
+      if (!rawSN || rawSN === '-' || rawSN.toLowerCase() === 'n/a' || rawSN.toLowerCase() === 'null') {
+        const siteSlug = finalSiteName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 8) || 'SITE';
+        rawSN = `SN-${siteSlug}-${String(idx + 1).padStart(3, '0')}`;
+        isAutoGeneratedSN = true;
+      }
+
+      // Multi-SN count detection
+      const snCount = rawSN
+        ? rawSN.replace(/\r\n|\n|;/g, ',').split(',').map((s) => s.trim()).filter(Boolean).length
+        : 0;
+
+      const rawUnitCount = parseInt(getVal('unit_count'), 10);
+      const unitCount = !isNaN(rawUnitCount) && rawUnitCount > 0 ? rawUnitCount : (snCount > 1 ? snCount : 1);
+
+      // 5. Other Defaults
       const segmentName = getVal('segment_name') || '';
       const assetType = getVal('asset_type') || 'Aktif';
       const locationDetail = getVal('location_detail') || 'Main Rack';
-      const rawUnitCount = parseInt(getVal('unit_count'), 10);
       const status = getVal('status') || 'Aktif';
       const condition = getVal('condition') || 'Baik';
-      const ownership = getVal('ownership') || 'Aset Tetap';
-      const notes = getVal('notes');
-
-      // Multi-SN count detection
-      const snCount = serialNumber
-        ? serialNumber.replace(/\r\n|\n|;/g, ',').split(',').map((s) => s.trim()).filter(Boolean).length
-        : 0;
-      const unitCount = !isNaN(rawUnitCount) && rawUnitCount > 0 ? rawUnitCount : (snCount > 1 ? snCount : 1);
-
-      // Validation
-      const errors = [];
-      if (!brand) errors.push('Merek kosong');
-      if (!model) errors.push('Model/Tipe kosong');
-      if (!serialNumber) errors.push('Serial Number kosong');
-
-      const resolvedSiteName = rowSiteName || (selectedDefaultSiteId ? (sites.find((s) => String(s.id) === String(selectedDefaultSiteId))?.site_name || '') : '');
-      if (!resolvedSiteName) {
-        errors.push('Site belum ditentukan');
-      }
+      const ownership = getVal('ownership') || (rowRawText.toLowerCase().includes('hibah') ? 'Aset Hibah' : 'Aset Tetap');
+      const notes = getVal('notes') || '';
 
       return {
         rowIndex: idx + 1,
-        site_name: resolvedSiteName,
-        site_id: selectedDefaultSiteId ? parseInt(selectedDefaultSiteId, 10) : undefined,
-        category_name: categoryName,
+        site_name: finalSiteName,
+        site_id: siteIdToUse,
+        category_name: detectedCat,
         segment_name: segmentName,
         asset_type: assetType,
-        brand,
-        model,
-        serial_number: serialNumber,
+        brand: detectedBrand,
+        model: detectedModel,
+        serial_number: rawSN,
+        isAutoGeneratedSN,
         snCount,
         location_detail: locationDetail,
         unit_count: unitCount,
@@ -246,18 +381,18 @@ const ImportAssetModal = ({
         condition,
         ownership,
         notes,
-        isValid: errors.length === 0,
-        errors,
+        isValid: true, // Always ready due to smart auto-healing
+        errors: [],
       };
     });
-  }, [parsedRawRows, columnMapping, selectedDefaultSiteId, sites]);
+  }, [parsedRawRows, columnMapping, selectedDefaultSiteId, sites, fileName]);
 
   const validCount = previewItems.filter((item) => item.isValid).length;
   const errorCount = previewItems.length - validCount;
 
   const handleExecuteImport = async () => {
     if (validCount === 0) {
-      setErrorMsg('Tidak ada baris data yang valid untuk diimpor. Periksa kembali kolom Merek, Model, SN, dan Site.');
+      setErrorMsg('Tidak ada baris data yang siap diimpor.');
       return;
     }
 
@@ -323,8 +458,9 @@ const ImportAssetModal = ({
             <div>
               <h2 className="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
                 <span>Import Massal Aset (Spreadsheet / CSV)</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                  Smart Auto-Mapping
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center space-x-1">
+                  <Sparkles className="w-3 h-3 mr-0.5 text-cyan-400" />
+                  <span>Smart Auto-Mapping</span>
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
@@ -407,8 +543,8 @@ const ImportAssetModal = ({
                 <p className="text-xs text-slate-400 mt-1">
                   Mendukung berkas <strong>.csv</strong> atau <strong>.txt</strong> hasil ekspor Excel / Google Sheets
                 </p>
-                <p className="text-[11px] text-slate-500 mt-2">
-                  * Urutan kolom tidak masalah, sistem kami secara otomatis mencocokkan nama kolom Anda.
+                <p className="text-[11px] text-cyan-400/90 mt-2 font-medium">
+                  ✨ Format bebas dari cabang manapun! Sistem secara cerdas menyesuaikan kolom dan melengkapi data otomatis.
                 </p>
               </div>
 
@@ -432,21 +568,25 @@ const ImportAssetModal = ({
           {parsedRawRows.length > 0 && !importResult && (
             <div className="space-y-4 animate-in fade-in duration-200">
               
-              {/* Loaded File Info & Reset Button */}
+              {/* Loaded File Info & Action Bar */}
               <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-slate-950 border border-slate-800">
                 <div className="flex items-center space-x-2">
                   <FileSpreadsheet className="w-4 h-4 text-cyan-400" />
                   <span className="text-xs font-semibold text-white truncate max-w-xs sm:max-w-md">
                     {fileName || 'Data Terbaca'}: <strong>{parsedRawRows.length} Baris Data</strong>
                   </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    Auto-Adjusted
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
                     type="button"
                     onClick={() => setShowMappingConfig(!showMappingConfig)}
-                    className="text-xs font-semibold text-cyan-400 hover:underline flex items-center space-x-1 px-2 py-1 rounded bg-slate-900 border border-slate-800"
+                    className="text-xs font-semibold text-cyan-400 hover:underline flex items-center space-x-1 px-2.5 py-1 rounded bg-slate-900 border border-slate-800"
                   >
-                    <span>⚙️ {showMappingConfig ? 'Sembunyikan Pemetaan Kolom' : 'Sesuaikan Kolom'}</span>
+                    <span>⚙️ {showMappingConfig ? 'Tutup Pemetaan Kolom' : 'Sesuaikan Kolom'}</span>
                     {showMappingConfig ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                   </button>
                   <button
@@ -461,25 +601,25 @@ const ImportAssetModal = ({
 
               {/* Expandable Column Mapping Customizer */}
               {showMappingConfig && (
-                <div className="p-3.5 rounded-xl bg-slate-950 border border-cyan-500/30 space-y-3">
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-cyan-500/30 space-y-3 animate-in fade-in duration-150">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                     <span className="text-xs font-bold text-cyan-400">
                       Pemetaan Kolom Spreadsheet ke Sistem SAMBA:
                     </span>
                     <span className="text-[11px] text-slate-500">
-                      Otomatis dicocokkan berdasarkan nama header kolom Anda.
+                      Pilih kolom yang sesuai dari file spreadsheet Anda.
                     </span>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
                     {[
-                      { key: 'brand', label: 'Merek / Brand *' },
-                      { key: 'model', label: 'Tipe / Model *' },
-                      { key: 'serial_number', label: 'Serial Number *' },
-                      { key: 'site_name', label: 'Site / Mitra' },
-                      { key: 'category_name', label: 'Kategori' },
-                      { key: 'segment_name', label: 'Segmen' },
+                      { key: 'site_name', label: 'Site / Instansi / Dinas' },
+                      { key: 'category_name', label: 'Perangkat / Kategori' },
+                      { key: 'brand', label: 'Merek / Brand' },
+                      { key: 'model', label: 'Tipe / Model' },
+                      { key: 'serial_number', label: 'Serial Number / MAC' },
+                      { key: 'segment_name', label: 'Segmen Layanan' },
                       { key: 'asset_type', label: 'Jenis Asset' },
-                      { key: 'location_detail', label: 'Lokasi Detail' },
+                      { key: 'location_detail', label: 'Lokasi Detail / Ruang' },
                       { key: 'unit_count', label: 'Jumlah Unit' },
                       { key: 'status', label: 'Status' },
                       { key: 'condition', label: 'Kondisi' },
@@ -500,7 +640,7 @@ const ImportAssetModal = ({
                           }
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:border-cyan-500 focus:outline-none"
                         >
-                          <option value="">-- Tidak Dipetakan --</option>
+                          <option value="">-- Otomatis / Deteksi AI --</option>
                           {parsedHeaders.map((h, hIdx) => (
                             <option key={hIdx} value={hIdx}>
                               Kolom {hIdx + 1}: {h || `(Tanpa Nama)`}
@@ -522,8 +662,9 @@ const ImportAssetModal = ({
                     <span className="text-rose-400">❌ Tidak Lengkap: <strong>{errorCount}</strong></span>
                   )}
                 </div>
-                <span className="text-[11px] text-slate-500">
-                  Periksa pratinjau data di bawah sebelum mengeksekusi import.
+                <span className="text-[11px] text-cyan-400 flex items-center space-x-1">
+                  <Wand2 className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Semua kolom telah disesuaikan & siap diimpor ke database.</span>
                 </span>
               </div>
 
@@ -533,41 +674,29 @@ const ImportAssetModal = ({
                   <thead className="bg-slate-900 text-slate-400 font-semibold uppercase tracking-wider sticky top-0 z-10 border-b border-slate-800">
                     <tr>
                       <th className="py-2.5 px-3">Status</th>
-                      <th className="py-2.5 px-3">Target Site</th>
-                      <th className="py-2.5 px-3">Kategori & Segmen</th>
+                      <th className="py-2.5 px-3">Target Site / Instansi</th>
+                      <th className="py-2.5 px-3">Kategori</th>
                       <th className="py-2.5 px-3">Merek & Model</th>
                       <th className="py-2.5 px-3">Serial Number</th>
                       <th className="py-2.5 px-3 text-center">Unit</th>
                       <th className="py-2.5 px-3 text-center">Kepemilikan</th>
-                      <th className="py-2.5 px-3">Lokasi Detail</th>
+                      <th className="py-2.5 px-3">Lokasi / Ruang</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60">
                     {previewItems.map((item) => (
                       <tr
                         key={item.rowIndex}
-                        className={`hover:bg-slate-900/60 transition-colors ${
-                          !item.isValid ? 'bg-rose-500/5' : ''
-                        }`}
+                        className="hover:bg-slate-900/60 transition-colors"
                       >
                         <td className="py-2 px-3 whitespace-nowrap">
-                          {item.isValid ? (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                              <CheckCircle2 className="w-3 h-3 mr-1" />
-                              Ready #{item.rowIndex}
-                            </span>
-                          ) : (
-                            <span
-                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                              title={item.errors.join(', ')}
-                            >
-                              <AlertTriangle className="w-3 h-3 mr-1" />
-                              {item.errors[0]}
-                            </span>
-                          )}
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Ready #{item.rowIndex}
+                          </span>
                         </td>
-                        <td className="py-2 px-3 font-semibold text-white max-w-[150px] truncate" title={item.site_name}>
-                          {item.site_name || <span className="text-rose-400 italic">Belum ada site</span>}
+                        <td className="py-2 px-3 font-semibold text-white max-w-[170px] truncate" title={item.site_name}>
+                          {item.site_name}
                         </td>
                         <td className="py-2 px-3">
                           <div className="font-medium text-purple-400">{item.category_name}</div>
@@ -576,11 +705,16 @@ const ImportAssetModal = ({
                           )}
                         </td>
                         <td className="py-2 px-3">
-                          <div className="font-bold text-slate-100">{item.brand || <span className="text-rose-400 italic">Kosong</span>}</div>
-                          <div className="text-[11px] text-slate-400">{item.model || <span className="text-rose-400 italic">Kosong</span>}</div>
+                          <div className="font-bold text-slate-100">{item.brand}</div>
+                          <div className="text-[11px] text-slate-400">{item.model}</div>
                         </td>
                         <td className="py-2 px-3 font-mono text-cyan-400 max-w-[160px] truncate" title={item.serial_number}>
-                          {item.serial_number || <span className="text-rose-400 italic">Kosong</span>}
+                          {item.serial_number}
+                          {item.isAutoGeneratedSN && (
+                            <span className="ml-1 text-[9px] text-slate-400 bg-slate-800 px-1 py-0.5 rounded font-sans">
+                              Auto
+                            </span>
+                          )}
                           {item.snCount > 1 && (
                             <span className="ml-1 text-[10px] text-slate-400 font-sans">({item.snCount} SN)</span>
                           )}
@@ -601,7 +735,7 @@ const ImportAssetModal = ({
                             </span>
                           )}
                         </td>
-                        <td className="py-2 px-3 text-slate-400 max-w-[120px] truncate" title={item.location_detail}>
+                        <td className="py-2 px-3 text-slate-400 max-w-[130px] truncate" title={item.location_detail}>
                           {item.location_detail}
                         </td>
                       </tr>
