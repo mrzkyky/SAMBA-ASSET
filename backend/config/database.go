@@ -101,6 +101,9 @@ func InitDB() *gorm.DB {
 	DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS condition VARCHAR(50) DEFAULT 'Baik';")
 	DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS ownership VARCHAR(50) DEFAULT 'Aset Tetap';")
 	DB.Exec("ALTER TABLE assets ALTER COLUMN status TYPE VARCHAR(50);")
+	DB.Exec("ALTER TABLE assets ALTER COLUMN location_detail TYPE TEXT;")
+	DB.Exec("ALTER TABLE assets ALTER COLUMN brand TYPE VARCHAR(255);")
+	DB.Exec("ALTER TABLE assets ALTER COLUMN model TYPE VARCHAR(255);")
 	_ = DB.Exec("ALTER TABLE assets DROP CONSTRAINT IF EXISTS assets_status_check;").Error
 	_ = DB.Exec("ALTER TABLE assets DROP CONSTRAINT IF EXISTS assets_condition_check;").Error
 	_ = DB.Exec("ALTER TABLE assets DROP CONSTRAINT IF EXISTS assets_asset_type_check;").Error
