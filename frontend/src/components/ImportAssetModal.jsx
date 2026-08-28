@@ -106,21 +106,103 @@ const detectCategoryFromString = (text) => {
   return 'Umum / Lainnya';
 };
 
-// Helper to auto-detect best column match for a field
-const autoDetectColumn = (headers, fieldKey) => {
-  const aliases = FIELD_ALIASES[fieldKey] || [];
-  for (let i = 0; i < headers.length; i++) {
-    const cleanHeader = String(headers[i]).toLowerCase().trim().replace(/[*_]/g, '');
-    for (const alias of aliases) {
-      if (cleanHeader === alias || cleanHeader.startsWith(alias) || cleanHeader.includes(alias)) {
-        return i; // Return column index
+// Content-Based Column Auto-Classifier (Analyzes actual cell values across rows)
+const classifyColumnsByContent = (rows, headers = []) => {
+  if (!rows || rows.length === 0) return {};
+
+  const numCols = Math.max(
+    headers.length,
+    ...rows.slice(0, 15).map((r) => r.length)
+  );
+
+  const scores = {
+    site_name: Array(numCols).fill(0),
+    category_name: Array(numCols).fill(0),
+    serial_number: Array(numCols).fill(0),
+    location_detail: Array(numCols).fill(0),
+    notes: Array(numCols).fill(0),
+  };
+
+  const SITE_KEYWORDS = ['dinas', 'instansi', 'pemuda', 'olahraga', 'pariwisata', 'perdagangan', 'perhubungan', 'kemenag', 'sekolah', 'kantor', 'rsud', 'puskesmas', 'kecamatan', 'kelurahan', 'badan', 'balai', 'sekretariat', 'kominfo', 'bappeda', 'dispora', 'dishub', 'dispar', 'polres', 'kodim', 'kantor bupati', 'bupati', 'walikota'];
+  const ROOM_KEYWORDS = ['ruang', 'lantai', 'lt', 'server', 'lobby', 'aula', 'gor', 'stadion', 'pplp', 'skb', 'kadis', 'sekre', 'umpeg', 'ekraf', 'rack', 'rak', 'kamar', 'pos', 'gudang', 'sw ', 'kantor gubernur'];
+  const DEVICE_KEYWORDS = ['ap', 'ruijie', 'switch', 'router', 'mikrotik', 'sfp', 'cctv', 'ont', 'onu', 'modem', 'hikvision', 'cisco', 'huawei', 'fiberhome', 'zte', 'tp-link', 'ubiquiti', 'unifi', 'olt', 'es209', '720-l', 'catalyst'];
+
+  const sampleRows = rows.slice(0, 35);
+
+  for (let c = 0; c < numCols; c++) {
+    // 1. Header keyword check
+    if (headers && headers[c]) {
+      const hClean = String(headers[c]).toLowerCase().trim();
+      Object.keys(FIELD_ALIASES).forEach((k) => {
+        const aliases = FIELD_ALIASES[k] || [];
+        if (aliases.some((a) => hClean === a || hClean.includes(a))) {
+          if (scores[k]) scores[k][c] += 100;
+        }
+      });
+    }
+
+    // 2. Cell content inspection
+    for (const row of sampleRows) {
+      const val = (row[c] || '').trim();
+      if (!val) continue;
+      const lower = val.toLowerCase();
+
+      // Pure small numbers (like 13, 14, 15, 1, 2, 3) are row numbers
+      if (/^\d{1,4}$/.test(val)) {
+        continue;
+      }
+
+      // Site Check
+      if (SITE_KEYWORDS.some((k) => lower.includes(k))) {
+        scores.site_name[c] += 20;
+      }
+
+      // Location / Room Check
+      if (ROOM_KEYWORDS.some((k) => lower.includes(k))) {
+        scores.location_detail[c] += 15;
+      }
+
+      // Device / Category / Model Check
+      if (DEVICE_KEYWORDS.some((k) => lower.includes(k))) {
+        scores.category_name[c] += 15;
+      }
+
+      // Serial Number Check (Alphanumeric codes e.g. G1SP..., ZAT10..., M2401..., ELWG..., ZTEG...)
+      if (/^[A-Z0-9_-]{7,35}$/i.test(val) || val.includes('0231129') || /^[A-Z]{2,6}[0-9]{4,}/i.test(val)) {
+        scores.serial_number[c] += 25;
+      }
+
+      // Notes Check
+      if (lower.includes('merk') || lower.includes('tipe') || lower.includes('berapa g') || lower.includes('type') || lower.includes('seri apa')) {
+        scores.notes[c] += 20;
       }
     }
   }
-  return -1; // Not matched
+
+  // Assign best column for each field without collision
+  const mapping = {};
+  const assignedCols = new Set();
+  const priorityFields = ['site_name', 'category_name', 'serial_number', 'location_detail', 'notes'];
+
+  for (const field of priorityFields) {
+    let bestCol = -1;
+    let highestScore = 0;
+    for (let c = 0; c < numCols; c++) {
+      if (!assignedCols.has(c) && scores[field][c] > highestScore) {
+        highestScore = scores[field][c];
+        bestCol = c;
+      }
+    }
+    if (bestCol >= 0 && highestScore > 0) {
+      mapping[field] = bestCol;
+      assignedCols.add(bestCol);
+    }
+  }
+
+  return mapping;
 };
 
-// Find the real table header row (skipping banner/title rows at top of branch spreadsheets)
+// Find the real table header row (skipping banner/title rows)
 const findHeaderRowIndex = (lines, delimiter) => {
   const HEADER_KEYWORDS = [
     'no', 'nomor', 'site', 'mitra', 'dinas', 'instansi', 'pelanggan', 'opd', 'lokasi',
@@ -129,7 +211,7 @@ const findHeaderRowIndex = (lines, delimiter) => {
     'hibah', 'catatan', 'keterangan', 'rack', 'ruang', 'ip', 'mac', 'alamat', 'item'
   ];
 
-  let bestIdx = 0;
+  let bestIdx = -1;
   let maxScore = 0;
 
   const maxScan = Math.min(lines.length, 10);
@@ -145,7 +227,8 @@ const findHeaderRowIndex = (lines, delimiter) => {
     }
   }
 
-  return maxScore >= 2 ? bestIdx : 0;
+  // Only consider it a header row if it scored at least 2 header keywords
+  return maxScore >= 2 ? bestIdx : -1;
 };
 
 // Robust CSV & Tab-Delimited Parser with Smart Header Detection
@@ -190,17 +273,29 @@ const parseSpreadsheetData = (text) => {
     return result;
   };
 
-  // Find real header row
   const headerIdx = findHeaderRowIndex(lines, delimiter);
-  const headers = parseLine(lines[headerIdx]);
-  const rows = [];
+  let headers = [];
+  let rows = [];
 
-  for (let i = headerIdx + 1; i < lines.length; i++) {
-    const parsedRow = parseLine(lines[i]);
-    // Skip empty or purely whitespace rows
-    if (parsedRow.some((val) => val && val.length > 0)) {
-      rows.push(parsedRow);
+  if (headerIdx >= 0) {
+    // Explicit header row found
+    headers = parseLine(lines[headerIdx]);
+    for (let i = headerIdx + 1; i < lines.length; i++) {
+      const parsedRow = parseLine(lines[i]);
+      if (parsedRow.some((val) => val && val.length > 0)) {
+        rows.push(parsedRow);
+      }
     }
+  } else {
+    // No explicit header row: treat all rows as data rows
+    for (let i = 0; i < lines.length; i++) {
+      const parsedRow = parseLine(lines[i]);
+      if (parsedRow.some((val) => val && val.length > 0)) {
+        rows.push(parsedRow);
+      }
+    }
+    const maxCol = Math.max(...rows.map((r) => r.length), 1);
+    headers = Array.from({ length: maxCol }, (_, i) => `Kolom ${i + 1}`);
   }
 
   return { headers, rows };
@@ -259,13 +354,9 @@ const ImportAssetModal = ({
     setParsedHeaders(headers);
     setParsedRawRows(rows);
 
-    // Auto-detect column mapping
-    const newMapping = {};
-    Object.keys(FIELD_ALIASES).forEach((key) => {
-      const matchedIdx = autoDetectColumn(headers, key);
-      newMapping[key] = matchedIdx >= 0 ? matchedIdx : '';
-    });
-    setColumnMapping(newMapping);
+    // Smart Content-Based Auto-Detection
+    const detectedMapping = classifyColumnsByContent(rows, headers);
+    setColumnMapping(detectedMapping);
   };
 
   const handleDownloadTemplate = () => {
@@ -291,16 +382,9 @@ const ImportAssetModal = ({
   const previewItems = useMemo(() => {
     if (!parsedRawRows || parsedRawRows.length === 0) return [];
 
-    // Extract site name from file name if possible (e.g. "Site Banjarmasin - Sheet1.csv" -> "Site Banjarmasin")
-    let fileNameSiteHint = '';
-    if (fileName && fileName.toLowerCase().includes('site')) {
-      const parts = fileName.split(/[-_.]/);
-      fileNameSiteHint = parts[0]?.trim() || '';
-    }
-
-    // Step 1: Parse all raw rows individually with Merged-Cell Forward-Fill
     let lastKnownSite = '';
 
+    // Step 1: Parse all raw rows individually with Merged-Cell Forward-Fill
     const individualItems = parsedRawRows.map((row, idx) => {
       const getVal = (fieldKey) => {
         const colIdx = columnMapping[fieldKey];
@@ -310,8 +394,33 @@ const ImportAssetModal = ({
 
       const rowRawText = row.join(' ');
 
-      // 1. Site Resolution & Auto-Healing (Supports Vertically Merged Spreadsheet Cells like Dinas Pariwisata, Dispora, etc.)
+      // 1. Site Resolution & Auto-Healing (Supports Vertically Merged Spreadsheet Cells)
       let rawSite = getVal('site_name');
+
+      // Safety Net: Scan cells in row if rawSite not mapped
+      if (!rawSite) {
+        for (let c = 0; c < row.length; c++) {
+          const cellStr = (row[c] || '').trim();
+          const lower = cellStr.toLowerCase();
+          if (
+            lower.startsWith('dinas ') ||
+            lower.startsWith('kantor ') ||
+            lower.startsWith('badan ') ||
+            lower.startsWith('balai ') ||
+            lower.startsWith('sekolah ') ||
+            lower.startsWith('rsud ') ||
+            lower.startsWith('puskesmas ') ||
+            lower.startsWith('kecamatan ') ||
+            lower.startsWith('kelurahan ') ||
+            lower.startsWith('polres ') ||
+            lower.startsWith('kodim ')
+          ) {
+            rawSite = cellStr;
+            break;
+          }
+        }
+      }
+
       if (rawSite && rawSite.trim()) {
         lastKnownSite = rawSite.trim();
       } else if (lastKnownSite && !selectedDefaultSiteId) {
@@ -326,8 +435,6 @@ const ImportAssetModal = ({
         finalSiteName = matched ? matched.site_name : '';
       } else if (rawSite) {
         finalSiteName = rawSite;
-      } else if (fileNameSiteHint) {
-        finalSiteName = fileNameSiteHint;
       } else if (sites.length > 0) {
         finalSiteName = sites[0].site_name;
       } else {
@@ -485,7 +592,7 @@ const ImportAssetModal = ({
     });
 
     return mergedResults;
-  }, [parsedRawRows, columnMapping, selectedDefaultSiteId, sites, fileName, autoGroupSameModels]);
+  }, [parsedRawRows, columnMapping, selectedDefaultSiteId, sites, autoGroupSameModels]);
 
   const validCount = previewItems.filter((item) => item.isValid).length;
   const errorCount = previewItems.length - validCount;
