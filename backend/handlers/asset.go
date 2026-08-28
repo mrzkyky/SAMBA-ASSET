@@ -687,13 +687,14 @@ func ImportAssets(c *gin.Context) {
 				}
 
 				branchForSite := defaultBranchID
-				// If branch_code or branch_name specified, match it
-				if item.BranchCode != "" || item.BranchName != "" {
-					for _, b := range allBranches {
-						if strings.EqualFold(b.Code, item.BranchCode) || strings.EqualFold(b.Name, item.BranchName) {
-							branchForSite = b.ID
-							break
-						}
+				// Try matching branch from branch_code, branch_name, or site_name text
+				for _, b := range allBranches {
+					if (item.BranchCode != "" && strings.EqualFold(b.Code, item.BranchCode)) ||
+					   (item.BranchName != "" && strings.EqualFold(b.Name, item.BranchName)) ||
+					   (b.Name != "" && strings.Contains(strings.ToLower(siteNameToCreate), strings.ToLower(b.Name))) ||
+					   (b.Code != "" && strings.Contains(strings.ToLower(siteNameToCreate), strings.ToLower(b.Code))) {
+						branchForSite = b.ID
+						break
 					}
 				}
 
