@@ -8,6 +8,7 @@ COPY package.json ./
 RUN npm install
 
 # Copy source files and build for production
+ARG CACHEBUST=20260828v2
 COPY . .
 RUN npm run build
 
