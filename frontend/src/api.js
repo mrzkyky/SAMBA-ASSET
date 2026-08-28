@@ -181,6 +181,11 @@ export const deleteAsset = async (id) => {
   return response.data;
 };
 
+export const importAssets = async (data) => {
+  const response = await api.post('/assets/import', data);
+  return response.data;
+};
+
 export const getExportAssetsUrl = (branchId = '') => {
   const token = localStorage.getItem('token');
   let url = `${API_BASE_URL}/assets/export`;

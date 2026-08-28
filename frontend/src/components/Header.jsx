@@ -9,6 +9,7 @@ import {
   Plus,
   Search,
   Download,
+  Upload,
   Users,
   LogOut,
   UserCheck,
@@ -25,6 +26,7 @@ const Header = ({
   activeTab,
   setActiveTab,
   onOpenAssetModal,
+  onOpenImportModal,
   onOpenQRScannerModal,
   searchQuery,
   setSearchQuery,
@@ -135,6 +137,19 @@ const Header = ({
             <Download className="w-4 h-4" />
             <span className="hidden md:inline">Ekspor CSV</span>
           </button>
+
+          {/* Import CSV/Excel Button (RBAC: Super Admin & Branch Admin) */}
+          {!isAuditor && (
+            <button
+              type="button"
+              onClick={onOpenImportModal}
+              className="p-2 sm:px-3 sm:py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs font-semibold flex items-center space-x-1.5 transition-all shrink-0 active:scale-95 shadow-sm"
+              title="Import Aset dari Spreadsheet / CSV"
+            >
+              <Upload className="w-4 h-4" />
+              <span className="hidden sm:inline">Import CSV/Excel</span>
+            </button>
+          )}
 
           {/* Create Asset Trigger (RBAC Filter) */}
           {!isAuditor && (

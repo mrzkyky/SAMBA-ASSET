@@ -52,8 +52,14 @@ Pengorganisasian data terstruktur secara bertingkat:
 - **Auditor**: Akses peninjauan (*Read-Only*) untuk kebutuhan inspeksi dan laporan audit.
 - **Autentikasi & Verifikasi**: JWT (*JSON Web Token*) + OTP Verifikasi Email resmi via Google SMTP.
 
-### 8. Laporan & Export Data (CSV / Excel)
-- Unduh laporan rekapitulasi data aset lengkap dalam format CSV/Excel baik secara nasional maupun terfilter per-cabang dengan 1 klik.
+### 8. Laporan & Ekspor/Impor Data (CSV / Excel)
+- **Ekspor CSV / Excel**: Unduh laporan rekapitulasi data aset lengkap baik secara nasional maupun terfilter per-cabang dengan 1 klik.
+- **Import Massal Cerdas (*Smart Spreadsheet / CSV Import*)**:
+  - Impor ratusan aset sekaligus dari file Excel/CSV atau copy-paste tabel spreadsheet.
+  - **Pencocokan Kolom Fleksibel (*Smart Auto-Detection*)**: Mengenali otomatis berbagai format nama kolom dari branch lain (misal: *Merk/Brand*, *SN/Serial Number*, *Tipe/Model*, *Lokasi/Rack*, dll.) dan menyediakan konfigurasi pemetaan kolom manual.
+  - **Mode Uji Coba 1 Site**: Pilihan target site khusus sehingga tidak perlu menuliskan nama site di setiap baris spreadsheet.
+  - **Pratinjau & Validasi Interaktif**: Tabel preview langsung memverifikasi kelengkapan data sebelum disimpan ke database.
+  - **Otomatisasi Kategori, Segmen, dan Template Catatan**: Kategori atau segmen baru yang belum ada di database akan dibuatkan otomatis.
 
 ### 9. Desain Responsif & PWA (Mobile-Optimized)
 - Tampilan modern *dark-mode enterprise* yang responsif pada monitor desktop, tablet, maupun layar smartphone.

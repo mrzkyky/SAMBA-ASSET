@@ -16,6 +16,7 @@ import TransferModal from './components/TransferModal';
 import BASTModal from './components/BASTModal';
 import TransferHistory from './components/TransferHistory';
 import AuditLogView from './components/AuditLogView';
+import ImportAssetModal from './components/ImportAssetModal';
 
 import {
   getProfile,
@@ -70,6 +71,8 @@ function App() {
   // Modal States
   const [isAssetModalOpen, setIsAssetModalOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState(null);
+
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false);
   const [selectedQRAsset, setSelectedQRAsset] = useState(null);
@@ -275,6 +278,7 @@ function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenAssetModal={handleOpenCreateAssetModal}
+        onOpenImportModal={() => setIsImportModalOpen(true)}
         onOpenQRScannerModal={() => setIsQRScannerOpen(true)}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -392,6 +396,16 @@ function App() {
         categories={categories}
         segments={segments}
         onSaveSuccess={refreshAllData}
+      />
+
+      {/* Bulk Spreadsheet / CSV Import Modal */}
+      <ImportAssetModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        sites={sites}
+        branches={branches}
+        user={user}
+        onImportSuccess={refreshAllData}
       />
 
       {/* Printable QR Code Sticker Modal */}

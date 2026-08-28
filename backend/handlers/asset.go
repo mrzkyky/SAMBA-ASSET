@@ -495,3 +495,305 @@ func ExportAssets(c *gin.Context) {
 	c.Header("Content-Type", "text/csv; charset=utf-8")
 	c.String(http.StatusOK, b.String())
 }
+
+// ImportAssetItem represents a parsed row for bulk import
+type ImportAssetItem struct {
+	SiteID         *uint  `json:"site_id"`
+	SiteName       string `json:"site_name"`
+	PartnerName    string `json:"partner_name"`
+	BranchName     string `json:"branch_name"`
+	BranchCode     string `json:"branch_code"`
+	CategoryName   string `json:"category_name"`
+	SegmentName    string `json:"segment_name"`
+	AssetType      string `json:"asset_type"`
+	Brand          string `json:"brand"`
+	Model          string `json:"model"`
+	SerialNumber   string `json:"serial_number"`
+	LocationDetail string `json:"location_detail"`
+	UnitCount      int    `json:"unit_count"`
+	Status         string `json:"status"`
+	Condition      string `json:"condition"`
+	Ownership      string `json:"ownership"`
+	Notes          string `json:"notes"`
+}
+
+// ImportAssetsRequest represents the batch import request payload
+type ImportAssetsRequest struct {
+	DefaultSiteID *uint             `json:"default_site_id"`
+	Items         []ImportAssetItem `json:"items"`
+}
+
+// ImportErrorDetail represents a row validation or processing error
+type ImportErrorDetail struct {
+	RowIndex int    `json:"row_index"`
+	Brand    string `json:"brand"`
+	Model    string `json:"model"`
+	Error    string `json:"error"`
+}
+
+// ImportAssets handles bulk asset insertion from spreadsheet/CSV data
+func ImportAssets(c *gin.Context) {
+	var req ImportAssetsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Format data import tidak valid: %v", err)})
+		return
+	}
+
+	if len(req.Items) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Tidak ada baris data aset untuk diimpor"})
+		return
+	}
+
+	// Extract user context & role constraints
+	userIDPtr, username := getUserContext(c)
+	roleVal, _ := c.Get("user_role")
+	role, _ := roleVal.(string)
+	var userBranchID *uint
+	if bVal, exists := c.Get("user_branch_id"); exists {
+		if bid, ok := bVal.(uint); ok {
+			userBranchID = &bid
+		}
+	}
+
+	// Pre-load all sites, categories, and segments for in-memory resolution
+	var allSites []models.Site
+	config.DB.Preload("Branch").Find(&allSites)
+
+	siteByID := make(map[uint]models.Site)
+	siteByName := make(map[string]models.Site)
+	siteByPartner := make(map[string]models.Site)
+	for _, s := range allSites {
+		siteByID[s.ID] = s
+		if s.SiteName != "" {
+			siteByName[strings.ToLower(strings.TrimSpace(s.SiteName))] = s
+		}
+		if s.PartnerName != "" {
+			siteByPartner[strings.ToLower(strings.TrimSpace(s.PartnerName))] = s
+		}
+	}
+
+	var allCategories []models.Category
+	config.DB.Find(&allCategories)
+	categoryByName := make(map[string]uint)
+	for _, cat := range allCategories {
+		categoryByName[strings.ToLower(strings.TrimSpace(cat.Name))] = cat.ID
+	}
+
+	var allSegments []models.Segment
+	config.DB.Find(&allSegments)
+	segmentByName := make(map[string]uint)
+	for _, seg := range allSegments {
+		segmentByName[strings.ToLower(strings.TrimSpace(seg.Name))] = seg.ID
+	}
+
+	var createdAssets []models.Asset
+	var importErrors []ImportErrorDetail
+
+	// Process each item
+	for idx, item := range req.Items {
+		rowNumber := idx + 1
+		brand := strings.TrimSpace(item.Brand)
+		model := strings.TrimSpace(item.Model)
+		rawSN := strings.TrimSpace(item.SerialNumber)
+
+		if brand == "" || model == "" || rawSN == "" {
+			importErrors = append(importErrors, ImportErrorDetail{
+				RowIndex: rowNumber,
+				Brand:    brand,
+				Model:    model,
+				Error:    "Merek, Tipe/Model, dan Serial Number wajib diisi",
+			})
+			continue
+		}
+
+		// 1. Resolve Site
+		var targetSite models.Site
+		var siteFound bool
+
+		if item.SiteID != nil && *item.SiteID > 0 {
+			if s, exists := siteByID[*item.SiteID]; exists {
+				targetSite = s
+				siteFound = true
+			}
+		}
+
+		if !siteFound && req.DefaultSiteID != nil && *req.DefaultSiteID > 0 {
+			if s, exists := siteByID[*req.DefaultSiteID]; exists {
+				targetSite = s
+				siteFound = true
+			}
+		}
+
+		if !siteFound && item.SiteName != "" {
+			cleanName := strings.ToLower(strings.TrimSpace(item.SiteName))
+			if s, exists := siteByName[cleanName]; exists {
+				targetSite = s
+				siteFound = true
+			}
+		}
+
+		if !siteFound && item.PartnerName != "" {
+			cleanPartner := strings.ToLower(strings.TrimSpace(item.PartnerName))
+			if s, exists := siteByPartner[cleanPartner]; exists {
+				targetSite = s
+				siteFound = true
+			}
+		}
+
+		// Fuzzy fallback: check if site_name or partner_name contains search term
+		if !siteFound && item.SiteName != "" {
+			cleanName := strings.ToLower(strings.TrimSpace(item.SiteName))
+			for _, s := range allSites {
+				if strings.Contains(strings.ToLower(s.SiteName), cleanName) || strings.Contains(strings.ToLower(s.PartnerName), cleanName) {
+					targetSite = s
+					siteFound = true
+					break
+				}
+			}
+		}
+
+		if !siteFound {
+			importErrors = append(importErrors, ImportErrorDetail{
+				RowIndex: rowNumber,
+				Brand:    brand,
+				Model:    model,
+				Error:    fmt.Sprintf("Site tidak ditemukan untuk '%s' / '%s'. Silakan pilih Target Site atau buat Site terlebih dahulu.", item.SiteName, item.PartnerName),
+			})
+			continue
+		}
+
+		// Branch Admin Security Check: Site must belong to their assigned branch
+		if role == "Branch Admin" && userBranchID != nil && targetSite.BranchID != *userBranchID {
+			importErrors = append(importErrors, ImportErrorDetail{
+				RowIndex: rowNumber,
+				Brand:    brand,
+				Model:    model,
+				Error:    fmt.Sprintf("Site '%s' bukan milik cabang yang ditugaskan kepada Anda", targetSite.SiteName),
+			})
+			continue
+		}
+
+		// 2. Resolve Category (Auto-create if new)
+		catName := strings.TrimSpace(item.CategoryName)
+		if catName == "" {
+			catName = "Umum / Lainnya"
+		}
+		cleanCatName := strings.ToLower(catName)
+		catID, catExists := categoryByName[cleanCatName]
+		if !catExists {
+			newCat := models.Category{Name: catName}
+			if err := config.DB.Create(&newCat).Error; err == nil {
+				catID = newCat.ID
+				categoryByName[cleanCatName] = newCat.ID
+			} else {
+				// Fallback to first available category
+				if len(allCategories) > 0 {
+					catID = allCategories[0].ID
+				}
+			}
+		}
+
+		// 3. Resolve Segment (Auto-create if new)
+		var segmentIDPtr *uint
+		segName := strings.TrimSpace(item.SegmentName)
+		if segName != "" {
+			cleanSegName := strings.ToLower(segName)
+			segID, segExists := segmentByName[cleanSegName]
+			if !segExists {
+				newSeg := models.Segment{
+					Name:  segName,
+					Color: "#8b5cf6",
+				}
+				if err := config.DB.Create(&newSeg).Error; err == nil {
+					segID = newSeg.ID
+					segmentByName[cleanSegName] = newSeg.ID
+					segmentIDPtr = &segID
+				}
+			} else {
+				segmentIDPtr = &segID
+			}
+		}
+
+		// 4. Clean Serial Numbers & Unit Count
+		cleanSN, snCount := cleanSerialNumbers(rawSN)
+		unitCount := item.UnitCount
+		if unitCount <= 1 && snCount > 1 {
+			unitCount = snCount
+		}
+		if unitCount < 1 {
+			unitCount = 1
+		}
+
+		// 5. Smart Defaults
+		assetType := strings.TrimSpace(item.AssetType)
+		if assetType == "" {
+			assetType = "Aktif"
+		}
+
+		status := strings.TrimSpace(item.Status)
+		if status == "" {
+			status = "Aktif"
+		}
+
+		condition := strings.TrimSpace(item.Condition)
+		if condition == "" {
+			condition = "Baik"
+		}
+
+		ownership := strings.TrimSpace(item.Ownership)
+		if ownership == "" {
+			ownership = "Aset Tetap"
+		}
+
+		locationDetail := strings.TrimSpace(item.LocationDetail)
+		if locationDetail == "" {
+			locationDetail = "Main Rack"
+		}
+
+		notes := strings.TrimSpace(item.Notes)
+
+		newAsset := models.Asset{
+			SiteID:         targetSite.ID,
+			CategoryID:     catID,
+			SegmentID:      segmentIDPtr,
+			AssetType:      assetType,
+			Brand:          brand,
+			Model:          model,
+			SerialNumber:   cleanSN,
+			LocationDetail: locationDetail,
+			UnitCount:      unitCount,
+			Status:         status,
+			Condition:      condition,
+			Ownership:      ownership,
+			Notes:          notes,
+		}
+
+		if err := config.DB.Create(&newAsset).Error; err != nil {
+			importErrors = append(importErrors, ImportErrorDetail{
+				RowIndex: rowNumber,
+				Brand:    brand,
+				Model:    model,
+				Error:    fmt.Sprintf("Gagal menyimpan ke database: %v", err),
+			})
+			continue
+		}
+
+		createdAssets = append(createdAssets, newAsset)
+	}
+
+	successCount := len(createdAssets)
+
+	// Record Audit Log if any assets were successfully created
+	if successCount > 0 {
+		auditMsg := fmt.Sprintf("Import Massal: Berhasil menambahkan %d aset dari spreadsheet/CSV (%d baris gagal).", successCount, len(importErrors))
+		config.RecordAuditLog(userIDPtr, username, "IMPORT_ASET", auditMsg, c.ClientIP())
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":       fmt.Sprintf("Proses import selesai. %d aset berhasil disimpan.", successCount),
+		"total_rows":    len(req.Items),
+		"success_count": successCount,
+		"failed_count":  len(importErrors),
+		"errors":        importErrors,
+	})
+}
