@@ -19,6 +19,8 @@ import {
   Gift,
   Wand2,
   Sparkles,
+  CheckSquare,
+  Square,
 } from 'lucide-react';
 import { importAssets } from '../api';
 
@@ -53,7 +55,8 @@ const FIELD_ALIASES = {
   ],
   location_detail: [
     'lokasi detail', 'location_detail', 'rack', 'rak', 'posisi', 'detail lokasi', 'ruangan', 'ruang',
-    'sub rack', 'lantai', 'area', 'room', 'titik rack', 'tempat', 'lokasi detail / rack', 'lokasi_detail'
+    'sub rack', 'lantai', 'area', 'room', 'titik rack', 'tempat', 'lokasi detail / rack', 'lokasi_detail',
+    'titik penempatan', 'posisi perangkat'
   ],
   unit_count: [
     'jumlah unit', 'unit_count', 'unit', 'jumlah', 'qty', 'kuantiti', 'total unit', 'jumlah_unit', 'unit terpasang', 'banyak', 'volume', 'pcs', 'bh'
@@ -218,6 +221,7 @@ const ImportAssetModal = ({
   const [parsedRawRows, setParsedRawRows] = useState([]);
   const [columnMapping, setColumnMapping] = useState({});
   const [showMappingConfig, setShowMappingConfig] = useState(false);
+  const [autoGroupSameModels, setAutoGroupSameModels] = useState(true); // Toggle to combine identical models
   const [isProcessing, setIsProcessing] = useState(false);
   const [importResult, setImportResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
@@ -283,7 +287,7 @@ const ImportAssetModal = ({
     document.body.removeChild(link);
   };
 
-  // Convert raw rows to validated item preview objects with AI/Fuzzy Auto-Healing
+  // Convert raw rows to validated item preview objects with AI/Fuzzy Auto-Healing & Grouping
   const previewItems = useMemo(() => {
     if (!parsedRawRows || parsedRawRows.length === 0) return [];
 
@@ -294,7 +298,8 @@ const ImportAssetModal = ({
       fileNameSiteHint = parts[0]?.trim() || '';
     }
 
-    return parsedRawRows.map((row, idx) => {
+    // Step 1: Parse all raw rows individually
+    const individualItems = parsedRawRows.map((row, idx) => {
       const getVal = (fieldKey) => {
         const colIdx = columnMapping[fieldKey];
         if (colIdx === '' || colIdx === undefined || colIdx === null || colIdx < 0) return '';
@@ -381,11 +386,88 @@ const ImportAssetModal = ({
         condition,
         ownership,
         notes,
-        isValid: true, // Always ready due to smart auto-healing
+        isValid: true,
         errors: [],
       };
     });
-  }, [parsedRawRows, columnMapping, selectedDefaultSiteId, sites, fileName]);
+
+    // Step 2: If user does not want auto-grouping, return individual items
+    if (!autoGroupSameModels) {
+      return individualItems;
+    }
+
+    // Step 3: Auto-Group identical models at the same site into Multi-SN records
+    const groupMap = new Map();
+
+    individualItems.forEach((item) => {
+      const cleanSite = (item.site_name || '').trim().toLowerCase();
+      const cleanCat = (item.category_name || '').trim().toLowerCase();
+      const cleanBrand = (item.brand || '').trim().toLowerCase();
+      const cleanModel = (item.model || '').trim().toLowerCase();
+      const cleanOwnership = (item.ownership || '').trim().toLowerCase();
+
+      const groupKey = `${cleanSite}___${cleanCat}___${cleanBrand}___${cleanModel}___${cleanOwnership}`;
+
+      if (!groupMap.has(groupKey)) {
+        groupMap.set(groupKey, {
+          ...item,
+          mergedCount: 1,
+          serialNumbersList: [item.serial_number],
+          locationsList: item.location_detail && item.location_detail !== 'Main Rack' ? [item.location_detail] : [],
+          roomSNMap: item.location_detail && item.location_detail !== 'Main Rack' ? [{ location: item.location_detail, sn: item.serial_number }] : [],
+          totalUnits: item.unit_count || 1,
+        });
+      } else {
+        const existing = groupMap.get(groupKey);
+        existing.mergedCount += 1;
+        existing.totalUnits += (item.unit_count || 1);
+
+        // Add SN if not already in list
+        if (item.serial_number && !existing.serialNumbersList.includes(item.serial_number)) {
+          existing.serialNumbersList.push(item.serial_number);
+        }
+
+        // Add location if unique
+        if (item.location_detail && item.location_detail !== 'Main Rack' && !existing.locationsList.includes(item.location_detail)) {
+          existing.locationsList.push(item.location_detail);
+        }
+
+        if (item.location_detail && item.location_detail !== 'Main Rack') {
+          existing.roomSNMap.push({ location: item.location_detail, sn: item.serial_number });
+        }
+      }
+    });
+
+    // Step 4: Build combined final objects
+    const mergedResults = [];
+    let displayIdx = 1;
+
+    groupMap.forEach((g) => {
+      const combinedSN = g.serialNumbersList.join(', ');
+      const combinedLocation = g.locationsList.length > 0 ? g.locationsList.join(', ') : 'Main Rack';
+      
+      // If there are specific room locations mapped to SNs, append to notes nicely
+      let finalNotes = g.notes || '';
+      if (g.roomSNMap.length > 1) {
+        const locDetailStr = g.roomSNMap.map(r => `${r.location} (${r.sn})`).join(' | ');
+        finalNotes = finalNotes ? `${finalNotes} • Titik Pasang: ${locDetailStr}` : `Titik Pasang: ${locDetailStr}`;
+      }
+
+      mergedResults.push({
+        ...g,
+        rowIndex: displayIdx++,
+        serial_number: combinedSN,
+        unit_count: g.totalUnits,
+        snCount: g.serialNumbersList.length,
+        location_detail: combinedLocation,
+        notes: finalNotes,
+        isMerged: g.mergedCount > 1,
+        mergedItemsCount: g.mergedCount,
+      });
+    });
+
+    return mergedResults;
+  }, [parsedRawRows, columnMapping, selectedDefaultSiteId, sites, fileName, autoGroupSameModels]);
 
   const validCount = previewItems.filter((item) => item.isValid).length;
   const errorCount = previewItems.length - validCount;
@@ -573,7 +655,7 @@ const ImportAssetModal = ({
                 <div className="flex items-center space-x-2">
                   <FileSpreadsheet className="w-4 h-4 text-cyan-400" />
                   <span className="text-xs font-semibold text-white truncate max-w-xs sm:max-w-md">
-                    {fileName || 'Data Terbaca'}: <strong>{parsedRawRows.length} Baris Data</strong>
+                    {fileName || 'Data Terbaca'}: <strong>{parsedRawRows.length} Baris Mentah</strong> ➔ <strong>{previewItems.length} Record Siap Simpan</strong>
                   </span>
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                     <Sparkles className="w-3 h-3 mr-1" />
@@ -653,10 +735,33 @@ const ImportAssetModal = ({
                 </div>
               )}
 
+              {/* Auto-Group Multi-SN Same Model Toggle Banner */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-gradient-to-r from-cyan-950/40 via-slate-950 to-blue-950/40 border border-cyan-500/30 text-xs">
+                <label className="flex items-start space-x-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={autoGroupSameModels}
+                    onChange={(e) => setAutoGroupSameModels(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-500 focus:ring-offset-slate-900 cursor-pointer accent-cyan-500"
+                  />
+                  <div>
+                    <span className="font-bold text-white flex items-center space-x-1.5">
+                      <span>🔗 Satukan Perangkat Tipe Sama Menjadi Multi-SN & Multi-Lokasi</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                        Rekomendasi
+                      </span>
+                    </span>
+                    <span className="text-[11px] text-slate-300 block mt-0.5">
+                      Perangkat bertipe sama di satu site (misal: 3 Access Point Ruijie) digabung menjadi 1 record dengan total unit terakumulasi, daftar SN terpisah rapi, dan lokasi/ruang otomatis tercatat.
+                    </span>
+                  </div>
+                </label>
+              </div>
+
               {/* Status Overview Stats Bar */}
               <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs">
                 <div className="flex items-center space-x-3">
-                  <span className="text-slate-400">Total Baris: <strong className="text-white">{previewItems.length}</strong></span>
+                  <span className="text-slate-400">Total Baris Siap: <strong className="text-white">{previewItems.length} Record</strong></span>
                   <span className="text-emerald-400">✅ Siap Diimpor: <strong>{validCount}</strong></span>
                   {errorCount > 0 && (
                     <span className="text-rose-400">❌ Tidak Lengkap: <strong>{errorCount}</strong></span>
@@ -687,13 +792,22 @@ const ImportAssetModal = ({
                     {previewItems.map((item) => (
                       <tr
                         key={item.rowIndex}
-                        className="hover:bg-slate-900/60 transition-colors"
+                        className={`hover:bg-slate-900/60 transition-colors ${
+                          item.isMerged ? 'bg-cyan-500/[0.03]' : ''
+                        }`}
                       >
                         <td className="py-2 px-3 whitespace-nowrap">
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Ready #{item.rowIndex}
-                          </span>
+                          {item.isMerged ? (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm">
+                              <Layers className="w-3 h-3 mr-1" />
+                              Gabung {item.unit_count} Unit
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Ready #{item.rowIndex}
+                            </span>
+                          )}
                         </td>
                         <td className="py-2 px-3 font-semibold text-white max-w-[170px] truncate" title={item.site_name}>
                           {item.site_name}
@@ -708,7 +822,7 @@ const ImportAssetModal = ({
                           <div className="font-bold text-slate-100">{item.brand}</div>
                           <div className="text-[11px] text-slate-400">{item.model}</div>
                         </td>
-                        <td className="py-2 px-3 font-mono text-cyan-400 max-w-[160px] truncate" title={item.serial_number}>
+                        <td className="py-2 px-3 font-mono text-cyan-400 max-w-[170px] truncate" title={item.serial_number}>
                           {item.serial_number}
                           {item.isAutoGeneratedSN && (
                             <span className="ml-1 text-[9px] text-slate-400 bg-slate-800 px-1 py-0.5 rounded font-sans">
@@ -716,11 +830,13 @@ const ImportAssetModal = ({
                             </span>
                           )}
                           {item.snCount > 1 && (
-                            <span className="ml-1 text-[10px] text-slate-400 font-sans">({item.snCount} SN)</span>
+                            <span className="ml-1 text-[10px] text-cyan-300 font-sans font-bold">({item.snCount} SN)</span>
                           )}
                         </td>
                         <td className="py-2 px-3 text-center font-bold text-slate-200">
-                          {item.unit_count}
+                          <span className={`px-2 py-0.5 rounded ${item.unit_count > 1 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : ''}`}>
+                            {item.unit_count}
+                          </span>
                         </td>
                         <td className="py-2 px-3 text-center">
                           {item.ownership === 'Aset Hibah' ? (
@@ -735,8 +851,13 @@ const ImportAssetModal = ({
                             </span>
                           )}
                         </td>
-                        <td className="py-2 px-3 text-slate-400 max-w-[130px] truncate" title={item.location_detail}>
-                          {item.location_detail}
+                        <td className="py-2 px-3 text-slate-300 max-w-[150px] truncate" title={item.notes ? `${item.location_detail}\n${item.notes}` : item.location_detail}>
+                          <div className="font-medium truncate">{item.location_detail}</div>
+                          {item.notes && (
+                            <div className="text-[10px] text-slate-500 truncate" title={item.notes}>
+                              {item.notes}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -758,7 +879,7 @@ const ImportAssetModal = ({
               </p>
               <div className="grid grid-cols-3 gap-2 text-center text-xs">
                 <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
-                  <div className="text-slate-400 text-[10px]">Total Baris</div>
+                  <div className="text-slate-400 text-[10px]">Total Record Aset</div>
                   <div className="text-base font-bold text-white">{importResult.total_rows}</div>
                 </div>
                 <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
