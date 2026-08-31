@@ -170,17 +170,19 @@ type AuditLog struct {
 }
 
 type StatsResponse struct {
-	TotalBranches   int64 `json:"total_branches"`
-	TotalSites      int64 `json:"total_sites"`
-	TotalCategories int64 `json:"total_categories"`
-	TotalAssets     int64 `json:"total_assets"`
-	TotalUnits      int64 `json:"total_units"`
-	ActiveAssets    int64 `json:"active_assets"`
-	PassiveAssets   int64 `json:"passive_assets"`
-	DamagedAssets   int64 `json:"damaged_assets"`
-	BackupAssets    int64 `json:"backup_assets"`
-	FixedAssets     int64 `json:"fixed_assets"`
-	GrantAssets     int64 `json:"grant_assets"`
+	TotalBranches     int64 `json:"total_branches"`
+	TotalSites        int64 `json:"total_sites"`
+	TotalCategories   int64 `json:"total_categories"`
+	TotalAssets       int64 `json:"total_assets"`
+	TotalUnits        int64 `json:"total_units"`
+	ActiveAssets      int64 `json:"active_assets"`
+	InactiveAssets    int64 `json:"inactive_assets"`
+	PassiveAssets     int64 `json:"passive_assets"`
+	MaintenanceAssets int64 `json:"maintenance_assets"`
+	DamagedAssets     int64 `json:"damaged_assets"`
+	BackupAssets      int64 `json:"backup_assets"`
+	FixedAssets       int64 `json:"fixed_assets"`
+	GrantAssets       int64 `json:"grant_assets"`
 }
 
 type CategoryGroupDTO struct {

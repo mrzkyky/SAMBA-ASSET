@@ -105,25 +105,30 @@ const StatsOverview = ({ stats, selectedBranch = '', branches = [], user = null 
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
-          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] sm:text-xs font-medium">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] sm:text-xs font-medium shadow-sm">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Aktif: <strong className="text-white ml-0.5">{stats.active_assets}</strong></span>
+            <span>Aktif: <strong className="text-white ml-0.5">{stats.active_assets || 0}</strong></span>
           </div>
 
-          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] sm:text-xs font-medium">
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 text-[11px] sm:text-xs font-medium shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-slate-400 mr-0.5"></span>
+            <span>Nonaktif: <strong className="text-white ml-0.5">{stats.inactive_assets || 0}</strong></span>
+          </div>
+
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] sm:text-xs font-medium shadow-sm">
             <MinusCircle className="w-3.5 h-3.5" />
             <span>Pasif: <strong className="text-white ml-0.5">{stats.passive_assets || 0}</strong></span>
           </div>
 
-          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] sm:text-xs font-medium">
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] sm:text-xs font-medium shadow-sm">
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Cadangan: <strong className="text-white ml-0.5">{stats.backup_assets}</strong></span>
+            <span>Maintenance: <strong className="text-white ml-0.5">{stats.maintenance_assets || stats.backup_assets || 0}</strong></span>
           </div>
 
-          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] sm:text-xs font-medium">
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] sm:text-xs font-medium shadow-sm">
             <AlertTriangle className="w-3.5 h-3.5" />
-            <span>Rusak: <strong className="text-white ml-0.5">{stats.damaged_assets}</strong></span>
+            <span>Rusak: <strong className="text-white ml-0.5">{stats.damaged_assets || 0}</strong></span>
           </div>
         </div>
       </div>
