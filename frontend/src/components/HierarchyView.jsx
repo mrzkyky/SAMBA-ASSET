@@ -428,6 +428,40 @@ const HierarchyView = ({
                     <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">Provinsi: {branch.province} • {site_groups.length} Site Aktif</p>
                   </div>
                 </div>
+
+                {/* Branch-level Expand All / Collapse All Buttons */}
+                {site_groups.length > 0 && (
+                  <div className="flex items-center space-x-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newOpen = { ...openSites };
+                        site_groups.forEach((sg) => {
+                          newOpen[sg.site.id] = true;
+                        });
+                        setOpenSites(newOpen);
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:text-white transition-all active:scale-95 shadow-sm"
+                      title="Buka semua dropdown site di cabang ini"
+                    >
+                      Buka Semua
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newOpen = { ...openSites };
+                        site_groups.forEach((sg) => {
+                          newOpen[sg.site.id] = false;
+                        });
+                        setOpenSites(newOpen);
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:text-white transition-all active:scale-95 shadow-sm"
+                      title="Tutup semua dropdown site di cabang ini"
+                    >
+                      Tutup Semua
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* LEVEL 2: Mitra & Site Spesifik Accordions */}
@@ -437,7 +471,7 @@ const HierarchyView = ({
                 ) : (
                   site_groups.map((siteGroup) => {
                     const { site, category_groups, totalMatchingUnits } = siteGroup;
-                    const isOpen = openSites[site.id] !== false || Boolean(searchQuery);
+                    const isOpen = Boolean(openSites[site.id]) || Boolean(searchQuery);
 
                     return (
                       <div key={site.id} className="rounded-xl bg-slate-950/60 border border-slate-800/80 overflow-hidden">
