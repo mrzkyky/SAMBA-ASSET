@@ -93,6 +93,7 @@ func SetupRouter() *gin.Engine {
 				assets.GET("/:id", handlers.GetAssetByID)
 				assets.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateAsset)
 				assets.POST("/import", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.ImportAssets)
+				assets.POST("/sync-sheet", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.SyncAssetsToGoogleSheetHandler)
 				assets.PUT("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.UpdateAsset)
 				assets.DELETE("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.DeleteAsset)
 			}

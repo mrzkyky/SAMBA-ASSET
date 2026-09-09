@@ -10,6 +10,7 @@ import (
 
 	"asset-management-backend/config"
 	"asset-management-backend/models"
+	"asset-management-backend/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -223,6 +224,9 @@ func CreateAsset(c *gin.Context) {
 	auditDetails := fmt.Sprintf("Menambahkan Aset Baru: %s / %s (SN: %s, %d Unit) di %s. Jenis: %s, Status: %s, Kondisi: %s, Kepemilikan: %s",
 		input.Brand, input.Model, input.SerialNumber, input.UnitCount, siteInfo, input.AssetType, input.Status, input.Condition, input.Ownership)
 	config.RecordAuditLog(userIDPtr, username, "TAMBAH_ASET", auditDetails, c.ClientIP())
+
+	// Real-time background sync to Google Spreadsheet
+	utils.SyncAssetToGoogleSheet(&input, username)
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Aset berhasil ditambahkan", "data": input})
 }
@@ -855,6 +859,19 @@ func ImportAssets(c *gin.Context) {
 	if successCount > 0 {
 		auditMsg := fmt.Sprintf("Import Massal: Berhasil menambahkan %d aset dari spreadsheet/CSV (%d baris gagal).", successCount, len(importErrors))
 		config.RecordAuditLog(userIDPtr, username, "IMPORT_ASET", auditMsg, c.ClientIP())
+
+		// Batch sync newly imported assets to Google Spreadsheet in background
+		createdIDs := make([]uint, 0, successCount)
+		for _, a := range createdAssets {
+			createdIDs = append(createdIDs, a.ID)
+		}
+		var fullAssets []models.Asset
+		config.DB.Preload("Site.Branch").Preload("Category").Where("id IN ?", createdIDs).Find(&fullAssets)
+		batchPayloads := make([]utils.SheetAssetPayload, 0, len(fullAssets))
+		for _, a := range fullAssets {
+			batchPayloads = append(batchPayloads, utils.BuildSheetPayload(&a, username))
+		}
+		utils.SyncAssetsBatchToGoogleSheet(batchPayloads)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -865,3 +882,35 @@ func ImportAssets(c *gin.Context) {
 		"errors":        importErrors,
 	})
 }
+
+// SyncAssetsToGoogleSheetHandler triggers an on-demand sync of assets to the connected Google Spreadsheet
+func SyncAssetsToGoogleSheetHandler(c *gin.Context) {
+	var assets []models.Asset
+	query := config.DB.Preload("Site.Branch").Preload("Category").Preload("Segment")
+
+	// If user is Branch Admin, only sync their branch's assets
+	userRole, _ := c.Get("role")
+	userBranchID, _ := c.Get("branch_id")
+	if userRole == "Branch Admin" && userBranchID != nil {
+		query = query.Joins("JOIN sites ON sites.id = assets.site_id").Where("sites.branch_id = ?", userBranchID)
+	}
+
+	if err := query.Find(&assets).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil data aset"})
+		return
+	}
+
+	_, username := getUserContext(c)
+	payloads := make([]utils.SheetAssetPayload, 0, len(assets))
+	for _, a := range assets {
+		payloads = append(payloads, utils.BuildSheetPayload(&a, username))
+	}
+
+	utils.SyncAssetsBatchToGoogleSheet(payloads)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": fmt.Sprintf("Sedang menyinkronkan %d aset ke Google Spreadsheet di latar belakang", len(payloads)),
+		"total":   len(payloads),
+	})
+}
+

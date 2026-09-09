@@ -16,8 +16,11 @@ import {
   QrCode,
   ArrowRightLeft,
   ShieldCheck,
+  FileSpreadsheet,
+  ExternalLink,
+  RefreshCw,
 } from 'lucide-react';
-import { getExportAssetsUrl } from '../api';
+import { getExportAssetsUrl, syncAssetsToGoogleSheet } from '../api';
 import sambaIcon from '../assets/samba-icon.png';
 
 const Header = ({
@@ -54,6 +57,21 @@ const Header = ({
 
   const isSuperAdmin = user?.role === 'Super Admin';
   const isAuditor = user?.role === 'Auditor';
+
+  const [syncingSheet, setSyncingSheet] = React.useState(false);
+
+  const handleSyncToSheet = async () => {
+    if (!window.confirm('Sinkronkan seluruh data aset saat ini ke Google Spreadsheet?')) return;
+    try {
+      setSyncingSheet(true);
+      const res = await syncAssetsToGoogleSheet();
+      alert(res.message || 'Sinkronisasi ke Google Spreadsheet berhasil dimulai!');
+    } catch (err) {
+      alert('Gagal menyinkronkan ke Google Spreadsheet: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setSyncingSheet(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 shadow-2xl">
@@ -137,6 +155,32 @@ const Header = ({
             <Download className="w-4 h-4" />
             <span className="hidden md:inline">Ekspor CSV</span>
           </button>
+
+          {/* Google Spreadsheet Sync & Open */}
+          <div className="flex items-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 overflow-hidden shadow-sm shrink-0">
+            <a
+              href="https://docs.google.com/spreadsheets/d/1atRDjWGXRJwZH5gqDh59Mbkuj8tZiTSAHCytVV-2rck/edit?usp=sharing"
+              target="_blank"
+              rel="noreferrer"
+              className="p-2 sm:px-3 sm:py-2 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold flex items-center space-x-1.5 transition-all"
+              title="Buka Google Spreadsheet Terhubung"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span className="hidden md:inline">Google Sheet</span>
+              <ExternalLink className="w-3 h-3 text-emerald-500 hidden sm:inline" />
+            </a>
+            {!isAuditor && (
+              <button
+                type="button"
+                onClick={handleSyncToSheet}
+                disabled={syncingSheet}
+                className="p-2 sm:px-2.5 sm:py-2 border-l border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-xs transition-all disabled:opacity-50"
+                title="Sinkronkan Seluruh Aset ke Google Spreadsheet Sekarang"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${syncingSheet ? 'animate-spin' : ''}`} />
+              </button>
+            )}
+          </div>
 
           {/* Import CSV/Excel Button (RBAC: Super Admin & Branch Admin) */}
           {!isAuditor && (

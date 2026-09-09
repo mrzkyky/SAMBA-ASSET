@@ -186,6 +186,11 @@ export const importAssets = async (data) => {
   return response.data;
 };
 
+export const syncAssetsToGoogleSheet = async () => {
+  const response = await api.post('/assets/sync-sheet');
+  return response.data;
+};
+
 export const getExportAssetsUrl = (branchId = '') => {
   const token = localStorage.getItem('token');
   let url = `${API_BASE_URL}/assets/export`;
