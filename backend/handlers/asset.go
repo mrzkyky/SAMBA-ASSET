@@ -226,7 +226,7 @@ func CreateAsset(c *gin.Context) {
 	config.RecordAuditLog(userIDPtr, username, "TAMBAH_ASET", auditDetails, c.ClientIP())
 
 	// Real-time background sync to Google Spreadsheet
-	utils.SyncAssetToGoogleSheet(&input, username)
+	utils.SyncAssetToGoogleSheet(&input, username, "CREATE")
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Aset berhasil ditambahkan", "data": input})
 }
@@ -353,6 +353,9 @@ func UpdateAsset(c *gin.Context) {
 	userIDPtr, username := getUserContext(c)
 	config.RecordAuditLog(userIDPtr, username, "EDIT_ASET", auditDetails, c.ClientIP())
 
+	// Real-time background sync to Google Spreadsheet
+	utils.SyncAssetToGoogleSheet(&updatedAsset, username, "UPDATE")
+
 	c.JSON(http.StatusOK, gin.H{"message": "Aset berhasil diperbarui", "data": updatedAsset})
 }
 
@@ -375,6 +378,10 @@ func DeleteAsset(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menghapus aset"})
 		return
 	}
+
+	// Real-time background sync to Google Spreadsheet
+	utils.SyncAssetDeleteToGoogleSheet(asset.ID)
+
 	c.JSON(http.StatusOK, gin.H{"message": "Aset berhasil dihapus"})
 }
 

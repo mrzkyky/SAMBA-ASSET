@@ -20,6 +20,7 @@ const DefaultGoogleSheetWebhookURL = "https://script.google.com/macros/s/AKfycbx
 
 // SheetAssetPayload represents the format expected by Google Apps Script doPost()
 type SheetAssetPayload struct {
+	Action         string `json:"action,omitempty"`
 	ID             uint   `json:"id"`
 	BranchCode     string `json:"branch_code"`
 	BranchName     string `json:"branch_name"`
@@ -122,21 +123,47 @@ func BuildSheetPayload(asset *models.Asset, createdBy string) SheetAssetPayload 
 	}
 }
 
-// SyncAssetToGoogleSheet sends a newly created asset to Google Spreadsheet in background
-func SyncAssetToGoogleSheet(asset *models.Asset, createdBy string) {
+// SyncAssetToGoogleSheet sends a created or updated asset to Google Spreadsheet in background
+func SyncAssetToGoogleSheet(asset *models.Asset, createdBy string, action string) {
 	webhookURL := GetGoogleSheetWebhookURL()
 	if webhookURL == "" {
 		return
 	}
 
 	payload := BuildSheetPayload(asset, createdBy)
+	if action != "" {
+		payload.Action = action
+	} else {
+		payload.Action = "UPSERT"
+	}
 
 	// Execute in asynchronous goroutine so main HTTP request is never delayed
 	go func() {
 		if err := sendPayloadToGoogleSheet(webhookURL, payload); err != nil {
-			log.Printf("[GOOGLE_SHEET_SYNC] Gagal sync aset ID %d (%s %s): %v", asset.ID, asset.Brand, asset.Model, err)
+			log.Printf("[GOOGLE_SHEET_SYNC] Gagal sync (%s) aset ID %d (%s %s): %v", payload.Action, asset.ID, asset.Brand, asset.Model, err)
 		} else {
-			log.Printf("[GOOGLE_SHEET_SYNC] Berhasil sync aset ID %d (%s %s) ke Google Sheet", asset.ID, asset.Brand, asset.Model)
+			log.Printf("[GOOGLE_SHEET_SYNC] Berhasil sync (%s) aset ID %d (%s %s) ke Google Sheet", payload.Action, asset.ID, asset.Brand, asset.Model)
+		}
+	}()
+}
+
+// SyncAssetDeleteToGoogleSheet sends a deletion command to Google Spreadsheet
+func SyncAssetDeleteToGoogleSheet(assetID uint) {
+	webhookURL := GetGoogleSheetWebhookURL()
+	if webhookURL == "" {
+		return
+	}
+
+	payload := map[string]interface{}{
+		"action": "DELETE",
+		"id":     assetID,
+	}
+
+	go func() {
+		if err := sendPayloadToGoogleSheet(webhookURL, payload); err != nil {
+			log.Printf("[GOOGLE_SHEET_SYNC] Gagal sync hapus aset ID %d: %v", assetID, err)
+		} else {
+			log.Printf("[GOOGLE_SHEET_SYNC] Berhasil sync hapus aset ID %d dari Google Sheet", assetID)
 		}
 	}()
 }
