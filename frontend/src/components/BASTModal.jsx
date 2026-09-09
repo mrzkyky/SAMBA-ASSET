@@ -86,14 +86,22 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
   };
 
   const targetAsset = transfer ? transfer.asset : asset;
+  const brandName = targetAsset?.brand || transfer?.asset_brand || '';
+  const modelName = targetAsset?.model || transfer?.asset_model || '';
+  const deviceDisplayName = (brandName && brandName !== '-' ? brandName + ' ' : '') + (modelName && modelName !== '-' ? modelName : (brandName || 'Perangkat Jaringan'));
+
   const fromSiteName = transfer
-    ? `${transfer.from_site?.site_name || ''} - ${transfer.from_site?.partner_name || ''} (Branch ${transfer.from_site?.branch?.name || ''})`
+    ? (transfer.from_site
+        ? `${transfer.from_site?.site_name || ''} - ${transfer.from_site?.partner_name || ''} (${transfer.from_site?.branch?.name || ''})`
+        : (transfer.from_partner_name ? `${transfer.from_partner_name} - ${transfer.from_site_name}` : (transfer.from_site_name || '-')))
     : targetAsset?.site
-    ? `${targetAsset.site.site_name || ''} - ${targetAsset.site.partner_name || ''} (Branch ${targetAsset.site.branch?.name || ''})`
+    ? `${targetAsset.site.site_name || ''} - ${targetAsset.site.partner_name || ''} (${targetAsset.site.branch?.name || ''})`
     : '-';
 
   const toSiteName = transfer
-    ? `${transfer.to_site?.site_name || ''} - ${transfer.to_site?.partner_name || ''} (Branch ${transfer.to_site?.branch?.name || ''})`
+    ? (transfer.to_site
+        ? `${transfer.to_site?.site_name || ''} - ${transfer.to_site?.partner_name || ''} (${transfer.to_site?.branch?.name || ''})`
+        : (transfer.to_partner_name ? `${transfer.to_partner_name} - ${transfer.to_site_name}` : (transfer.to_site_name || 'Site Operasional Lapangan')))
     : 'Site Operasional Lapangan';
 
   const snText = transfer ? transfer.serial_numbers : targetAsset?.serial_number || '';
@@ -351,13 +359,13 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
                     <tbody className="divide-y divide-slate-200 text-slate-800">
                       <tr className="hover:bg-slate-50">
                         <td className="p-3 border-r border-slate-200">
-                          <div className="font-bold text-slate-900">{targetAsset?.brand} - {targetAsset?.model}</div>
+                          <div className="font-bold text-slate-900">{deviceDisplayName}</div>
                           <div className="text-[10px] text-slate-500 font-medium mt-0.5">
                             Rak: {targetAsset?.location_detail || 'Sub Rack'}
                           </div>
                         </td>
                         <td className="p-3 border-r border-slate-200 font-medium">
-                          {targetAsset?.category?.name || 'Switch'}
+                          {targetAsset?.category?.name || transfer?.category_name || 'Perangkat Jaringan'}
                         </td>
                         <td className="p-3 border-r border-slate-200 font-medium leading-normal">
                           {fromSiteName}

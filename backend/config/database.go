@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	"asset-management-backend/models"
@@ -118,12 +121,33 @@ func InitDB() *gorm.DB {
 	DB.Exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_expires_at TIMESTAMP WITH TIME ZONE;")
 	DB.Exec("UPDATE users SET is_verified = TRUE WHERE is_verified IS NULL OR username IN ('admin', 'admin_brebes', 'auditor');")
 
+	// Non-destructive migrations for asset_transfers (prevent cascade data loss & add snapshots)
+	DB.Exec("ALTER TABLE asset_transfers ALTER COLUMN asset_id DROP NOT NULL;")
+	DB.Exec("ALTER TABLE asset_transfers ALTER COLUMN from_site_id DROP NOT NULL;")
+	DB.Exec("ALTER TABLE asset_transfers ALTER COLUMN to_site_id DROP NOT NULL;")
+	DB.Exec("ALTER TABLE asset_transfers DROP CONSTRAINT IF EXISTS asset_transfers_asset_id_fkey;")
+	DB.Exec("ALTER TABLE asset_transfers DROP CONSTRAINT IF EXISTS asset_transfers_from_site_id_fkey;")
+	DB.Exec("ALTER TABLE asset_transfers DROP CONSTRAINT IF EXISTS asset_transfers_to_site_id_fkey;")
+	DB.Exec("ALTER TABLE asset_transfers ADD CONSTRAINT asset_transfers_asset_id_fkey FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE SET NULL;")
+	DB.Exec("ALTER TABLE asset_transfers ADD CONSTRAINT asset_transfers_from_site_id_fkey FOREIGN KEY (from_site_id) REFERENCES sites(id) ON DELETE SET NULL;")
+	DB.Exec("ALTER TABLE asset_transfers ADD CONSTRAINT asset_transfers_to_site_id_fkey FOREIGN KEY (to_site_id) REFERENCES sites(id) ON DELETE SET NULL;")
+	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS asset_brand VARCHAR(255);")
+	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS asset_model VARCHAR(255);")
+	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS category_name VARCHAR(100);")
+	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS from_site_name VARCHAR(255);")
+	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS from_partner_name VARCHAR(255);")
+	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS from_branch_name VARCHAR(100);")
+	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS to_site_name VARCHAR(255);")
+	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS to_partner_name VARCHAR(255);")
+	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS to_branch_name VARCHAR(100);")
+
 	// Ensure default seeds exist safely
 	seedBranchesAndSites()
 	seedCategories()
 	seedSegments()
 	seedUsers()
 	autoAssignSegmentsToExistingAssets()
+	RecoverTransfersFromAuditLogs()
 
 	log.Println("Database connection established & auto-migrated successfully.")
 	return DB
@@ -321,4 +345,98 @@ func autoAssignSegmentsToExistingAssets() {
 	}
 
 	log.Printf("Successfully auto-assigned segments to %d existing unclassified assets.", unassignedCount)
+}
+
+func RecoverTransfersFromAuditLogs() int {
+	var auditLogs []models.AuditLog
+	DB.Where("action = ?", "MUTASI_ASET").Order("created_at ASC").Find(&auditLogs)
+	if len(auditLogs) == 0 {
+		return 0
+	}
+
+	// Regex to extract mutation details:
+	// "Mutasi %d unit %s %s [%s] dari %s (%s) ke %s (%s) (No. BAST/Ref: %s)"
+	re := regexp.MustCompile(`(?i)Mutasi\s+(\d+)\s+unit\s+(.+?)\s*\[(.*?)\]\s+dari\s+(.+?)\s*\((.+?)\)\s+ke\s+(.+?)\s*\((.+?)\)\s*\(No\.\s*BAST/Ref:\s*([^)]+)\)`)
+
+	recoveredCount := 0
+	for _, logEntry := range auditLogs {
+		matches := re.FindStringSubmatch(logEntry.Details)
+		if len(matches) < 9 {
+			continue
+		}
+
+		unitCountStr := strings.TrimSpace(matches[1])
+		deviceDesc := strings.TrimSpace(matches[2])
+		sns := strings.TrimSpace(matches[3])
+		fromSite := strings.TrimSpace(matches[4])
+		fromBranch := strings.TrimSpace(matches[5])
+		toSite := strings.TrimSpace(matches[6])
+		toBranch := strings.TrimSpace(matches[7])
+		refNo := strings.TrimSpace(matches[8])
+
+		// Check if reference_no already exists in asset_transfers
+		var existingCount int64
+		DB.Model(&models.AssetTransfer{}).Where("reference_no = ?", refNo).Count(&existingCount)
+		if existingCount > 0 {
+			continue
+		}
+
+		unitCount, _ := strconv.Atoi(unitCountStr)
+		if unitCount <= 0 {
+			unitCount = 1
+		}
+
+		// Parse brand & model from deviceDesc
+		brand := ""
+		model := deviceDesc
+		parts := strings.SplitN(deviceDesc, " ", 2)
+		if len(parts) == 2 {
+			brand = parts[0]
+			model = parts[1]
+		}
+
+		// Try to find matching asset by Serial Number or Model
+		var matchedAsset models.Asset
+		var assetIDPtr *uint
+		var toSiteIDPtr *uint
+
+		firstSN := strings.Split(sns, ",")[0]
+		firstSN = strings.Split(firstSN, "\t")[0]
+		firstSN = strings.TrimSpace(firstSN)
+
+		if firstSN != "" && firstSN != "-" && !strings.EqualFold(firstSN, "none") {
+			if err := DB.Where("serial_number LIKE ?", "%"+firstSN+"%").First(&matchedAsset).Error; err == nil {
+				assetIDPtr = &matchedAsset.ID
+				toSiteIDPtr = &matchedAsset.SiteID
+			}
+		}
+
+		newTransfer := models.AssetTransfer{
+			ReferenceNo:       refNo,
+			AssetID:           assetIDPtr,
+			FromSiteID:        nil,
+			ToSiteID:          toSiteIDPtr,
+			UnitCount:         unitCount,
+			SerialNumbers:     sns,
+			TransferDate:      logEntry.CreatedAt,
+			Reason:            "Dipulihkan otomatis dari jejak audit mutasi",
+			PerformedByUserID: logEntry.UserID,
+			AssetBrand:        brand,
+			AssetModel:        model,
+			FromSiteName:      fromSite,
+			FromBranchName:    fromBranch,
+			ToSiteName:        toSite,
+			ToBranchName:      toBranch,
+			CreatedAt:         logEntry.CreatedAt,
+		}
+
+		if err := DB.Create(&newTransfer).Error; err == nil {
+			recoveredCount++
+		}
+	}
+
+	if recoveredCount > 0 {
+		log.Printf("Successfully auto-recovered %d missing transfer history records from audit logs.", recoveredCount)
+	}
+	return recoveredCount
 }

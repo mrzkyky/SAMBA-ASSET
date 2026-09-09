@@ -75,14 +75,23 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS asset_transfers (
     id BIGSERIAL PRIMARY KEY,
     reference_no VARCHAR(50) UNIQUE NOT NULL,
-    asset_id BIGINT NOT NULL REFERENCES assets(id) ON DELETE CASCADE,
-    from_site_id BIGINT NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
-    to_site_id BIGINT NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
+    asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
+    from_site_id BIGINT REFERENCES sites(id) ON DELETE SET NULL,
+    to_site_id BIGINT REFERENCES sites(id) ON DELETE SET NULL,
     unit_count INT NOT NULL DEFAULT 1,
     serial_numbers TEXT,
     transfer_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     reason TEXT,
     performed_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    asset_brand VARCHAR(255),
+    asset_model VARCHAR(255),
+    category_name VARCHAR(100),
+    from_site_name VARCHAR(255),
+    from_partner_name VARCHAR(255),
+    from_branch_name VARCHAR(100),
+    to_site_name VARCHAR(255),
+    to_partner_name VARCHAR(255),
+    to_branch_name VARCHAR(100),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

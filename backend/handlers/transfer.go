@@ -63,17 +63,48 @@ func CreateTransfer(c *gin.Context) {
 		username = uname
 	}
 
+	// Populate snapshot fields
+	categoryName := ""
+	if sourceAsset.Category != nil {
+		categoryName = sourceAsset.Category.Name
+	}
+	fromSiteName := ""
+	fromPartnerName := ""
+	fromBranchName := ""
+	if sourceAsset.Site != nil {
+		fromSiteName = sourceAsset.Site.SiteName
+		fromPartnerName = sourceAsset.Site.PartnerName
+		if sourceAsset.Site.Branch != nil {
+			fromBranchName = sourceAsset.Site.Branch.Name
+		}
+	}
+	toSiteName := destSite.SiteName
+	toPartnerName := destSite.PartnerName
+	toBranchName := ""
+	if destSite.Branch != nil {
+		toBranchName = destSite.Branch.Name
+	}
+
 	// Create Transfer Record
 	transferRecord := models.AssetTransfer{
-		ReferenceNo:        refNo,
-		AssetID:            sourceAsset.ID,
-		FromSiteID:         sourceAsset.SiteID,
-		ToSiteID:           input.ToSiteID,
-		UnitCount:          input.UnitCount,
-		SerialNumbers:      transferredSNs,
-		TransferDate:       time.Now(),
-		Reason:             input.Reason,
+		ReferenceNo:       refNo,
+		AssetID:           &sourceAsset.ID,
+		FromSiteID:        &sourceAsset.SiteID,
+		ToSiteID:          &input.ToSiteID,
+		UnitCount:         input.UnitCount,
+		SerialNumbers:     transferredSNs,
+		TransferDate:      time.Now(),
+		Reason:            input.Reason,
 		PerformedByUserID: userIDPtr,
+		AssetBrand:        sourceAsset.Brand,
+		AssetModel:        sourceAsset.Model,
+		CategoryName:      categoryName,
+		FromSiteName:      fromSiteName,
+		FromPartnerName:   fromPartnerName,
+		FromBranchName:    fromBranchName,
+		ToSiteName:        toSiteName,
+		ToPartnerName:     toPartnerName,
+		ToBranchName:      toBranchName,
 	}
 
 	if err := config.DB.Create(&transferRecord).Error; err != nil {
@@ -122,10 +153,10 @@ func CreateTransfer(c *gin.Context) {
 	}
 
 	// Record Audit Log
-	fromSiteName := fmt.Sprintf("%s (%s)", sourceAsset.Site.SiteName, sourceAsset.Site.Branch.Name)
-	toSiteName := fmt.Sprintf("%s (%s)", destSite.SiteName, destSite.Branch.Name)
+	fromSiteDesc := fmt.Sprintf("%s (%s)", sourceAsset.Site.SiteName, sourceAsset.Site.Branch.Name)
+	toSiteDesc := fmt.Sprintf("%s (%s)", destSite.SiteName, destSite.Branch.Name)
 	auditDetails := fmt.Sprintf("Mutasi %d unit %s %s [%s] dari %s ke %s (No. BAST/Ref: %s)",
-		input.UnitCount, sourceAsset.Brand, sourceAsset.Model, transferredSNs, fromSiteName, toSiteName, refNo)
+		input.UnitCount, sourceAsset.Brand, sourceAsset.Model, transferredSNs, fromSiteDesc, toSiteDesc, refNo)
 
 	config.RecordAuditLog(userIDPtr, username, "MUTASI_ASET", auditDetails, c.ClientIP())
 
@@ -149,22 +180,26 @@ func GetTransfers(c *gin.Context) {
 	}
 	offset := (page - 1) * limit
 
-	query := config.DB.Model(&models.AssetTransfer{}).
-		Preload("Asset.Category").
-		Preload("FromSite.Branch").
-		Preload("ToSite.Branch").
-		Preload("PerformedByUser")
+	query := config.DB.Model(&models.AssetTransfer{})
 
 	var total int64
 	query.Count(&total)
 
 	var transfers []models.AssetTransfer
-	if err := query.Order("asset_transfers.created_at DESC").
+	if err := query.Preload("Asset.Category").
+		Preload("FromSite.Branch").
+		Preload("ToSite.Branch").
+		Preload("PerformedByUser").
+		Order("created_at DESC").
 		Limit(limit).
 		Offset(offset).
 		Find(&transfers).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil histori mutasi"})
-		return
+		// Fallback without preload if association fails
+		config.DB.Model(&models.AssetTransfer{}).
+			Order("created_at DESC").
+			Limit(limit).
+			Offset(offset).
+			Find(&transfers)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -173,5 +208,14 @@ func GetTransfers(c *gin.Context) {
 		"page":        page,
 		"limit":       limit,
 		"total_pages": (total + int64(limit) - 1) / int64(limit),
+	})
+}
+
+// RecoverTransfers scans audit logs and restores any missing transfer records
+func RecoverTransfers(c *gin.Context) {
+	recoveredCount := config.RecoverTransfersFromAuditLogs()
+	c.JSON(http.StatusOK, gin.H{
+		"message":         fmt.Sprintf("Berhasil memulihkan %d riwayat mutasi dari catatan audit", recoveredCount),
+		"recovered_count": recoveredCount,
 	})
 }

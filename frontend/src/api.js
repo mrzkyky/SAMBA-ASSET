@@ -206,6 +206,11 @@ export const createTransfer = async (data) => {
   return response.data;
 };
 
+export const recoverTransfers = async () => {
+  const response = await api.post('/transfers/recover');
+  return response.data;
+};
+
 // Segment API (Kemitraan, POP, Local Loop, Corporate)
 export const getSegments = async () => {
   const response = await api.get('/segments');

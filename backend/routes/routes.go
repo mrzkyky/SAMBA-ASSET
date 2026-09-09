@@ -102,6 +102,7 @@ func SetupRouter() *gin.Engine {
 			{
 				transfers.GET("", handlers.GetTransfers)
 				transfers.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateTransfer)
+				transfers.POST("/recover", middleware.RequireRoles("Super Admin"), handlers.RecoverTransfers)
 			}
 
 			// System Audit Trail Logs Route (Super Admin & Branch Admin)

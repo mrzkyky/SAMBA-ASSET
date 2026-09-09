@@ -135,11 +135,11 @@ type Asset struct {
 type AssetTransfer struct {
 	ID                 uint      `gorm:"primaryKey" json:"id"`
 	ReferenceNo        string    `gorm:"size:50;uniqueIndex;not null" json:"reference_no"`
-	AssetID            uint      `gorm:"not null;index" json:"asset_id"`
+	AssetID            *uint     `gorm:"index" json:"asset_id"`
 	Asset              *Asset    `gorm:"foreignKey:AssetID" json:"asset,omitempty"`
-	FromSiteID         uint      `gorm:"not null;index" json:"from_site_id"`
+	FromSiteID         *uint     `gorm:"index" json:"from_site_id"`
 	FromSite           *Site     `gorm:"foreignKey:FromSiteID" json:"from_site,omitempty"`
-	ToSiteID           uint      `gorm:"not null;index" json:"to_site_id"`
+	ToSiteID           *uint     `gorm:"index" json:"to_site_id"`
 	ToSite             *Site     `gorm:"foreignKey:ToSiteID" json:"to_site,omitempty"`
 	UnitCount          int       `gorm:"default:1;not null" json:"unit_count"`
 	SerialNumbers      string    `gorm:"type:text" json:"serial_numbers"`
@@ -147,6 +147,16 @@ type AssetTransfer struct {
 	Reason             string    `gorm:"type:text" json:"reason"`
 	PerformedByUserID *uint     `gorm:"index" json:"performed_by_user_id"`
 	PerformedByUser   *User     `gorm:"foreignKey:PerformedByUserID" json:"performed_by_user,omitempty"`
+	// Historical snapshot fields to preserve BAST audit records if sites or assets are removed
+	AssetBrand         string    `gorm:"size:255" json:"asset_brand"`
+	AssetModel         string    `gorm:"size:255" json:"asset_model"`
+	CategoryName       string    `gorm:"size:100" json:"category_name"`
+	FromSiteName       string    `gorm:"size:255" json:"from_site_name"`
+	FromPartnerName    string    `gorm:"size:255" json:"from_partner_name"`
+	FromBranchName     string    `gorm:"size:100" json:"from_branch_name"`
+	ToSiteName         string    `gorm:"size:255" json:"to_site_name"`
+	ToPartnerName      string    `gorm:"size:255" json:"to_partner_name"`
+	ToBranchName       string    `gorm:"size:100" json:"to_branch_name"`
 	CreatedAt          time.Time `json:"created_at"`
 }
 
