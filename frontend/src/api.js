@@ -166,6 +166,11 @@ export const getAssets = async (params = {}) => {
   return response.data;
 };
 
+export const getMissingSNSites = async (params = {}) => {
+  const response = await api.get('/assets/missing-sn-sites', { params });
+  return response.data;
+};
+
 export const createAsset = async (data) => {
   const response = await api.post('/assets', data);
   return response.data;

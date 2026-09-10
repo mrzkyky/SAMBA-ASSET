@@ -14,6 +14,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// MissingSNCondition SQL clause to detect assets where Serial Number is missing, placeholder ('none', 'None', '-'), or empty
+const MissingSNCondition = "(assets.serial_number IS NULL OR TRIM(assets.serial_number) = '' OR LOWER(TRIM(assets.serial_number)) IN ('none', '-', '--', '---', 'null', 'n/a', 'na', 'tidak ada', 'tdk ada', 'belum ada') OR LOWER(TRIM(assets.serial_number)) LIKE 'none%' OR TRIM(assets.serial_number) = '-')"
+
 // cleanSerialNumbers formats raw multi-SN string into clean comma-separated list and calculates count
 func cleanSerialNumbers(rawSN string) (string, int) {
 	// Replace newlines and semicolons with commas
@@ -119,6 +122,12 @@ func GetAssets(c *gin.Context) {
 	segmentID := c.Query("segment_id")
 	if segmentID != "" {
 		query = query.Where("assets.segment_id = ?", segmentID)
+	}
+
+	// Filter by Missing Serial Number (None, none, -)
+	missingSN := c.Query("missing_sn")
+	if missingSN == "true" || missingSN == "1" {
+		query = query.Where(MissingSNCondition)
 	}
 
 	var total int64
@@ -918,6 +927,77 @@ func SyncAssetsToGoogleSheetHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": fmt.Sprintf("Sedang menyinkronkan %d aset ke Google Spreadsheet di latar belakang", len(payloads)),
 		"total":   len(payloads),
+	})
+}
+
+// GetMissingSNSites returns sites grouped with their assets that have missing / placeholder serial numbers
+func GetMissingSNSites(c *gin.Context) {
+	branchID := strings.TrimSpace(c.Query("branch_id"))
+	search := strings.TrimSpace(c.Query("q"))
+
+	// Find all assets that match MissingSNCondition
+	assetQuery := config.DB.Model(&models.Asset{}).
+		Preload("Site.Branch").
+		Preload("Category").
+		Preload("Segment").
+		Where(MissingSNCondition)
+
+	if branchID != "" {
+		assetQuery = assetQuery.Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ?", branchID)
+	}
+
+	if search != "" {
+		searchPattern := "%" + strings.ToLower(search) + "%"
+		if branchID == "" {
+			assetQuery = assetQuery.Joins("JOIN sites ON sites.id = assets.site_id")
+		}
+		assetQuery = assetQuery.Joins("LEFT JOIN branches ON branches.id = sites.branch_id").
+			Where("LOWER(sites.site_name) LIKE ? OR LOWER(sites.partner_name) LIKE ? OR LOWER(assets.brand) LIKE ? OR LOWER(assets.model) LIKE ? OR LOWER(branches.name) LIKE ?",
+				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
+	}
+
+	var assets []models.Asset
+	if err := assetQuery.Order("assets.site_id ASC, assets.id ASC").Find(&assets).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil data aset tanpa SN: " + err.Error()})
+		return
+	}
+
+	// Group assets by Site
+	siteMap := make(map[uint]*models.MissingSNSiteDTO)
+	siteOrder := make([]uint, 0)
+
+	for _, a := range assets {
+		if a.Site == nil {
+			continue
+		}
+		siteID := a.SiteID
+		if _, exists := siteMap[siteID]; !exists {
+			siteOrder = append(siteOrder, siteID)
+			branchObj := models.Branch{}
+			if a.Site.Branch != nil {
+				branchObj = *a.Site.Branch
+			}
+			siteMap[siteID] = &models.MissingSNSiteDTO{
+				Site:         *a.Site,
+				Branch:       branchObj,
+				Assets:       []models.Asset{},
+				MissingCount: 0,
+			}
+		}
+		siteMap[siteID].Assets = append(siteMap[siteID].Assets, a)
+		siteMap[siteID].MissingCount++
+	}
+
+	results := make([]models.MissingSNSiteDTO, 0, len(siteOrder))
+	for _, sid := range siteOrder {
+		results = append(results, *siteMap[sid])
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":         results,
+		"total_sites":  len(results),
+		"total_assets": len(assets),
 	})
 }
 

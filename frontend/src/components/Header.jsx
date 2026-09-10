@@ -19,6 +19,7 @@ import {
   FileSpreadsheet,
   ExternalLink,
   RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
 import { getExportAssetsUrl, syncAssetsToGoogleSheet } from '../api';
 import sambaIcon from '../assets/samba-icon.png';
@@ -34,6 +35,7 @@ const Header = ({
   searchQuery,
   setSearchQuery,
   selectedBranch,
+  missingSNStats = null,
 }) => {
   const handleExportCSV = () => {
     const { url, token } = getExportAssetsUrl(selectedBranch);
@@ -235,6 +237,25 @@ const Header = ({
           >
             <Table className="w-4 h-4" />
             <span>Tabel Master Aset</span>
+          </button>
+
+          {/* Pelacak Site & Mitra Tanpa Serial Number */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('missing_sn')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
+              activeTab === 'missing_sn'
+                ? 'bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-sm shadow-amber-500/10'
+                : 'text-slate-400 hover:text-amber-300 hover:bg-slate-900'
+            }`}
+          >
+            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <span>Pelacak SN</span>
+            {Boolean(missingSNStats?.sites || missingSNStats?.assets) && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                {missingSNStats.sites} Site
+              </span>
+            )}
           </button>
 
           <button

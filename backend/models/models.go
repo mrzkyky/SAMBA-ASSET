@@ -193,6 +193,15 @@ type StatsResponse struct {
 	BackupAssets      int64 `json:"backup_assets"`
 	FixedAssets       int64 `json:"fixed_assets"`
 	GrantAssets       int64 `json:"grant_assets"`
+	MissingSNAssets   int64 `json:"missing_sn_assets"`
+	MissingSNSites    int64 `json:"missing_sn_sites"`
+}
+
+type MissingSNSiteDTO struct {
+	Site         Site    `json:"site"`
+	Branch       Branch  `json:"branch"`
+	Assets       []Asset `json:"assets"`
+	MissingCount int     `json:"missing_count"`
 }
 
 type CategoryGroupDTO struct {

@@ -79,6 +79,18 @@ func GetDashboardStats(c *gin.Context) {
 			Joins("JOIN sites ON sites.id = assets.site_id").
 			Where("sites.branch_id = ? AND assets.ownership = 'Aset Hibah'", branchID).
 			Count(&stats.GrantAssets)
+
+		// Hitung aset & site tanpa Serial Number (None, none, -)
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ? AND "+MissingSNCondition, branchID).
+			Count(&stats.MissingSNAssets)
+
+		config.DB.Model(&models.Asset{}).
+			Joins("JOIN sites ON sites.id = assets.site_id").
+			Where("sites.branch_id = ? AND "+MissingSNCondition, branchID).
+			Distinct("assets.site_id").
+			Count(&stats.MissingSNSites)
 	} else {
 		// All Branches (National)
 		config.DB.Model(&models.Branch{}).Count(&stats.TotalBranches)
@@ -101,6 +113,16 @@ func GetDashboardStats(c *gin.Context) {
 		config.DB.Model(&models.Asset{}).Where("status = 'Rusak' OR condition = 'Rusak'").Count(&stats.DamagedAssets)
 		config.DB.Model(&models.Asset{}).Where("ownership = 'Aset Tetap' OR ownership IS NULL OR ownership = ''").Count(&stats.FixedAssets)
 		config.DB.Model(&models.Asset{}).Where("ownership = 'Aset Hibah'").Count(&stats.GrantAssets)
+
+		// Hitung aset & site tanpa Serial Number Nasional
+		config.DB.Model(&models.Asset{}).
+			Where(MissingSNCondition).
+			Count(&stats.MissingSNAssets)
+
+		config.DB.Model(&models.Asset{}).
+			Where(MissingSNCondition).
+			Distinct("site_id").
+			Count(&stats.MissingSNSites)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": stats})

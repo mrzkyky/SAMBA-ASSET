@@ -17,6 +17,7 @@ import BASTModal from './components/BASTModal';
 import TransferHistory from './components/TransferHistory';
 import AuditLogView from './components/AuditLogView';
 import ImportAssetModal from './components/ImportAssetModal';
+import MissingSNTracker from './components/MissingSNTracker';
 
 import {
   getProfile,
@@ -53,6 +54,7 @@ function App() {
   const [selectedSegment, setSelectedSegment] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedOwnership, setSelectedOwnership] = useState('');
+  const [filterMissingSN, setFilterMissingSN] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Data States
@@ -191,6 +193,7 @@ function App() {
         segment_id: selectedSegment,
         status: selectedStatus,
         ownership: selectedOwnership,
+        missing_sn: filterMissingSN || undefined,
       };
       const res = await getAssets(params);
       setAssetsData(res);
@@ -199,7 +202,7 @@ function App() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchQuery, selectedBranch, selectedCategory, selectedSegment, selectedStatus, selectedOwnership]);
+  }, [currentPage, searchQuery, selectedBranch, selectedCategory, selectedSegment, selectedStatus, selectedOwnership, filterMissingSN]);
 
   // Global Data Refresh Trigger
   const refreshAllData = useCallback(() => {
@@ -212,7 +215,7 @@ function App() {
   // Reset pagination to page 1 whenever search query or filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedBranch, selectedCategory, selectedSegment, selectedStatus, selectedOwnership]);
+  }, [searchQuery, selectedBranch, selectedCategory, selectedSegment, selectedStatus, selectedOwnership, filterMissingSN]);
 
   // Effect Trigger on Filter & Tab Changes
   useEffect(() => {
@@ -283,6 +286,10 @@ function App() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         selectedBranch={selectedBranch}
+        missingSNStats={{
+          sites: stats?.missing_sn_sites,
+          assets: stats?.missing_sn_assets,
+        }}
       />
 
       {/* Main Content Area */}
@@ -294,6 +301,7 @@ function App() {
           selectedBranch={selectedBranch}
           branches={branches}
           user={user}
+          onOpenMissingSNTracker={() => setActiveTab('missing_sn')}
         />
 
         {/* Tab 1: 4-Level Hierarchy View */}
@@ -339,6 +347,8 @@ function App() {
             setSelectedStatus={setSelectedStatus}
             selectedOwnership={selectedOwnership}
             setSelectedOwnership={setSelectedOwnership}
+            filterMissingSN={filterMissingSN}
+            setFilterMissingSN={setFilterMissingSN}
             branches={branches}
             categories={categories}
             segments={segments}
@@ -346,6 +356,17 @@ function App() {
             onDeleteAsset={handleDeleteAsset}
             onOpenQRCodeModal={handleOpenQRCodeModal}
             onOpenTransferModal={handleOpenTransferModal}
+          />
+        )}
+
+        {/* Tab: Pelacak Site & Mitra Tanpa Serial Number */}
+        {activeTab === 'missing_sn' && (
+          <MissingSNTracker
+            user={user}
+            branches={branches}
+            selectedBranch={selectedBranch}
+            setSelectedBranch={setSelectedBranch}
+            onEditAsset={handleOpenEditAssetModal}
           />
         )}
 

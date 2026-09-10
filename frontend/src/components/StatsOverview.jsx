@@ -1,7 +1,7 @@
 import React from 'react';
 import { Building2, MapPin, Tag, Box, CheckCircle2, AlertTriangle, RefreshCw, MinusCircle, Gift } from 'lucide-react';
 
-const StatsOverview = ({ stats, selectedBranch = '', branches = [], user = null }) => {
+const StatsOverview = ({ stats, selectedBranch = '', branches = [], user = null, onOpenMissingSNTracker = null }) => {
   if (!stats) return null;
 
   const currentBranch = branches?.find((b) => String(b.id) === String(selectedBranch));
@@ -130,6 +130,19 @@ const StatsOverview = ({ stats, selectedBranch = '', branches = [], user = null 
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>Rusak: <strong className="text-white ml-0.5">{stats.damaged_assets || 0}</strong></span>
           </div>
+
+          {/* Missing Serial Number Badge */}
+          {Boolean(stats.missing_sn_assets) && (
+            <button
+              type="button"
+              onClick={onOpenMissingSNTracker}
+              className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-[11px] sm:text-xs font-bold shadow-sm transition-all"
+              title="Buka Pelacak Site & Mitra Tanpa Serial Number"
+            >
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+              <span>Tanpa SN: <strong className="text-white ml-0.5">{stats.missing_sn_assets} Unit</strong> ({stats.missing_sn_sites || 0} Site)</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

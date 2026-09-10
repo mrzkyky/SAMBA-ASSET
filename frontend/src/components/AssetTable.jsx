@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Filter, Edit2, Trash2, ChevronLeft, ChevronRight, Copy, Check, QrCode, ArrowRightLeft, Building2, Gift } from 'lucide-react';
+import { Search, Filter, Edit2, Trash2, ChevronLeft, ChevronRight, Copy, Check, QrCode, ArrowRightLeft, Building2, Gift, AlertTriangle } from 'lucide-react';
 import { parseSNList } from './HierarchyView';
+import { isMissingSN } from './MissingSNTracker';
 
 export const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
@@ -127,6 +128,8 @@ const AssetTable = ({
   setSelectedStatus,
   selectedOwnership,
   setSelectedOwnership,
+  filterMissingSN = '',
+  setFilterMissingSN,
   branches,
   categories,
   segments,
@@ -230,6 +233,22 @@ const AssetTable = ({
               <option value="Aset Tetap">🏢 Aset Tetap</option>
               <option value="Aset Hibah">🎁 Aset Hibah</option>
             </select>
+
+            {/* Serial Number Status Filter */}
+            {setFilterMissingSN && (
+              <select
+                value={filterMissingSN || ''}
+                onChange={(e) => setFilterMissingSN(e.target.value)}
+                className={`border text-xs rounded-xl px-3 py-2 focus:outline-none transition-all font-semibold ${
+                  filterMissingSN === 'true'
+                    ? 'bg-rose-500/15 border-rose-500/40 text-rose-300'
+                    : 'bg-slate-950 border-slate-800 text-slate-200 focus:border-cyan-500'
+                }`}
+              >
+                <option value="">Semua Status SN</option>
+                <option value="true">⚠️ Tanpa SN (None / -)</option>
+              </select>
+            )}
           </div>
         </div>
       </div>
@@ -304,7 +323,12 @@ const AssetTable = ({
                       <div className="text-[11px] text-slate-400">{asset.model}</div>
                     </td>
                     <td className="py-3.5 px-4 font-mono max-w-xs">
-                      {snList.length <= 1 ? (
+                      {isMissingSN(asset.serial_number) ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                          <AlertTriangle className="w-3 h-3 mr-1 shrink-0" />
+                          {snList[0] || 'None / Kosong'}
+                        </span>
+                      ) : snList.length <= 1 ? (
                         <div className="flex items-center space-x-1.5">
                           <span className="text-cyan-400 font-semibold">{snList[0] || '-'}</span>
                           {snList[0] && (
