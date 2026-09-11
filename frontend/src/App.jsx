@@ -45,6 +45,33 @@ function App() {
     }
   });
 
+  // Theme State: 'light' (default) or 'dark'
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem('theme') || 'light';
+    } catch {
+      return 'light';
+    }
+  });
+
+  // Sync theme class to <html> root element
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    try {
+      localStorage.setItem('theme', theme);
+    } catch (err) {
+      console.error('Gagal menyimpan tema:', err);
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   // Active Navigation Tab: 'hierarchy', 'master', 'transfers', 'audit', 'users', 'branches', 'sites', 'categories'
   const [activeTab, setActiveTab] = useState('hierarchy');
 
@@ -272,11 +299,13 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 pb-16">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 pb-16 transition-colors duration-200">
       
       {/* Responsive Header Bar */}
       <Header
         user={user}
+        theme={theme}
+        toggleTheme={toggleTheme}
         onLogout={handleLogout}
         activeTab={activeTab}
         setActiveTab={setActiveTab}

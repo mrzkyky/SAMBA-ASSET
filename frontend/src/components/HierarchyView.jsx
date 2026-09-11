@@ -4,15 +4,15 @@ import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit
 export const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 mr-1.5 animate-pulse"></span>
         Aktif
       </span>
     );
   }
   if (status === 'Nonaktif') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-400 border border-slate-500/20">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20">
         <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>
         Nonaktif
       </span>
@@ -20,23 +20,23 @@ export const StatusBadge = ({ status }) => {
   }
   if (status === 'Maintenance') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span>
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 mr-1.5"></span>
         Maintenance
       </span>
     );
   }
   if (status === 'Rusak') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-        <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mr-1.5"></span>
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 mr-1.5"></span>
         Rusak
       </span>
     );
   }
   if (status === 'Retired') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20">
         <span className="w-1.5 h-1.5 rounded-full bg-purple-400 mr-1.5"></span>
         Retired
       </span>
@@ -44,14 +44,14 @@ export const StatusBadge = ({ status }) => {
   }
   if (status === 'Hilang') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30">
-        <span className="w-1.5 h-1.5 rounded-full bg-red-400 mr-1.5"></span>
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30">
+        <span className="w-1.5 h-1.5 rounded-full bg-red-500 dark:bg-red-400 mr-1.5"></span>
         Hilang
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
       {status || 'Aktif'}
     </span>
   );
@@ -60,30 +60,30 @@ export const StatusBadge = ({ status }) => {
 export const ConditionBadge = ({ condition }) => {
   if (condition === 'Baik') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 shadow-sm">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 mr-1.5"></span>
         Baik
       </span>
     );
   }
   if (condition === 'Perlu Perbaikan') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-sm">
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span>
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 shadow-sm">
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 mr-1.5"></span>
         Perlu Perbaikan
       </span>
     );
   }
   if (condition === 'Rusak') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 shadow-sm">
-        <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mr-1.5"></span>
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-sm">
+        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 mr-1.5"></span>
         Rusak
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 shadow-sm">
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 shadow-sm">
       {condition || 'Baik'}
     </span>
   );
@@ -92,15 +92,15 @@ export const ConditionBadge = ({ condition }) => {
 export const OwnershipBadge = ({ ownership }) => {
   if (ownership === 'Aset Hibah') {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0 shadow-sm" title="Aset Hibah ke Mitra/Instansi">
-        <Gift className="w-3 h-3 mr-1 text-amber-400" />
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30 shrink-0 shadow-sm" title="Aset Hibah ke Mitra/Instansi">
+        <Gift className="w-3 h-3 mr-1 text-amber-600 dark:text-amber-400" />
         Hibah
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0 shadow-sm" title="Aset Tetap Milik Perusahaan">
-      <Building2 className="w-3 h-3 mr-1 text-blue-400" />
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 shrink-0 shadow-sm" title="Aset Tetap Milik Perusahaan">
+      <Building2 className="w-3 h-3 mr-1 text-blue-600 dark:text-blue-400" />
       Aset Tetap
     </span>
   );
@@ -259,14 +259,14 @@ const HierarchyView = ({
     <div className="space-y-6">
       
       {/* LEVEL 1: Branch & Segment Navigation & Filter */}
-      <div className="p-3.5 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-3 sm:space-y-4">
+      <div className="p-3.5 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm dark:shadow-xl space-y-3 sm:space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <div className="flex items-center space-x-1.5 text-cyan-400 text-[11px] sm:text-xs font-semibold uppercase tracking-wider">
+            <div className="flex items-center space-x-1.5 text-cyan-600 dark:text-cyan-400 text-[11px] sm:text-xs font-semibold uppercase tracking-wider">
               <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Level 1: Branch / Cabang Daerah</span>
             </div>
-            <h2 className="text-base sm:text-lg font-bold text-white mt-0.5 sm:mt-1">Pilih Cabang Utama</h2>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mt-0.5 sm:mt-1">Pilih Cabang Utama</h2>
           </div>
 
           {/* Branch Selector Pills */}
@@ -277,8 +277,8 @@ const HierarchyView = ({
                 onClick={() => setSelectedBranch('')}
                 className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
                   selectedBranch === ''
-                    ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25'
-                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                    ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/25'
+                    : 'bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-white dark:border-slate-800'
                 }`}
               >
                 Semua Cabang
@@ -293,8 +293,8 @@ const HierarchyView = ({
                 onClick={() => setSelectedBranch(String(b.id))}
                 className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50 ${
                   selectedBranch === String(b.id)
-                    ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25'
-                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                    ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/25'
+                    : 'bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-white dark:border-slate-800'
                 }`}
               >
                 {b.name} ({b.code})
@@ -305,9 +305,9 @@ const HierarchyView = ({
 
         {/* Segment Filter Header Tabs */}
         {segments && segments.length > 0 && (
-          <div className="pt-2.5 sm:pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-1.5 sm:gap-2">
-            <span className="text-[11px] sm:text-xs font-bold text-slate-400 mr-1 flex items-center space-x-1">
-              <Layers className="w-3.5 h-3.5 text-violet-400" />
+          <div className="pt-2.5 sm:pt-3 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mr-1 flex items-center space-x-1">
+              <Layers className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />
               <span>Filter Segmen:</span>
             </span>
             <button
@@ -315,8 +315,8 @@ const HierarchyView = ({
               onClick={() => setSelectedSegment('')}
               className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all ${
                 selectedSegment === ''
-                  ? 'bg-violet-500 text-white shadow-md shadow-violet-500/20'
-                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-500/20'
+                  : 'bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-white dark:border-slate-800'
               }`}
             >
               Semua Segmen
@@ -329,7 +329,7 @@ const HierarchyView = ({
                 className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all flex items-center space-x-1.5 ${
                   selectedSegment === String(seg.id)
                     ? 'text-white shadow-md'
-                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                    : 'bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-white dark:border-slate-800'
                 }`}
                 style={
                   selectedSegment === String(seg.id)
@@ -345,9 +345,9 @@ const HierarchyView = ({
         )}
 
         {/* Ownership Filter Header Tabs */}
-        <div className="pt-2.5 sm:pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-1.5 sm:gap-2">
-          <span className="text-[11px] sm:text-xs font-bold text-slate-400 mr-1 flex items-center space-x-1">
-            <Building2 className="w-3.5 h-3.5 text-blue-400" />
+        <div className="pt-2.5 sm:pt-3 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mr-1 flex items-center space-x-1">
+            <Building2 className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
             <span>Status Kepemilikan:</span>
           </span>
           <button
@@ -355,8 +355,8 @@ const HierarchyView = ({
             onClick={() => setSelectedOwnership && setSelectedOwnership('')}
             className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all ${
               !selectedOwnership
-                ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
-                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                : 'bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-white dark:border-slate-800'
             }`}
           >
             Semua Kepemilikan
@@ -367,10 +367,10 @@ const HierarchyView = ({
             className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all flex items-center space-x-1 ${
               selectedOwnership === 'Aset Tetap'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                : 'bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-white dark:border-slate-800'
             }`}
           >
-            <Building2 className="w-3 h-3 mr-1 text-blue-400" />
+            <Building2 className="w-3 h-3 mr-1 text-blue-500 dark:text-blue-400" />
             <span>Aset Tetap</span>
           </button>
           <button
@@ -379,10 +379,10 @@ const HierarchyView = ({
             className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all flex items-center space-x-1 ${
               selectedOwnership === 'Aset Hibah'
                 ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
-                : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                : 'bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-white dark:border-slate-800'
             }`}
           >
-            <Gift className="w-3 h-3 mr-1 text-amber-400" />
+            <Gift className="w-3 h-3 mr-1 text-amber-500 dark:text-amber-400" />
             <span>Aset Hibah</span>
           </button>
         </div>
@@ -410,22 +410,22 @@ const HierarchyView = ({
           const { branch, site_groups } = branchGroup;
 
           return (
-            <div key={branch.id} className="rounded-2xl bg-slate-900/80 border border-slate-800 overflow-hidden shadow-xl">
+            <div key={branch.id} className="rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-sm dark:shadow-xl">
               
               {/* BRANCH HEADER (Level 1 Header) */}
-              <div className="p-3.5 sm:p-5 bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/30 border-b border-slate-800 flex items-center justify-between gap-2">
+              <div className="p-3.5 sm:p-5 bg-gradient-to-r from-slate-50 via-slate-50 to-cyan-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-cyan-950/30 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2">
                 <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shrink-0">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/20 shrink-0">
                     <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <h3 className="text-sm sm:text-base font-bold text-white truncate">{branch.name}</h3>
-                      <span className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">{branch.name}</h3>
+                      <span className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shrink-0">
                         {branch.code}
                       </span>
                     </div>
-                    <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">Provinsi: {branch.province} • {site_groups.length} Site Aktif</p>
+                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">Provinsi: {branch.province} • {site_groups.length} Site Aktif</p>
                   </div>
                 </div>
 
@@ -441,7 +441,7 @@ const HierarchyView = ({
                         });
                         setOpenSites(newOpen);
                       }}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:text-white transition-all active:scale-95 shadow-sm"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white transition-all active:scale-95 shadow-sm"
                       title="Buka semua dropdown site di cabang ini"
                     >
                       Buka Semua
@@ -455,7 +455,7 @@ const HierarchyView = ({
                         });
                         setOpenSites(newOpen);
                       }}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:text-white transition-all active:scale-95 shadow-sm"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white transition-all active:scale-95 shadow-sm"
                       title="Tutup semua dropdown site di cabang ini"
                     >
                       Tutup Semua
@@ -474,38 +474,38 @@ const HierarchyView = ({
                     const isOpen = Boolean(openSites[site.id]) || Boolean(searchQuery);
 
                     return (
-                      <div key={site.id} className="rounded-xl bg-slate-950/60 border border-slate-800/80 overflow-hidden">
+                      <div key={site.id} className="rounded-xl bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-sm">
                         
                         {/* SITE ACCORDION HEADER (Level 2) */}
                         <div
                           onClick={() => toggleSite(site.id)}
-                          className="w-full p-3 sm:p-4 flex items-center justify-between gap-2 hover:bg-slate-900/60 cursor-pointer transition-colors text-left select-none"
+                          className="w-full p-3 sm:p-4 flex items-center justify-between gap-2 bg-slate-100/50 hover:bg-slate-200/50 dark:bg-transparent dark:hover:bg-slate-900/60 cursor-pointer transition-colors text-left select-none"
                         >
                           <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                            <div className="shrink-0 text-cyan-400">
+                            <div className="shrink-0 text-cyan-600 dark:text-cyan-400">
                               {isOpen ? (
                                 <ChevronDown className="w-4 h-4" />
                               ) : (
-                                <ChevronRight className="w-4 h-4 text-slate-500" />
+                                <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                               )}
                             </div>
-                            <div className="p-1.5 sm:p-2 rounded-lg bg-teal-500/10 text-teal-400 shrink-0">
+                            <div className="p-1.5 sm:p-2 rounded-lg bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-200/60 dark:border-transparent shrink-0">
                               <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                                <span className="text-xs font-bold text-cyan-400 break-words">{site.partner_name}</span>
-                                <span className="text-slate-600 hidden sm:inline">•</span>
-                                <h4 className="text-xs sm:text-sm font-semibold text-slate-200 break-words">{site.site_name}</h4>
+                                <span className="text-xs font-bold text-cyan-700 dark:text-cyan-400 break-words">{site.partner_name}</span>
+                                <span className="text-slate-400 dark:text-slate-600 hidden sm:inline">•</span>
+                                <h4 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-200 break-words">{site.site_name}</h4>
                               </div>
                               {site.address && (
-                                <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5 break-words line-clamp-1">{site.address}</p>
+                                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 break-words line-clamp-1">{site.address}</p>
                               )}
                             </div>
                           </div>
 
                           <div className="shrink-0">
-                            <span className="px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700 whitespace-nowrap">
+                            <span className="px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 whitespace-nowrap shadow-sm">
                               {totalMatchingUnits} Unit
                             </span>
                           </div>
@@ -513,7 +513,7 @@ const HierarchyView = ({
 
                         {/* ACCORDION CONTENT (Level 3 Category & Level 4 Assets) */}
                         {isOpen && (
-                          <div className="p-3 sm:p-4 border-t border-slate-800/60 bg-slate-900/30 space-y-4 sm:space-y-5">
+                          <div className="p-3 sm:p-4 border-t border-slate-200/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/30 space-y-4 sm:space-y-5">
                             {category_groups.length === 0 ? (
                               <p className="text-xs text-slate-500 italic p-2">
                                 Belum ada aset terdaftar pada site ini.
@@ -550,15 +550,15 @@ const HierarchyView = ({
                                         return (
                                           <div
                                             key={asset.id}
-                                            className="p-3 sm:p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-all space-y-2.5 relative group shadow-sm"
+                                            className="p-3 sm:p-3.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all space-y-2.5 relative group shadow-sm"
                                           >
                                             {/* Card Top: Brand/Model on left & Status/Condition on right */}
                                             <div className="flex items-start justify-between gap-2">
                                               <div className="min-w-0 flex-1">
                                                 <div className="flex flex-wrap items-center gap-1">
-                                                  <span className="text-xs font-bold text-cyan-400 break-words">{asset.brand}</span>
-                                                  <span className="text-slate-600">/</span>
-                                                  <span className="text-xs font-semibold text-slate-200 break-words">{asset.model}</span>
+                                                  <span className="text-xs font-bold text-cyan-700 dark:text-cyan-400 break-words">{asset.brand}</span>
+                                                  <span className="text-slate-300 dark:text-slate-600">/</span>
+                                                  <span className="text-xs font-semibold text-slate-900 dark:text-slate-200 break-words">{asset.model}</span>
                                                 </div>
                                               </div>
                                               <div className="flex flex-wrap items-center gap-1 justify-end shrink-0 max-w-[50%]">
@@ -585,29 +585,29 @@ const HierarchyView = ({
                                                 {segmentName}
                                               </span>
                                               {asset.asset_type && (
-                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shrink-0">
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/20 shrink-0">
                                                   {asset.asset_type}
                                                 </span>
                                               )}
                                             </div>
 
                                             {/* Location Detail on its own clear line */}
-                                            <div className="flex items-start text-[11px] text-slate-400">
-                                              <Box className="w-3.5 h-3.5 mr-1.5 text-slate-500 shrink-0 mt-0.5" />
-                                              <span className="text-slate-300 font-medium break-words leading-snug">
+                                            <div className="flex items-start text-[11px] text-slate-500 dark:text-slate-400">
+                                              <Box className="w-3.5 h-3.5 mr-1.5 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
+                                              <span className="text-slate-700 dark:text-slate-300 font-medium break-words leading-snug">
                                                 {asset.location_detail || 'Main Rack'}
                                               </span>
                                             </div>
 
                                             {/* Multi-SN List Display */}
-                                            <div className="p-2 sm:p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1.5">
-                                              <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 border-b border-slate-800/80 pb-1">
+                                            <div className="p-2 sm:p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-1.5">
+                                              <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-800/80 pb-1">
                                                 <span>Daftar Serial Number ({snList.length}):</span>
                                                 {snList.length > 3 && (
                                                   <button
                                                     type="button"
                                                     onClick={() => toggleExpandSN(asset.id)}
-                                                    className="text-cyan-400 hover:underline text-[10px]"
+                                                    className="text-cyan-600 dark:text-cyan-400 hover:underline text-[10px]"
                                                   >
                                                     {isExpanded ? 'Sembunyikan' : `+${snList.length - 3} lainnya`}
                                                   </button>
@@ -616,16 +616,16 @@ const HierarchyView = ({
 
                                               <div className="space-y-1 max-h-32 overflow-y-auto">
                                                 {displaySNs.map((sn, idx) => (
-                                                  <div key={idx} className="flex items-center justify-between font-mono text-[11px] bg-slate-950 px-2 py-0.5 rounded border border-slate-800/60">
-                                                    <span className="text-cyan-400 font-semibold truncate max-w-[170px] sm:max-w-[180px]">{sn}</span>
+                                                  <div key={idx} className="flex items-center justify-between font-mono text-[11px] bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-200/80 dark:border-slate-800/60 shadow-xs">
+                                                    <span className="text-cyan-700 dark:text-cyan-400 font-semibold truncate max-w-[170px] sm:max-w-[180px]">{sn}</span>
                                                     <button
                                                       type="button"
                                                       onClick={(e) => handleCopySN(e, sn)}
-                                                      className="p-0.5 text-slate-500 hover:text-cyan-400 transition-colors"
+                                                      className="p-0.5 text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
                                                       title="Copy SN ini"
                                                     >
                                                       {copiedSN === sn ? (
-                                                        <Check className="w-3 h-3 text-emerald-400" />
+                                                        <Check className="w-3 h-3 text-emerald-500 dark:text-emerald-400" />
                                                       ) : (
                                                         <Copy className="w-3 h-3" />
                                                       )}
@@ -636,13 +636,13 @@ const HierarchyView = ({
                                             </div>
 
                                             {/* Actions: QR, Mutasi, Edit/Delete */}
-                                            <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1.5 border-t border-slate-900 text-xs">
+                                            <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-900 text-xs">
                                               <div className="flex items-center space-x-2">
-                                                <span className="text-[11px] text-slate-400">
-                                                  Jumlah: <strong className="text-slate-200">{asset.unit_count} Unit</strong>
+                                                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                                                  Jumlah: <strong className="text-slate-800 dark:text-slate-200">{asset.unit_count} Unit</strong>
                                                 </span>
                                                 {asset.updated_at && (
-                                                  <span className="text-[10px] text-slate-500 hidden sm:inline" title={`Terakhir diupdate: ${new Date(asset.updated_at).toLocaleString('id-ID')}`}>
+                                                  <span className="text-[10px] text-slate-400 dark:text-slate-500 hidden sm:inline" title={`Terakhir diupdate: ${new Date(asset.updated_at).toLocaleString('id-ID')}`}>
                                                     • Update: {new Date(asset.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                                                   </span>
                                                 )}
