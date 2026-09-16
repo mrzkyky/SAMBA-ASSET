@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Server, Save, Plus, Tag, Check } from 'lucide-react';
 import { createAsset, updateAsset, createCategory, getCategories, createSegment, getSegments, getSites } from '../api';
 import SearchableSelect from './SearchableSelect';
+import { resolveRegionCode } from '../utils/regionCodes';
 
 export const CATEGORY_NOTES_SUGGESTIONS = {
   'access point': 'Wireless Network Access Device',
@@ -529,6 +530,25 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
                   searchKeywords: `${s.branch?.name || ''} ${s.partner_name || ''} ${s.site_name || ''} ${s.address || ''}`,
                 }))}
               />
+              {(() => {
+                const selectedSite = sitesList.find((s) => String(s.id) === String(formData.site_id));
+                const detectedRegion = selectedSite ? resolveRegionCode(selectedSite, selectedSite.branch) : null;
+                if (!detectedRegion) return null;
+                return (
+                  <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] text-blue-300 flex items-center justify-between">
+                    <div className="flex items-center space-x-1.5 truncate">
+                      <span className="font-semibold text-white">🏷️ No. Stiker Aset:</span>
+                      <span className="font-mono font-bold text-cyan-400">
+                        AT/ADM/{detectedRegion.code}/{new Date().getFullYear()}/...
+                      </span>
+                      <span className="text-slate-300 font-medium">({detectedRegion.name})</span>
+                    </div>
+                    <span className="text-[10px] text-cyan-400 font-medium whitespace-nowrap ml-2">
+                      kodewilayah: {detectedRegion.code}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Row 1 - Right: Kategori */}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Printer, QrCode, SlidersHorizontal, Check, RefreshCw, Layers, ShieldCheck, Tag, ExternalLink } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { parseSNList } from './HierarchyView';
+import { resolveRegionCode } from '../utils/regionCodes';
 
 // Vector Logo Rapid Network with upward 3D Arrow (Faithful to physical sticker)
 export const RapidLogo = ({ className = "h-7", dark = false }) => {
@@ -87,22 +88,25 @@ const QRCodeModal = ({ isOpen, onClose, asset }) => {
     wa: '0812 1474 5080',
     email: 'helpdesk@rapid.net.id',
     qrPayloadType: 'sn', // 'sn' or 'url'
+    resolvedRegion: null,
   });
 
   useEffect(() => {
     setSelectedSNIndex('ALL');
     if (asset) {
+      // Deteksi otomatis Kode Wilayah dari alamat site, nama site, atau cabang (kodewilayah.web.id)
+      const resolved = resolveRegionCode(asset.site, asset.site?.branch);
       const yearStr = asset.created_at ? new Date(asset.created_at).getFullYear().toString() : new Date().getFullYear().toString();
-      const derivedSiteCode = asset.site?.id ? String(3000 + asset.site.id) : '3329';
-      const derivedSiteName = asset.site?.site_name ? `Site ${asset.site.site_name}` : (asset.site?.branch?.name ? `Site Kab. ${asset.site.branch.name}` : 'Site Kab. Brebes');
+      const derivedSiteName = resolved.name ? `Site ${resolved.name}` : (asset.site?.site_name ? `Site ${asset.site.site_name}` : 'Site Kab. Brebes');
       const sequence = String(asset.id || 1).padStart(4, '0');
 
       setConfig((prev) => ({
         ...prev,
         siteName: derivedSiteName,
-        siteCode: derivedSiteCode,
+        siteCode: resolved.code, // Otomatis memakai kode Kemendagri 4 digit (misal: 3329)
         year: yearStr,
         customSeq: sequence,
+        resolvedRegion: resolved,
       }));
     }
   }, [asset, isOpen]);
@@ -309,6 +313,30 @@ const QRCodeModal = ({ isOpen, onClose, asset }) => {
         {/* Customization Drawer */}
         {showConfig && (
           <div className="p-4 bg-slate-900/95 border-b border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs no-print animate-in slide-in-from-top-2 duration-150">
+            {/* Live Region Indicator */}
+            {config.resolvedRegion && (
+              <div className="col-span-2 sm:col-span-4 bg-blue-500/10 border border-blue-500/30 rounded-xl p-2.5 flex items-center justify-between text-xs flex-wrap gap-2">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                  <span className="text-cyan-300 font-bold">Wilayah Terdeteksi:</span>
+                  <span className="text-white font-mono font-black px-1.5 py-0.5 bg-slate-950 rounded border border-slate-800">
+                    {config.resolvedRegion.code}
+                  </span>
+                  <span className="text-slate-200 font-semibold">{config.resolvedRegion.name}</span>
+                  <span className="text-slate-400 text-[11px]">(via {config.resolvedRegion.source})</span>
+                </div>
+                <a
+                  href={`https://kodewilayah.web.id/`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center space-x-1"
+                >
+                  <span>cek di kodewilayah.web.id</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            )}
+
             <div>
               <label className="block text-slate-400 font-medium mb-1">Prefix Nomor</label>
               <input

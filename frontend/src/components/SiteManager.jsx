@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { MapPin, Plus, Edit2, Trash2, X } from 'lucide-react';
+import { MapPin, Plus, Edit2, Trash2, X, ExternalLink } from 'lucide-react';
 import { createSite, updateSite, deleteSite } from '../api';
+import { resolveRegionCode } from '../utils/regionCodes';
 
 const SiteManager = ({ sites, branches, user, onRefresh }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -181,6 +182,38 @@ const SiteManager = ({ sites, branches, user, onRefresh }) => {
                 className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-teal-500 focus:outline-none"
               />
             </div>
+
+            {/* Live Region Detection from Alamat / Site */}
+            {(() => {
+              const selectedBranch = branches.find((b) => String(b.id) === String(formData.branch_id));
+              const detected = resolveRegionCode(
+                { site_name: formData.site_name, partner_name: formData.partner_name, address: formData.address },
+                selectedBranch
+              );
+              return (
+                <div className="md:col-span-2 bg-slate-950/80 border border-teal-500/30 rounded-lg p-2.5 flex items-center justify-between text-xs flex-wrap gap-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+                    <span className="text-teal-300 font-bold">Kode Wilayah Aset:</span>
+                    <span className="font-mono font-black text-white px-2 py-0.5 bg-slate-900 rounded border border-slate-800">
+                      {detected.code}
+                    </span>
+                    <span className="text-slate-200 font-medium">({detected.name})</span>
+                    <span className="text-slate-500 text-[11px]">via {detected.source}</span>
+                  </div>
+                  <a
+                    href="https://kodewilayah.web.id/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-teal-400 hover:text-teal-300 text-[11px] font-semibold flex items-center space-x-1"
+                  >
+                    <span>kodewilayah.web.id</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              );
+            })()}
+
             <div className="md:col-span-2 flex justify-end space-x-2 pt-2">
               <button
                 type="button"
@@ -219,7 +252,20 @@ const SiteManager = ({ sites, branches, user, onRefresh }) => {
                 <td className="py-3 px-4 text-cyan-400 font-semibold">{s.branch?.name || '-'}</td>
                 <td className="py-3 px-4 font-bold text-white">{s.partner_name}</td>
                 <td className="py-3 px-4 text-slate-200">{s.site_name}</td>
-                <td className="py-3 px-4 text-slate-400">{s.address || '-'}</td>
+                <td className="py-3 px-4">
+                  <div className="text-slate-300">{s.address || '-'}</div>
+                  {(() => {
+                    const reg = resolveRegionCode(s, s.branch);
+                    return (
+                      <div className="flex items-center space-x-1.5 mt-1">
+                        <span className="font-mono text-[10px] font-bold text-teal-400 bg-teal-500/10 px-1.5 py-0.5 rounded border border-teal-500/20">
+                          Kode: {reg.code}
+                        </span>
+                        <span className="text-[10px] text-slate-400 truncate max-w-[150px]">({reg.name})</span>
+                      </div>
+                    );
+                  })()}
+                </td>
                 <td className="py-3 px-4 text-right">
                   <div className="flex items-center justify-end space-x-2">
                     <button
