@@ -119,6 +119,27 @@ func SetupRouter() *gin.Engine {
 				users.PUT("/:id", handlers.UpdateUser)
 				users.DELETE("/:id", handlers.DeleteUser)
 			}
+
+			// Internal Office Units Routes (Kantor Pusat, Cabang Utama, Sub-Branch / Unit Kantor)
+			officeUnits := protected.Group("/office-units")
+			{
+				officeUnits.GET("", handlers.GetOfficeUnits)
+				officeUnits.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateOfficeUnit)
+				officeUnits.PUT("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.UpdateOfficeUnit)
+				officeUnits.DELETE("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.DeleteOfficeUnit)
+			}
+
+			// Internal Company Office Assets & Branch Infrastructure Routes
+			officeAssets := protected.Group("/office-assets")
+			{
+				officeAssets.GET("", handlers.GetOfficeAssets)
+				officeAssets.GET("/stats", handlers.GetOfficeStats)
+				officeAssets.GET("/hierarchy", handlers.GetOfficeHierarchy)
+				officeAssets.GET("/:id", handlers.GetOfficeAssetByID)
+				officeAssets.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateOfficeAsset)
+				officeAssets.PUT("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.UpdateOfficeAsset)
+				officeAssets.DELETE("/:id", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.DeleteOfficeAsset)
+			}
 		}
 	}
 

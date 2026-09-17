@@ -248,4 +248,62 @@ export const getAuditLogs = async (params = {}) => {
   return response.data;
 };
 
+// =========================================================================
+// Office Units & Internal Company Office Assets API
+// =========================================================================
+export const getOfficeUnits = async (params = {}) => {
+  const response = await api.get('/office-units', { params });
+  return response.data;
+};
+
+export const createOfficeUnit = async (data) => {
+  const response = await api.post('/office-units', data);
+  return response.data;
+};
+
+export const updateOfficeUnit = async (id, data) => {
+  const response = await api.put(`/office-units/${id}`, data);
+  return response.data;
+};
+
+export const deleteOfficeUnit = async (id) => {
+  const response = await api.delete(`/office-units/${id}`);
+  return response.data;
+};
+
+export const getOfficeAssets = async (params = {}) => {
+  const response = await api.get('/office-assets', { params });
+  return response.data;
+};
+
+export const getOfficeAssetByID = async (id) => {
+  const response = await api.get(`/office-assets/${id}`);
+  return response.data;
+};
+
+export const createOfficeAsset = async (data) => {
+  const response = await api.post('/office-assets', data);
+  return response.data;
+};
+
+export const updateOfficeAsset = async (id, data) => {
+  const response = await api.put(`/office-assets/${id}`, data);
+  return response.data;
+};
+
+export const deleteOfficeAsset = async (id) => {
+  const response = await api.delete(`/office-assets/${id}`);
+  return response.data;
+};
+
+export const getOfficeStats = async (params = {}) => {
+  const response = await api.get('/office-assets/stats', { params });
+  return response.data;
+};
+
+export const getOfficeHierarchy = async () => {
+  const response = await api.get('/office-assets/hierarchy');
+  return response.data;
+};
+
 export default api;

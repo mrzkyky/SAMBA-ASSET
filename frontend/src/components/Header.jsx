@@ -3,6 +3,7 @@ import {
   Server,
   Layers,
   Table,
+  Building,
   Building2,
   MapPin,
   Tag,
@@ -266,6 +267,20 @@ const Header = ({
           >
             <Table className="w-4 h-4" />
             <span>Tabel Master Aset</span>
+          </button>
+
+          {/* Aset Internal Perusahaan (Kantor Pusat & Cabang) */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('office_assets')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
+              activeTab === 'office_assets'
+                ? 'bg-blue-50 text-blue-700 border border-blue-300 shadow-sm dark:bg-blue-600/20 dark:text-blue-400 dark:border-blue-500/40'
+                : 'text-slate-600 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-900'
+            }`}
+          >
+            <Building className="w-4 h-4 text-blue-500" />
+            <span>Aset Internal Perusahaan</span>
           </button>
 
           {/* Pelacak Site & Mitra Tanpa Serial Number */}

@@ -218,3 +218,53 @@ type BranchHierarchyDTO struct {
 	Branch     Branch         `json:"branch"`
 	SiteGroups []SiteGroupDTO `json:"site_groups"`
 }
+
+// OfficeUnit represents an internal company office/branch location (Pusat, Cabang Utama, Sub-Branch/Unit Kantor)
+type OfficeUnit struct {
+	ID           uint          `gorm:"primaryKey" json:"id"`
+	BranchID     *uint         `gorm:"index" json:"branch_id"` // Nullable: null for Pusat / Head Office
+	Branch       *Branch       `gorm:"foreignKey:BranchID" json:"branch,omitempty"`
+	ParentUnitID *uint         `gorm:"index" json:"parent_unit_id"` // For hierarchical sub-units
+	UnitName     string        `gorm:"size:150;not null" json:"unit_name"` // e.g. "Kantor Cabang Brebes", "Kantor Unit Jatibarang"
+	UnitType     string        `gorm:"size:50;default:'Cabang Utama';index" json:"unit_type"` // 'Pusat', 'Cabang Utama', 'Kantor Unit / Sub-Branch', 'Gudang Cabang'
+	Code         string        `gorm:"size:50;index" json:"code"` // e.g. "HO-PST", "KTR-BRB", "UNT-JTB"
+	Address      string        `gorm:"type:text" json:"address"`
+	PICName      string        `gorm:"size:100" json:"pic_name"`
+	PICPhone     string        `gorm:"size:50" json:"pic_phone"`
+	Assets       []OfficeAsset `gorm:"foreignKey:OfficeUnitID;constraint:OnDelete:CASCADE" json:"assets,omitempty"`
+	CreatedAt    time.Time     `json:"created_at"`
+	UpdatedAt    time.Time     `json:"updated_at"`
+}
+
+// OfficeAsset represents internal company equipment (servers, routers, switches, UPS, PCs, racks)
+type OfficeAsset struct {
+	ID             uint        `gorm:"primaryKey" json:"id"`
+	OfficeUnitID   uint        `gorm:"not null;index" json:"office_unit_id"`
+	OfficeUnit     *OfficeUnit `gorm:"foreignKey:OfficeUnitID" json:"office_unit,omitempty"`
+	AssetType      string      `gorm:"size:50;default:'Aktif';index" json:"asset_type"` // 'Aktif', 'Pasif', 'Server & Komputasi', 'Jaringan Kantor', 'Power & UPS', 'Workstation/PC'
+	Brand          string      `gorm:"size:255;not null" json:"brand"`
+	Model          string      `gorm:"size:255;not null" json:"model"`
+	SerialNumber   string      `gorm:"type:text;not null" json:"serial_number"`
+	LocationDetail string      `gorm:"size:150;default:'Ruang Server'" json:"location_detail"` // e.g. "Ruang Server - Rack A", "NOC", "Front Office"
+	UnitCount      int         `gorm:"default:1;not null" json:"unit_count"`
+	IPAddress      string      `gorm:"size:100" json:"ip_address"` // e.g. "192.168.10.2 / VLAN 10" (Opsional/Catatan)
+	MACAddress     string      `gorm:"size:50" json:"mac_address"`  // Opsional
+	Status         string      `gorm:"size:50;default:'Aktif';index" json:"status"` // 'Aktif', 'Nonaktif', 'Maintenance', 'Rusak', 'Spare'
+	Condition      string      `gorm:"size:50;default:'Baik';index" json:"condition"` // 'Baik', 'Perlu Perbaikan', 'Rusak'
+	Ownership      string      `gorm:"size:50;default:'Aset Perusahaan'" json:"ownership"`
+	Notes          string      `gorm:"type:text" json:"notes"`
+	CreatedAt      time.Time   `json:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at"`
+}
+
+// OfficeStatsDTO provides separated statistics for internal office assets
+type OfficeStatsDTO struct {
+	TotalOfficeAssets int64 `json:"total_office_assets"`
+	TotalOfficeUnits  int64 `json:"total_office_units"`
+	ServerAssets      int64 `json:"server_assets"`
+	NetworkAssets     int64 `json:"network_assets"`
+	ActiveAssets      int64 `json:"active_assets"`
+	MaintenanceAssets int64 `json:"maintenance_assets"`
+	DamagedAssets     int64 `json:"damaged_assets"`
+	SpareAssets       int64 `json:"spare_assets"`
+}

@@ -18,6 +18,7 @@ import TransferHistory from './components/TransferHistory';
 import AuditLogView from './components/AuditLogView';
 import ImportAssetModal from './components/ImportAssetModal';
 import MissingSNTracker from './components/MissingSNTracker';
+import OfficeAssetManager from './components/OfficeAssetManager';
 
 import {
   getProfile,
@@ -324,14 +325,16 @@ function App() {
       {/* Main Content Area */}
       <main className="w-full px-2.5 sm:px-6 lg:px-8 mt-3 sm:mt-6 space-y-4 sm:space-y-6">
         
-        {/* Dashboard Key Metrics Banner */}
-        <StatsOverview
-          stats={stats}
-          selectedBranch={selectedBranch}
-          branches={branches}
-          user={user}
-          onOpenMissingSNTracker={() => setActiveTab('missing_sn')}
-        />
+        {/* Dashboard Key Metrics Banner (Aset Nasional / Mitra) */}
+        {activeTab !== 'office_assets' && (
+          <StatsOverview
+            stats={stats}
+            selectedBranch={selectedBranch}
+            branches={branches}
+            user={user}
+            onOpenMissingSNTracker={() => setActiveTab('missing_sn')}
+          />
+        )}
 
         {/* Tab 1: 4-Level Hierarchy View */}
         {activeTab === 'hierarchy' && (
@@ -396,6 +399,15 @@ function App() {
             selectedBranch={selectedBranch}
             setSelectedBranch={setSelectedBranch}
             onEditAsset={handleOpenEditAssetModal}
+          />
+        )}
+
+        {/* Tab: Aset Internal Perusahaan (Kantor Pusat, Cabang & Unit) */}
+        {activeTab === 'office_assets' && (
+          <OfficeAssetManager
+            user={user}
+            branches={branches}
+            onOpenQRCodeModal={handleOpenQRCodeModal}
           />
         )}
 
