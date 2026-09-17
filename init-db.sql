@@ -106,6 +106,41 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 8. Office Units Table (Aset Internal Perusahaan - Kantor Pusat, Cabang & Unit)
+CREATE TABLE IF NOT EXISTS office_units (
+    id BIGSERIAL PRIMARY KEY,
+    branch_id BIGINT REFERENCES branches(id) ON DELETE SET NULL,
+    parent_unit_id BIGINT REFERENCES office_units(id) ON DELETE SET NULL,
+    unit_name VARCHAR(150) NOT NULL,
+    unit_type VARCHAR(50) NOT NULL DEFAULT 'Cabang Utama',
+    code VARCHAR(50),
+    address TEXT,
+    pic_name VARCHAR(100),
+    pic_phone VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 9. Office Assets Table (Aset Internal Perusahaan - Server, Switch, Router, PC, UPS)
+CREATE TABLE IF NOT EXISTS office_assets (
+    id BIGSERIAL PRIMARY KEY,
+    office_unit_id BIGINT NOT NULL REFERENCES office_units(id) ON DELETE CASCADE,
+    asset_type VARCHAR(50) NOT NULL DEFAULT 'Aktif',
+    brand VARCHAR(255) NOT NULL,
+    model VARCHAR(255) NOT NULL,
+    serial_number TEXT NOT NULL,
+    location_detail VARCHAR(150) DEFAULT 'Ruang Server',
+    unit_count INT NOT NULL DEFAULT 1,
+    ip_address VARCHAR(100),
+    mac_address VARCHAR(50),
+    status VARCHAR(50) NOT NULL DEFAULT 'Aktif',
+    condition VARCHAR(50) NOT NULL DEFAULT 'Baik',
+    ownership VARCHAR(50) DEFAULT 'Aset Perusahaan',
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Performance Indexes (Safe IF NOT EXISTS)
 CREATE INDEX IF NOT EXISTS idx_branches_code ON branches(code);
 CREATE INDEX IF NOT EXISTS idx_sites_branch_id ON sites(branch_id);
@@ -121,6 +156,14 @@ CREATE INDEX IF NOT EXISTS idx_transfers_from_site ON asset_transfers(from_site_
 CREATE INDEX IF NOT EXISTS idx_transfers_to_site ON asset_transfers(to_site_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_office_units_branch_id ON office_units(branch_id);
+CREATE INDEX IF NOT EXISTS idx_office_units_parent_unit_id ON office_units(parent_unit_id);
+CREATE INDEX IF NOT EXISTS idx_office_units_unit_type ON office_units(unit_type);
+CREATE INDEX IF NOT EXISTS idx_office_units_code ON office_units(code);
+CREATE INDEX IF NOT EXISTS idx_office_assets_office_unit_id ON office_assets(office_unit_id);
+CREATE INDEX IF NOT EXISTS idx_office_assets_asset_type ON office_assets(asset_type);
+CREATE INDEX IF NOT EXISTS idx_office_assets_status ON office_assets(status);
+CREATE INDEX IF NOT EXISTS idx_office_assets_condition ON office_assets(condition);
 
 -- Seed Data: Branches (ON CONFLICT DO NOTHING)
 INSERT INTO branches (code, name, province) VALUES

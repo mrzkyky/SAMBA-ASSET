@@ -143,6 +143,63 @@ func InitDB() *gorm.DB {
 	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS to_partner_name VARCHAR(255);")
 	DB.Exec("ALTER TABLE asset_transfers ADD COLUMN IF NOT EXISTS to_branch_name VARCHAR(100);")
 
+	// Explicitly create office_units table if not exists
+	createOfficeUnitsTable := `
+	CREATE TABLE IF NOT EXISTS office_units (
+		id BIGSERIAL PRIMARY KEY,
+		branch_id BIGINT REFERENCES branches(id) ON DELETE SET NULL,
+		parent_unit_id BIGINT REFERENCES office_units(id) ON DELETE SET NULL,
+		unit_name VARCHAR(150) NOT NULL,
+		unit_type VARCHAR(50) NOT NULL DEFAULT 'Cabang Utama',
+		code VARCHAR(50),
+		address TEXT,
+		pic_name VARCHAR(100),
+		pic_phone VARCHAR(50),
+		created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+	);
+	CREATE INDEX IF NOT EXISTS idx_office_units_branch_id ON office_units(branch_id);
+	CREATE INDEX IF NOT EXISTS idx_office_units_parent_unit_id ON office_units(parent_unit_id);
+	CREATE INDEX IF NOT EXISTS idx_office_units_unit_type ON office_units(unit_type);
+	CREATE INDEX IF NOT EXISTS idx_office_units_code ON office_units(code);
+	`
+	if err := DB.Exec(createOfficeUnitsTable).Error; err != nil {
+		log.Printf("Notice on create office_units table: %v", err)
+	}
+
+	// Explicitly create office_assets table if not exists
+	createOfficeAssetsTable := `
+	CREATE TABLE IF NOT EXISTS office_assets (
+		id BIGSERIAL PRIMARY KEY,
+		office_unit_id BIGINT NOT NULL REFERENCES office_units(id) ON DELETE CASCADE,
+		asset_type VARCHAR(50) NOT NULL DEFAULT 'Aktif',
+		brand VARCHAR(255) NOT NULL,
+		model VARCHAR(255) NOT NULL,
+		serial_number TEXT NOT NULL,
+		location_detail VARCHAR(150) DEFAULT 'Ruang Server',
+		unit_count INT NOT NULL DEFAULT 1,
+		ip_address VARCHAR(100),
+		mac_address VARCHAR(50),
+		status VARCHAR(50) NOT NULL DEFAULT 'Aktif',
+		condition VARCHAR(50) NOT NULL DEFAULT 'Baik',
+		ownership VARCHAR(50) DEFAULT 'Aset Perusahaan',
+		notes TEXT,
+		created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+	);
+	CREATE INDEX IF NOT EXISTS idx_office_assets_office_unit_id ON office_assets(office_unit_id);
+	CREATE INDEX IF NOT EXISTS idx_office_assets_asset_type ON office_assets(asset_type);
+	CREATE INDEX IF NOT EXISTS idx_office_assets_status ON office_assets(status);
+	CREATE INDEX IF NOT EXISTS idx_office_assets_condition ON office_assets(condition);
+	`
+	if err := DB.Exec(createOfficeAssetsTable).Error; err != nil {
+		log.Printf("Notice on create office_assets table: %v", err)
+	}
+
+	// Also run independent AutoMigrate for office models
+	_ = DB.AutoMigrate(&models.OfficeUnit{})
+	_ = DB.AutoMigrate(&models.OfficeAsset{})
+
 	// Ensure default seeds exist safely
 	seedBranchesAndSites()
 	seedCategories()
