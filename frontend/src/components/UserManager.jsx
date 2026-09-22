@@ -15,6 +15,13 @@ import {
 import { createUser, updateUser, deleteUser } from '../api';
 
 const RoleBadge = ({ role }) => {
+  if (role === 'Super User') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-sm shadow-amber-500/10">
+        Super User (Owner / Pembuat)
+      </span>
+    );
+  }
   if (role === 'Super Admin') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
@@ -111,7 +118,11 @@ const UserManager = ({ users = [], branches = [], onRefresh }) => {
     }
   };
 
-  const handleDelete = async (id, uname) => {
+  const handleDelete = async (id, uname, role) => {
+    if (uname === 'admin' || role === 'Super User') {
+      alert('Akun Super User (Pembuat Sistem) dilindungi dan tidak dapat dihapus.');
+      return;
+    }
     if (!window.confirm(`Apakah Anda yakin ingin menghapus akun pengguna "${uname}"?`)) return;
     try {
       await deleteUser(id);
@@ -229,7 +240,10 @@ const UserManager = ({ users = [], branches = [], onRefresh }) => {
               >
                 <option value="Auditor">Auditor (Akses Terbatas - Hanya Lihat / Read-Only)</option>
                 <option value="Branch Admin">Branch Admin (Akses Penuh Khusus 1 Cabang Terikat)</option>
-                <option value="Super Admin">Super Admin (Akses Penuh Nasional Seluruh Cabang & User)</option>
+                <option value="Super Admin">Super Admin (Akses Penuh Nasional Seluruh Cabang - Tanpa Akses Kelola User)</option>
+                {formData.role === 'Super User' && (
+                  <option value="Super User">Super User (Akses Penuh Seluruh Sistem + User Management RBAC)</option>
+                )}
               </select>
             </div>
 
@@ -340,14 +354,23 @@ const UserManager = ({ users = [], branches = [], onRefresh }) => {
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(u.id, u.username)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
-                        title="Hapus Akun Pengguna"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {u.role === 'Super User' || u.username === 'admin' ? (
+                        <span
+                          className="text-[10px] font-semibold text-amber-400 bg-amber-500/10 px-2 py-1 rounded-md border border-amber-500/20 shrink-0"
+                          title="Akun Pembuat Sistem dilindungi secara permanen"
+                        >
+                          Terproteksi (Owner)
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(u.id, u.username, u.role)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                          title="Hapus Akun Pengguna"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

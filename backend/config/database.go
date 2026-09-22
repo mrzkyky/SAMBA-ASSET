@@ -122,6 +122,7 @@ func InitDB() *gorm.DB {
 	DB.Exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_otp VARCHAR(10);")
 	DB.Exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_expires_at TIMESTAMP WITH TIME ZONE;")
 	DB.Exec("UPDATE users SET is_verified = TRUE WHERE is_verified IS NULL OR username IN ('admin', 'admin_brebes', 'auditor');")
+	DB.Exec("UPDATE users SET role = 'Super User' WHERE username = 'admin';")
 
 	// Non-destructive migrations for asset_transfers (prevent cascade data loss & add snapshots)
 	DB.Exec("ALTER TABLE asset_transfers ALTER COLUMN asset_id DROP NOT NULL;")
@@ -321,7 +322,7 @@ func seedUsers() {
 			Username:     "admin",
 			Email:        "admin@national-asset.id",
 			PasswordHash: string(hashAdmin),
-			Role:         "Super Admin",
+			Role:         "Super User",
 			BranchID:     nil,
 			IsVerified:   true,
 		},
@@ -352,8 +353,9 @@ func seedUsers() {
 				log.Printf("Seeded default user: %s (%s)", u.Username, u.Role)
 			}
 		} else if u.Username == "admin" {
-			// Ensure superadmin password is synchronized to the updated password
+			// Ensure super user password and role are synchronized to the updated credentials
 			existing.PasswordHash = u.PasswordHash
+			existing.Role = "Super User"
 			existing.IsVerified = true
 			DB.Save(&existing)
 		}

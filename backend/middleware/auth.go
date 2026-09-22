@@ -55,6 +55,15 @@ func RequireRoles(allowedRoles ...string) gin.HandlerFunc {
 		}
 
 		userRole := roleVal.(string)
+		usernameVal, _ := c.Get("username")
+		username, _ := usernameVal.(string)
+
+		// Super User and primary admin creator have full access across all operations
+		if userRole == "Super User" || username == "admin" {
+			c.Next()
+			return
+		}
+
 		for _, allowed := range allowedRoles {
 			if userRole == allowed {
 				c.Next()

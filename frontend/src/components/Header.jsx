@@ -62,7 +62,8 @@ const Header = ({
       .catch(() => alert('Gagal mendownload berkas Laporan CSV.'));
   };
 
-  const isSuperAdmin = user?.role === 'Super Admin';
+  const isSuperUser = user?.role === 'Super User' || user?.username === 'admin';
+  const isSuperAdmin = user?.role === 'Super Admin' || isSuperUser;
   const isAuditor = user?.role === 'Auditor';
 
   const [syncingSheet, setSyncingSheet] = React.useState(false);
@@ -363,21 +364,23 @@ const Header = ({
             </button>
           )}
 
-          {/* Super Admin Specific Management Tabs */}
+          {/* Super Admin & Super User Specific Management Tabs */}
           {isSuperAdmin && (
             <>
-              <button
-                type="button"
-                onClick={() => setActiveTab('users')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
-                  activeTab === 'users'
-                    ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
-                }`}
-              >
-                <Users className="w-4 h-4" />
-                <span>Kelola User (RBAC)</span>
-              </button>
+              {isSuperUser && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('users')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
+                    activeTab === 'users'
+                      ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Kelola User (RBAC)</span>
+                </button>
+              )}
 
               <button
                 type="button"

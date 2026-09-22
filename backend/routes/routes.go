@@ -110,9 +110,9 @@ func SetupRouter() *gin.Engine {
 			// System Audit Trail Logs Route (Super Admin & Branch Admin)
 			protected.GET("/audit-logs", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.GetAuditLogs)
 
-			// User Management Routes (Super Admin Only)
+			// User Management Routes (Super User Only - Restricted to system creator/owner)
 			users := protected.Group("/users")
-			users.Use(middleware.RequireRoles("Super Admin"))
+			users.Use(middleware.RequireRoles("Super User"))
 			{
 				users.GET("", handlers.GetUsers)
 				users.POST("", handlers.CreateUser)

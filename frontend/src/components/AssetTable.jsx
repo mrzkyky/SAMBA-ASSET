@@ -142,7 +142,7 @@ const AssetTable = ({
 
   const isAuditor = user?.role === 'Auditor';
   const isBranchAdmin = user?.role === 'Branch Admin';
-  const isBranchScoped = isBranchAdmin || (user?.role !== 'Super Admin' && Boolean(user?.branch_id));
+  const isBranchScoped = isBranchAdmin || (user?.role !== 'Super Admin' && user?.role !== 'Super User' && user?.username !== 'admin' && Boolean(user?.branch_id));
   const currentBranch = branches?.find((b) => String(b.id) === String(selectedBranch));
 
   const handleCopy = (sn) => {

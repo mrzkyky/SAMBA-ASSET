@@ -135,7 +135,7 @@ const HierarchyView = ({
 
   const isAuditor = user?.role === 'Auditor';
   const isBranchAdmin = user?.role === 'Branch Admin';
-  const isBranchScoped = isBranchAdmin || (user?.role !== 'Super Admin' && Boolean(user?.branch_id));
+  const isBranchScoped = isBranchAdmin || (user?.role !== 'Super Admin' && user?.role !== 'Super User' && user?.username !== 'admin' && Boolean(user?.branch_id));
 
   const toggleSite = (siteId) => {
     setOpenSites((prev) => ({

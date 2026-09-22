@@ -109,7 +109,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
 
-  const isSuperAdmin = user?.role === 'Super Admin';
+  const isSuperAdmin = user?.role === 'Super Admin' || user?.role === 'Super User' || user?.username === 'admin';
   const isBranchAdmin = user?.role === 'Branch Admin';
   const canEdit = isSuperAdmin || isBranchAdmin;
 

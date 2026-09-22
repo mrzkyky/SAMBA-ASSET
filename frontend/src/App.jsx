@@ -147,12 +147,22 @@ function App() {
     localStorage.removeItem('user');
   };
 
+  const isSuperUser = user?.role === 'Super User' || user?.username === 'admin';
+  const isSuperAdmin = user?.role === 'Super Admin' || isSuperUser;
+
   // Enforce branch filter automatically for branch-assigned users (e.g. Branch Admin)
   useEffect(() => {
-    if (user?.branch_id && user.role !== 'Super Admin') {
+    if (user?.branch_id && !isSuperAdmin) {
       setSelectedBranch(String(user.branch_id));
     }
-  }, [user]);
+  }, [user, isSuperAdmin]);
+
+  // Safeguard: Automatically redirect to hierarchy if a non-super-user attempts to open users tab
+  useEffect(() => {
+    if (activeTab === 'users' && !isSuperUser) {
+      setActiveTab('hierarchy');
+    }
+  }, [activeTab, isSuperUser]);
 
   // Fetch Stats Data (scoped to selectedBranch or National)
   const fetchStats = useCallback(async () => {
@@ -419,32 +429,32 @@ function App() {
         )}
 
         {/* Tab 4: System Audit Trail Log & Edit History (Super Admin & Branch Admin) */}
-        {activeTab === 'audit' && (user?.role === 'Super Admin' || user?.role === 'Branch Admin') && (
+        {activeTab === 'audit' && (isSuperAdmin || user?.role === 'Branch Admin') && (
           <AuditLogView />
         )}
 
-        {/* Tab 5: User Management RBAC (Super Admin) */}
-        {activeTab === 'users' && user?.role === 'Super Admin' && (
+        {/* Tab 5: User Management RBAC (Super User Only - Khusus Pembuat / Owner) */}
+        {activeTab === 'users' && isSuperUser && (
           <UserManager users={usersList} branches={branches} onRefresh={refreshAllData} />
         )}
 
         {/* Level 1: Branch Management */}
-        {activeTab === 'branches' && user?.role === 'Super Admin' && (
+        {activeTab === 'branches' && isSuperAdmin && (
           <BranchManager branches={branches} onRefresh={refreshAllData} />
         )}
 
         {/* Level 2: Site Management (Super Admin & Branch Admin) */}
-        {activeTab === 'sites' && (user?.role === 'Super Admin' || user?.role === 'Branch Admin') && (
+        {activeTab === 'sites' && (isSuperAdmin || user?.role === 'Branch Admin') && (
           <SiteManager sites={sites} branches={branches} user={user} onRefresh={refreshAllData} />
         )}
 
         {/* Level 3: Category Management (Super Admin & Branch Admin) */}
-        {activeTab === 'categories' && (user?.role === 'Super Admin' || user?.role === 'Branch Admin') && (
+        {activeTab === 'categories' && (isSuperAdmin || user?.role === 'Branch Admin') && (
           <CategoryManager categories={categories} user={user} onRefresh={refreshAllData} />
         )}
 
         {/* Segment Management */}
-        {activeTab === 'segments' && user?.role === 'Super Admin' && (
+        {activeTab === 'segments' && isSuperAdmin && (
           <SegmentManager segments={segments} onRefresh={refreshAllData} />
         )}
       </main>

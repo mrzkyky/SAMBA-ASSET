@@ -411,7 +411,13 @@ func UpdateUser(c *gin.Context) {
 		user.Email = strings.TrimSpace(strings.ToLower(input.Email))
 	}
 	if input.Role != "" {
-		user.Role = input.Role
+		// Prevent demoting primary creator or Super User account
+		if (user.Role == "Super User" || user.Username == "admin") && input.Role != "Super User" {
+			// Retain Super User status
+			user.Role = "Super User"
+		} else {
+			user.Role = input.Role
+		}
 	}
 	user.BranchID = input.BranchID
 
@@ -444,10 +450,23 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User berhasil diperbarui", "data": userDTO})
 }
 
-// DeleteUser deletes a user account (Super Admin only)
+// DeleteUser deletes a user account (Super User only, protects creator)
 func DeleteUser(c *gin.Context) {
 	id := c.Param("id")
-	if err := config.DB.Delete(&models.User{}, id).Error; err != nil {
+
+	var targetUser models.User
+	if err := config.DB.First(&targetUser, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User tidak ditemukan"})
+		return
+	}
+
+	// Protect Super User / creator account from being deleted
+	if targetUser.Role == "Super User" || targetUser.Username == "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Akun Super User (Pembuat Sistem) dilindungi dan tidak dapat dihapus!"})
+		return
+	}
+
+	if err := config.DB.Delete(&targetUser).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menghapus user"})
 		return
 	}

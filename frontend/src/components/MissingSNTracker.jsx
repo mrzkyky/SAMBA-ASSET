@@ -62,7 +62,7 @@ const MissingSNTracker = ({
   const [openSites, setOpenSites] = useState({});
 
   const isAuditor = user?.role === 'Auditor';
-  const isBranchScoped = user?.role === 'Branch Admin' || (user?.role !== 'Super Admin' && Boolean(user?.branch_id));
+  const isBranchScoped = user?.role === 'Branch Admin' || (user?.role !== 'Super Admin' && user?.role !== 'Super User' && user?.username !== 'admin' && Boolean(user?.branch_id));
   const currentBranch = branches?.find((b) => String(b.id) === String(selectedBranch));
 
   const fetchTrackerData = async () => {

@@ -10,7 +10,7 @@ const SiteManager = ({ sites, branches, user, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const isBranchScoped = user?.role === 'Branch Admin' || (user?.role !== 'Super Admin' && Boolean(user?.branch_id));
+  const isBranchScoped = user?.role === 'Branch Admin' || (user?.role !== 'Super Admin' && user?.role !== 'Super User' && user?.username !== 'admin' && Boolean(user?.branch_id));
   const userBranchId = user?.branch_id ? String(user.branch_id) : '';
   const currentBranch = branches?.find((b) => String(b.id) === userBranchId);
 
