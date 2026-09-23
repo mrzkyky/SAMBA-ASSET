@@ -41,6 +41,13 @@ import {
   getOfficeHierarchy,
 } from '../api';
 
+// Helper: parse multiple serial numbers separated by comma, newline, or semicolon
+const parseOfficeSNCount = (rawSN) => {
+  if (!rawSN) return 0;
+  const replaced = rawSN.replace(/\r\n/g, ',').replace(/\n/g, ',').replace(/;/g, ',');
+  return replaced.split(',').map((s) => s.trim()).filter(Boolean).length;
+};
+
 const ASSET_TYPE_OPTIONS = [
   'Server & Komputasi',
   'Jaringan Kantor',
@@ -188,6 +195,17 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
     navigator.clipboard.writeText(ip);
     setCopiedIP(ip);
     setTimeout(() => setCopiedIP(null), 2000);
+  };
+
+  // Handle Serial Number change – auto-updates unit_count when multiple SNs detected
+  const handleOfficeSNChange = (e) => {
+    const val = e.target.value;
+    const count = parseOfficeSNCount(val);
+    setAssetFormData((prev) => ({
+      ...prev,
+      serial_number: val,
+      unit_count: count > 1 ? count : (prev.unit_count > 1 && count === 1 ? 1 : prev.unit_count),
+    }));
   };
 
   // -------------------------------------------------------------
@@ -1256,19 +1274,27 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   />
                 </div>
 
-                {/* Serial Number */}
-                <div>
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
-                    Serial Number (SN) *
-                  </label>
-                  <input
-                    type="text"
+                {/* Serial Number – Multi-SN Support */}
+                <div className="sm:col-span-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-slate-600 dark:text-slate-400 font-semibold">
+                      Serial Number (SN) *
+                    </label>
+                    <span className="text-[11px] font-bold text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                      Detected: {parseOfficeSNCount(assetFormData.serial_number)} SN
+                    </span>
+                  </div>
+                  <textarea
+                    rows={3}
                     required
-                    placeholder="Nomor Seri Perangkat"
+                    placeholder={`Masukkan 1 atau lebih Serial Number (pisahkan dengan koma atau Enter)\nContoh:\nABC123, DEF456, GHI789`}
                     value={assetFormData.serial_number}
-                    onChange={(e) => setAssetFormData({ ...assetFormData, serial_number: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-mono focus:outline-none"
+                    onChange={handleOfficeSNChange}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-cyan-400 font-mono text-xs focus:outline-none resize-none"
                   />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    * Paste semua SN sekaligus dipisah koma atau Enter — jumlah unit otomatis terhitung.
+                  </p>
                 </div>
 
                 {/* IP Address / VLAN (Optional) */}
