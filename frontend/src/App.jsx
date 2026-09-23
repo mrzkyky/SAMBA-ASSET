@@ -465,6 +465,8 @@ function App() {
         onClose={() => setIsAssetModalOpen(false)}
         asset={editingAsset}
         sites={sites}
+        branches={branches}
+        selectedBranch={selectedBranch}
         categories={categories}
         segments={segments}
         onSaveSuccess={refreshAllData}
@@ -485,6 +487,7 @@ function App() {
         isOpen={isQRCodeModalOpen}
         onClose={() => setIsQRCodeModalOpen(false)}
         asset={selectedQRAsset}
+        branches={branches}
       />
 
       {/* Live Web Camera QR Scanner Modal */}

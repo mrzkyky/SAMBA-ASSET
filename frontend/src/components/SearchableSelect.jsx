@@ -14,8 +14,11 @@ const SearchableSelect = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
   const containerRef = useRef(null);
   const searchInputRef = useRef(null);
+  const optionsListRef = useRef(null);
+  const itemRefs = useRef([]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -28,15 +31,6 @@ const SearchableSelect = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Auto focus search input when opened
-  useEffect(() => {
-    if (isOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    } else {
-      setSearchTerm('');
-    }
-  }, [isOpen]);
-
   const selectedOption = options.find((opt) => String(opt.value) === String(value));
 
   const filteredOptions = options.filter((opt) => {
@@ -48,13 +42,84 @@ const SearchableSelect = ({
     return labelMatch || sublabelMatch || keywordsMatch;
   });
 
+  // Auto focus search input and set initial highlighted index when opened
+  useEffect(() => {
+    if (isOpen) {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+      // Highlight currently selected option if available, otherwise first option
+      const currentIdx = filteredOptions.findIndex((opt) => String(opt.value) === String(value));
+      setHighlightedIndex(currentIdx >= 0 ? currentIdx : 0);
+    } else {
+      setSearchTerm('');
+      setHighlightedIndex(0);
+    }
+  }, [isOpen]);
+
+  // Reset highlighted index when search term changes
+  useEffect(() => {
+    setHighlightedIndex(0);
+  }, [searchTerm]);
+
+  // Smooth scroll highlighted option into view
+  useEffect(() => {
+    if (isOpen && itemRefs.current[highlightedIndex]) {
+      itemRefs.current[highlightedIndex].scrollIntoView({
+        block: 'nearest',
+        behavior: 'smooth',
+      });
+    }
+  }, [highlightedIndex, isOpen]);
+
   const handleSelect = (optValue) => {
     onChange(optValue);
     setIsOpen(false);
   };
 
+  const handleKeyDown = (e) => {
+    if (!isOpen) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter') {
+        e.preventDefault();
+        setIsOpen(true);
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (filteredOptions.length > 0) {
+        setHighlightedIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : 0));
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (filteredOptions.length > 0) {
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : filteredOptions.length - 1));
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (filteredOptions.length > 0 && highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
+        handleSelect(filteredOptions[highlightedIndex].value);
+      } else if (onAddNew && filteredOptions.length === 0) {
+        setIsOpen(false);
+        onAddNew();
+      }
+    } else if (e.key === 'Tab') {
+      // On Tab press, select the currently highlighted option and close dropdown so focus advances naturally
+      if (filteredOptions.length > 0 && highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
+        handleSelect(filteredOptions[highlightedIndex].value);
+      } else {
+        setIsOpen(false);
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setIsOpen(false);
+    }
+  };
+
   return (
-    <div className={`relative ${className}`} ref={containerRef}>
+    <div className={`relative ${className}`} ref={containerRef} onKeyDown={handleKeyDown}>
       {/* Hidden input for HTML form validation if required */}
       {required && (
         <input
@@ -104,30 +169,43 @@ const SearchableSelect = ({
                 </button>
               )}
             </div>
+            <div className="text-[10px] text-slate-500 mt-1 px-1 flex items-center justify-between">
+              <span>Gunakan tombol <kbd className="px-1 py-0.5 rounded bg-slate-800 text-slate-400 text-[9px] font-mono">↑</kbd> <kbd className="px-1 py-0.5 rounded bg-slate-800 text-slate-400 text-[9px] font-mono">↓</kbd> & <kbd className="px-1 py-0.5 rounded bg-slate-800 text-slate-400 text-[9px] font-mono">Enter</kbd> / <kbd className="px-1 py-0.5 rounded bg-slate-800 text-slate-400 text-[9px] font-mono">Tab</kbd></span>
+              {filteredOptions.length > 0 && (
+                <span className="font-mono text-cyan-400/80">{highlightedIndex + 1}/{filteredOptions.length}</span>
+              )}
+            </div>
           </div>
 
           {/* Options List */}
-          <div className="max-h-60 overflow-y-auto divide-y divide-slate-800/40 p-1 space-y-0.5">
+          <div ref={optionsListRef} className="max-h-60 overflow-y-auto divide-y divide-slate-800/40 p-1 space-y-0.5">
             {filteredOptions.length === 0 ? (
               <div className="p-3 text-center text-xs text-slate-500 italic">
                 Tidak ada opsi yang cocok dengan "{searchTerm}"
               </div>
             ) : (
-              filteredOptions.map((opt) => {
+              filteredOptions.map((opt, idx) => {
                 const isSelected = String(opt.value) === String(value);
+                const isHighlighted = idx === highlightedIndex;
                 return (
                   <div
                     key={opt.value}
+                    ref={(el) => (itemRefs.current[idx] = el)}
                     onClick={() => handleSelect(opt.value)}
+                    onMouseEnter={() => setHighlightedIndex(idx)}
                     className={`px-3 py-2 rounded-lg text-xs cursor-pointer flex items-center justify-between transition-colors ${
                       isSelected
-                        ? 'bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/20'
+                        ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
+                        : isHighlighted
+                        ? 'bg-slate-800/90 text-white font-semibold ring-1 ring-cyan-500/40 shadow-sm'
                         : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
                     <div className="truncate pr-2">
-                      <div>{opt.label}</div>
-                      {opt.sublabel && <div className="text-[10px] text-slate-500 font-normal truncate">{opt.sublabel}</div>}
+                      <div className="flex items-center space-x-1.5">
+                        <span className="truncate">{opt.label}</span>
+                      </div>
+                      {opt.sublabel && <div className="text-[10px] text-slate-500 font-normal truncate mt-0.5">{opt.sublabel}</div>}
                     </div>
                     {isSelected && <Check className="w-4 h-4 text-cyan-400 shrink-0" />}
                   </div>

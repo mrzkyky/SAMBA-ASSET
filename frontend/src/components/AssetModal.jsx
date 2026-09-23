@@ -120,7 +120,17 @@ const parseSNCount = (rawSN) => {
   return parts.length;
 };
 
-const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: initialCategories, segments: initialSegments, onSaveSuccess }) => {
+const AssetModal = ({
+  isOpen,
+  onClose,
+  asset,
+  sites: initialSites,
+  branches = [],
+  selectedBranch = '',
+  categories: initialCategories,
+  segments: initialSegments,
+  onSaveSuccess,
+}) => {
   const [sitesList, setSitesList] = useState(initialSites || []);
   const [categories, setCategories] = useState(initialCategories || []);
   const [segmentsList, setSegmentsList] = useState(initialSegments || []);
@@ -139,6 +149,39 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
     ownership: 'Aset Tetap',
     notes: '',
   });
+
+  // Custom Notes Template State (Persisted in localStorage)
+  const [customTemplates, setCustomTemplates] = useState(() => {
+    try {
+      const saved = localStorage.getItem('samba_custom_notes_templates');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [templateSuccessMsg, setTemplateSuccessMsg] = useState('');
+
+  const handleSaveCustomTemplate = (customNote, categoryName) => {
+    const trimmed = (customNote || formData.notes || '').trim();
+    if (!trimmed) return;
+
+    const catName = categoryName || categories.find((c) => String(c.id) === String(formData.category_id))?.name || 'Kustom';
+    
+    // Check if template already exists
+    const exists = customTemplates.some((t) => t.note.toLowerCase() === trimmed.toLowerCase());
+    if (!exists) {
+      const updated = [{ category: catName, note: trimmed }, ...customTemplates];
+      setCustomTemplates(updated);
+      try {
+        localStorage.setItem('samba_custom_notes_templates', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Failed to persist custom note template:', err);
+      }
+    }
+
+    setTemplateSuccessMsg('✓ Template keterangan baru berhasil disimpan!');
+    setTimeout(() => setTemplateSuccessMsg(''), 3500);
+  };
 
   // Inline Category Creation State
   const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
@@ -234,8 +277,21 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
       const defaultCat = categories.find(c => String(c.id) === defaultCatId) || initialCategories?.find(c => String(c.id) === defaultCatId);
       const defaultSuggested = defaultCat ? getSuggestedNoteForCategory(defaultCat.name) : '';
 
+      // Determine default site intelligently based on active selectedBranch if provided
+      let defaultSiteId = '';
+      if (selectedBranch) {
+        const matchingSite = sitesList.find((s) => String(s.branch_id) === String(selectedBranch)) ||
+          initialSites?.find((s) => String(s.branch_id) === String(selectedBranch));
+        if (matchingSite) {
+          defaultSiteId = String(matchingSite.id);
+        }
+      }
+      if (!defaultSiteId) {
+        defaultSiteId = sitesList[0]?.id ? String(sitesList[0].id) : (initialSites?.[0]?.id ? String(initialSites[0].id) : '');
+      }
+
       setFormData({
-        site_id: sitesList[0]?.id ? String(sitesList[0].id) : (initialSites?.[0]?.id ? String(initialSites[0].id) : ''),
+        site_id: defaultSiteId,
         category_id: defaultCatId,
         segment_id: segmentsList[0]?.id ? String(segmentsList[0].id) : '',
         asset_type: 'Aktif',
@@ -257,7 +313,7 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
     setError('');
     setCategoryError('');
     setSegmentError('');
-  }, [asset, initialSites, isOpen]);
+  }, [asset, initialSites, isOpen, selectedBranch]);
 
   if (!isOpen) return null;
 
@@ -454,6 +510,16 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
         notes: formData.notes || '',
       };
 
+      // Auto-save new custom note to template library if non-empty and not yet saved
+      if (formData.notes && formData.notes.trim()) {
+        const trimmedNote = formData.notes.trim();
+        const inStd = TEMPLATE_OPTIONS.some((t) => t.note.toLowerCase() === trimmedNote.toLowerCase());
+        const inCust = customTemplates.some((t) => t.note.toLowerCase() === trimmedNote.toLowerCase());
+        if (!inStd && !inCust) {
+          handleSaveCustomTemplate(trimmedNote);
+        }
+      }
+
       if (asset) {
         await updateAsset(asset.id, payload);
       } else {
@@ -523,16 +589,20 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
                 onChange={(val) => setFormData({ ...formData, site_id: val })}
                 placeholder="Pilih Site & Mitra..."
                 searchPlaceholder="Ketik untuk mencari site (misal: Brebes, MAN 1, Pop)..."
-                options={sitesList.map((s) => ({
-                  value: String(s.id),
-                  label: `[${s.branch?.name || 'Branch'}] ${s.partner_name} - ${s.site_name}`,
-                  sublabel: s.address,
-                  searchKeywords: `${s.branch?.name || ''} ${s.partner_name || ''} ${s.site_name || ''} ${s.address || ''}`,
-                }))}
+                options={sitesList.map((s) => {
+                  const bName = s.branch?.name || branches.find((b) => String(b.id) === String(s.branch_id))?.name || 'Branch';
+                  return {
+                    value: String(s.id),
+                    label: `[${bName}] ${s.partner_name} - ${s.site_name}`,
+                    sublabel: s.address,
+                    searchKeywords: `${bName} ${s.partner_name || ''} ${s.site_name || ''} ${s.address || ''}`,
+                  };
+                })}
               />
               {(() => {
                 const selectedSite = sitesList.find((s) => String(s.id) === String(formData.site_id));
-                const detectedRegion = selectedSite ? resolveRegionCode(selectedSite, selectedSite.branch) : null;
+                const siteBranch = selectedSite?.branch || branches.find((b) => String(b.id) === String(selectedSite?.branch_id));
+                const detectedRegion = selectedSite ? resolveRegionCode(selectedSite, siteBranch) : null;
                 if (!detectedRegion) return null;
                 return (
                   <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] text-blue-300 flex items-center justify-between">
@@ -952,8 +1022,8 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
                 Catatan / Keterangan Spesifik
               </label>
 
-              {/* Template Dropdown Quick Selector */}
-              <div className="flex items-center space-x-1.5">
+              {/* Template Dropdown Quick Selector & Actions */}
+              <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
                 <select
                   value=""
                   onChange={(e) => {
@@ -961,18 +1031,47 @@ const AssetModal = ({ isOpen, onClose, asset, sites: initialSites, categories: i
                       setFormData((prev) => ({ ...prev, notes: e.target.value }));
                     }
                   }}
-                  className="text-[11px] bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-cyan-400 focus:border-cyan-500 focus:outline-none cursor-pointer"
+                  className="text-[11px] bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-cyan-400 focus:border-cyan-500 focus:outline-none cursor-pointer max-w-[220px] sm:max-w-none truncate"
                   title="Pilih dari daftar template deskripsi otomatis"
                 >
                   <option value="">📋 Pilih Template Keterangan...</option>
-                  {TEMPLATE_OPTIONS.map((item, idx) => (
-                    <option key={idx} value={item.note}>
-                      {item.category} — {item.note}
-                    </option>
-                  ))}
+                  {customTemplates.length > 0 && (
+                    <optgroup label="⭐ Template Baru Tersimpan (Kustom)">
+                      {customTemplates.map((item, idx) => (
+                        <option key={`custom-${idx}`} value={item.note}>
+                          ⭐ {item.category} — {item.note}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                  <optgroup label="📋 Template Standar Perangkat">
+                    {TEMPLATE_OPTIONS.map((item, idx) => (
+                      <option key={`std-${idx}`} value={item.note}>
+                        {item.category} — {item.note}
+                      </option>
+                    ))}
+                  </optgroup>
                 </select>
+
+                {formData.notes && formData.notes.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => handleSaveCustomTemplate()}
+                    className="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 text-[11px] font-semibold flex items-center space-x-1 transition-all active:scale-95 shadow-sm"
+                    title="Simpan teks keterangan yang Anda ketik saat ini sebagai template baru agar langsung tersimpan & bisa dipakai kembali"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>Simpan Template Baru</span>
+                  </button>
+                )}
               </div>
             </div>
+
+            {templateSuccessMsg && (
+              <div className="mb-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center justify-between animate-in fade-in duration-150">
+                <span>{templateSuccessMsg}</span>
+              </div>
+            )}
 
             {/* Suggested Template Banner / Quick Apply Button */}
             {currentCategorySuggestedNote && formData.notes !== currentCategorySuggestedNote && (

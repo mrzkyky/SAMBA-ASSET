@@ -69,7 +69,7 @@ const MailIcon = () => (
   </span>
 );
 
-const QRCodeModal = ({ isOpen, onClose, asset }) => {
+const QRCodeModal = ({ isOpen, onClose, asset, branches = [] }) => {
   const [selectedSNIndex, setSelectedSNIndex] = useState('ALL');
   const [activeTemplate, setActiveTemplate] = useState('landscape'); // 'landscape' (Foto 1), 'circle' (Foto 2), 'compact'
   const [printLayout, setPrintLayout] = useState('grid'); // 'grid' (A4 2-kolom) or 'single' (thermal label roll)
@@ -95,7 +95,8 @@ const QRCodeModal = ({ isOpen, onClose, asset }) => {
     setSelectedSNIndex('ALL');
     if (asset) {
       // Deteksi otomatis Kode Wilayah dari alamat site, nama site, atau cabang (kodewilayah.web.id)
-      const resolved = resolveRegionCode(asset.site, asset.site?.branch);
+      const siteBranch = asset.site?.branch || asset.branch || branches.find((b) => String(b.id) === String(asset.site?.branch_id));
+      const resolved = resolveRegionCode(asset.site, siteBranch);
       const yearStr = asset.created_at ? new Date(asset.created_at).getFullYear().toString() : new Date().getFullYear().toString();
       const derivedSiteName = resolved.name ? `Site ${resolved.name}` : (asset.site?.site_name ? `Site ${asset.site.site_name}` : 'Site Kab. Brebes');
       const sequence = String(asset.id || 1).padStart(4, '0');
@@ -103,13 +104,13 @@ const QRCodeModal = ({ isOpen, onClose, asset }) => {
       setConfig((prev) => ({
         ...prev,
         siteName: derivedSiteName,
-        siteCode: resolved.code, // Otomatis memakai kode Kemendagri 4 digit (misal: 3329)
+        siteCode: resolved.code, // Otomatis memakai kode Kemendagri 4 digit (misal: 3302 Banyumas, 3329 Brebes)
         year: yearStr,
         customSeq: sequence,
         resolvedRegion: resolved,
       }));
     }
-  }, [asset, isOpen]);
+  }, [asset, isOpen, branches]);
 
   if (!isOpen || !asset) return null;
 
@@ -117,7 +118,7 @@ const QRCodeModal = ({ isOpen, onClose, asset }) => {
     window.print();
   };
 
-  const branchName = asset.site?.branch?.name || 'Nasional';
+  const branchName = asset.site?.branch?.name || asset.branch?.name || branches.find((b) => String(b.id) === String(asset.site?.branch_id))?.name || 'Nasional';
   const partnerName = asset.site?.partner_name || '';
   const siteName = asset.site?.site_name || '';
   const categoryName = asset.category?.name || 'Perangkat';

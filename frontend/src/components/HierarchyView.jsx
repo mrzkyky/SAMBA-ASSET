@@ -654,7 +654,14 @@ const HierarchyView = ({
                                                   type="button"
                                                   onClick={(e) => {
                                                     e.stopPropagation();
-                                                    onOpenQRCodeModal(asset);
+                                                    onOpenQRCodeModal({
+                                                      ...asset,
+                                                      category: catGroup.category,
+                                                      site: {
+                                                        ...siteGroup.site,
+                                                        branch: branchGroup.branch,
+                                                      },
+                                                    });
                                                   }}
                                                   className="px-2 py-1 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20 text-[11px] font-semibold flex items-center space-x-1 transition-all active:scale-95 shadow-sm"
                                                   title="Cetak Stiker QR Code"
@@ -681,7 +688,14 @@ const HierarchyView = ({
                                                       type="button"
                                                       onClick={(e) => {
                                                         e.stopPropagation();
-                                                        onEditAsset(asset);
+                                                        onEditAsset({
+                                                          ...asset,
+                                                          category: catGroup.category,
+                                                          site: {
+                                                            ...siteGroup.site,
+                                                            branch: branchGroup.branch,
+                                                          },
+                                                        });
                                                       }}
                                                       className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 transition-all active:scale-95"
                                                       title="Edit Aset"
