@@ -145,12 +145,16 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-sm overflow-y-auto">
       
-      {/* Print CSS Overrides - Fleksibel Standar Kertas A4 */}
+      {/* Print CSS Overrides - Standar Dokumen A4 Resmi */}
       <style>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 8mm 8mm 10mm 8mm;
+            margin: 6mm 8mm 6mm 8mm;
+          }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           html, body {
             width: 100% !important;
@@ -158,7 +162,6 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
             margin: 0 !important;
             padding: 0 !important;
             background: #ffffff !important;
-            overflow: visible !important;
           }
           body * {
             visibility: hidden !important;
@@ -167,26 +170,16 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
             visibility: visible !important;
           }
           #printable-bast {
-            position: relative !important;
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
             max-width: 100% !important;
-            height: auto !important;
-            min-height: auto !important;
-            max-height: none !important;
-            padding: 0 !important;
             margin: 0 !important;
+            padding: 0 !important;
             background: white !important;
             color: black !important;
-            overflow: visible !important;
             box-sizing: border-box !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          .print-avoid-break {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
           }
           .no-print {
             display: none !important;
@@ -396,108 +389,85 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
                   Pada hari ini <strong>{bastData.dateStr}</strong>, kami yang bertanda tangan di bawah ini telah melaksanakan serah terima dan pemindahan aset fisik berupa perangkat telekomunikasi / IT:
                 </p>
 
-                {/* TABEL SPESIFIKASI PERANGKAT */}
-                <div className="overflow-hidden border border-slate-300 rounded-xl print:rounded-lg shadow-sm print-avoid-break">
+                {/* TABEL SPESIFIKASI PERANGKAT & SERIAL NUMBER TERPADU */}
+                <div className="overflow-hidden border border-slate-300 rounded-xl print:rounded-lg shadow-sm">
                   <table className="w-full text-xs print:text-[10px] text-left border-collapse">
-                    <thead className="bg-slate-100/90 border-b border-slate-300 text-slate-800 font-bold uppercase tracking-wider text-[11px] print:text-[9.5px]">
+                    <thead className="bg-slate-100/95 border-b border-slate-300 text-slate-800 font-bold uppercase tracking-wider text-[11px] print:text-[9.5px]">
                       <tr>
-                        <th className="p-2.5 print:p-2 border-r border-slate-300 w-1/4">DESKRIPSI PERANGKAT</th>
-                        <th className="p-2.5 print:p-2 border-r border-slate-300">KATEGORI</th>
-                        <th className="p-2.5 print:p-2 border-r border-slate-300">LOKASI ASAL</th>
-                        <th className="p-2.5 print:p-2 border-r border-slate-300">LOKASI TUJUAN</th>
-                        <th className="p-2.5 print:p-2 text-center w-24 print:w-20">JUMLAH</th>
+                        <th className="p-2 border-r border-slate-300 w-8 text-center">NO</th>
+                        <th className="p-2 border-r border-slate-300">DESKRIPSI PERANGKAT & SERIAL NUMBER</th>
+                        <th className="p-2 border-r border-slate-300 w-28">KATEGORI</th>
+                        <th className="p-2 border-r border-slate-300">LOKASI (ASAL → TUJUAN)</th>
+                        <th className="p-2 text-center w-20">JUMLAH</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 text-slate-800">
                       {itemsList.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50 print-avoid-break">
-                          <td className="p-2.5 print:p-2 border-r border-slate-200">
-                            <div className="font-bold text-slate-900 print:text-[10.5px]">{item.deviceDisplayName}</div>
-                            <div className="text-[10px] print:text-[8.5px] text-slate-500 font-medium mt-0.5">
-                              Rak: {item.locationDetail || 'Sub Rack'}
-                            </div>
+                        <tr key={idx} className="hover:bg-slate-50">
+                          <td className="p-2 border-r border-slate-200 text-center font-bold text-slate-700">
+                            {idx + 1}
                           </td>
-                          <td className="p-2.5 print:p-2 border-r border-slate-200 font-medium">
+                          <td className="p-2 border-r border-slate-200">
+                            <div className="font-bold text-slate-900 text-xs print:text-[10.5px]">
+                              {item.deviceDisplayName}
+                            </div>
+                            <div className="text-[10px] print:text-[8.5px] text-slate-500 font-medium">
+                              Posisi/Rak: {item.locationDetail || 'Sub Rack'}
+                            </div>
+                            {/* Serial Number terpadu langsung di bawah perangkat */}
+                            {item.snList && item.snList.length > 0 ? (
+                              <div className="mt-1 flex flex-wrap gap-1 items-center">
+                                <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider">S/N:</span>
+                                {item.snList.map((sn, sIdx) => (
+                                  <span
+                                    key={sIdx}
+                                    className="font-mono text-[9px] font-bold bg-slate-100 text-slate-900 px-1.5 py-0.5 rounded border border-slate-300 leading-none shadow-2xs"
+                                  >
+                                    {sn}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="mt-0.5 text-[9px] text-slate-400 italic">S/N: Tidak Tersedia</div>
+                            )}
+                          </td>
+                          <td className="p-2 border-r border-slate-200 font-medium text-slate-700">
                             {item.categoryName}
                           </td>
-                          <td className="p-2.5 print:p-2 border-r border-slate-200 font-medium leading-normal">
-                            {fromSiteName}
+                          <td className="p-2 border-r border-slate-200 text-[10.5px] print:text-[9px] leading-tight">
+                            <div className="text-slate-600"><strong className="text-slate-700">Dari:</strong> {fromSiteName}</div>
+                            <div className="text-slate-900 mt-0.5"><strong className="text-cyan-800">Ke:</strong> {toSiteName}</div>
                           </td>
-                          <td className="p-2.5 print:p-2 border-r border-slate-200 font-medium leading-normal">
-                            {toSiteName}
-                          </td>
-                          <td className="p-2.5 print:p-2 text-center font-bold text-slate-900 text-sm print:text-xs">
+                          <td className="p-2 text-center font-bold text-slate-900 text-sm print:text-xs">
                             {item.unitCount} Unit
                           </td>
                         </tr>
                       ))}
-                      {itemsList.length > 1 && (
-                        <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300 print-avoid-break">
-                          <td colSpan="4" className="p-2 print:p-1.5 text-right border-r border-slate-300 uppercase text-[10px] print:text-[9px] tracking-wider">
-                            TOTAL KESELURUHAN PERANGKAT DISERAHTERIMAKAN:
-                          </td>
-                          <td className="p-2 print:p-1.5 text-center text-sm print:text-xs font-black text-slate-900">
-                            {totalBASTUnits} Unit
-                          </td>
-                        </tr>
-                      )}
+                      <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
+                        <td colSpan="4" className="p-2 text-right border-r border-slate-300 uppercase text-[10px] print:text-[9px] tracking-wider">
+                          TOTAL KESELURUHAN PERANGKAT DISERAHTERIMAKAN:
+                        </td>
+                        <td className="p-2 text-center text-sm print:text-xs font-black text-slate-900">
+                          {totalBASTUnits} Unit
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
 
-                {/* BOX RINCIAN SERIAL NUMBER PERANGKAT */}
-                <div className="p-3.5 print:p-2.5 bg-slate-50/80 border border-slate-300 rounded-xl print:rounded-lg space-y-2.5 print:space-y-1.5">
-                  <div className="text-xs print:text-[10.5px] font-bold text-slate-800 flex items-center justify-between print-avoid-break">
-                    <span>Rincian Serial Number Perangkat (Total: {totalBASTUnits} Unit):</span>
-                    {itemsList.length > 1 && (
-                      <span className="text-[10px] print:text-[8.5px] font-bold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
-                        {itemsList.length} Model Perangkat
-                      </span>
-                    )}
-                  </div>
-                  
-                  {itemsList.map((it, itIdx) => (
-                    <div key={itIdx} className="space-y-1 print:space-y-0.5 print-avoid-break">
-                      {itemsList.length > 1 && (
-                        <div className="text-[11px] print:text-[9.5px] font-bold text-slate-700 flex items-center space-x-1.5">
-                          <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[9px] flex items-center justify-center font-bold">
-                            {itIdx + 1}
-                          </span>
-                          <span>{it.deviceDisplayName} ({it.unitCount} Unit):</span>
-                        </div>
-                      )}
-                      <div className={`flex flex-wrap gap-1.5 print:gap-1 ${itemsList.length > 1 ? 'pl-5.5' : ''}`}>
-                        {it.snList.length > 0 ? (
-                          it.snList.map((sn, sIdx) => (
-                            <div
-                              key={sIdx}
-                              className="font-mono text-xs print:text-[9.5px] font-bold bg-white px-2.5 py-1 print:px-2 print:py-0.5 rounded-lg print:rounded border border-slate-300 shadow-xs print:shadow-none flex items-center space-x-1.5"
-                            >
-                              <span className="text-slate-400 font-normal">#{sIdx + 1}</span>
-                              <span className="text-slate-900">{sn}</span>
-                            </div>
-                          ))
-                        ) : (
-                          <span className="text-slate-500 italic text-xs print:text-[9.5px]">Serial Number Tidak Tersedia</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
                 {/* BOX CATATAN & SYARAT KETENTUAN */}
-                <div className="p-3.5 print:p-2.5 bg-amber-50/40 border border-amber-300/80 rounded-xl print:rounded-lg space-y-1 print:space-y-0.5 text-xs print:text-[10px] print-avoid-break">
-                  <div className="font-bold text-slate-900">Catatan & Syarat Ketentuan:</div>
-                  <p className="text-slate-700 leading-relaxed">
+                <div className="p-3 print:p-2 bg-amber-50/50 border border-amber-300/80 rounded-xl print:rounded-lg text-xs print:text-[10px]">
+                  <span className="font-bold text-slate-900 mr-1.5">Catatan & Syarat Ketentuan:</span>
+                  <span className="text-slate-700">
                     {bastData.notes || 'Pengujian dengan mencoba di site lain yang menggunakan bandwith lebih kecil'}
-                  </p>
+                  </span>
                 </div>
 
                 {/* 3 KOLOM TANDA TANGAN RESMI */}
-                <div className="pt-4 mt-3 print:pt-3 print:mt-2 grid grid-cols-3 gap-6 print:gap-4 text-center text-xs print:text-[10px] print-avoid-break">
+                <div className="pt-3 mt-2 grid grid-cols-3 gap-6 print:gap-4 text-center text-xs print:text-[10px]">
                   
                   {/* Pihak 1: Pemberi */}
-                  <div className="flex flex-col justify-between h-32 print:h-28">
+                  <div className="flex flex-col justify-between h-32 print:h-26">
                     <div>
                       <p className="font-extrabold text-slate-900 uppercase tracking-wide print:text-[9.5px]">PIHAK PERTAMA (PEMBERI)</p>
                       <p className="text-[10.5px] print:text-[8.5px] text-slate-600 font-medium mt-0.5">{bastData.pemberiInstansi}</p>
@@ -509,7 +479,7 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
                   </div>
 
                   {/* Pihak 2: Penerima */}
-                  <div className="flex flex-col justify-between h-32 print:h-28">
+                  <div className="flex flex-col justify-between h-32 print:h-26">
                     <div>
                       <p className="font-extrabold text-slate-900 uppercase tracking-wide print:text-[9.5px]">PIHAK KEDUA (PENERIMA)</p>
                       <p className="text-[10.5px] print:text-[8.5px] text-slate-600 font-medium mt-0.5">{bastData.penerimaInstansi}</p>
@@ -521,7 +491,7 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
                   </div>
 
                   {/* Pihak 3: Mengetahui */}
-                  <div className="flex flex-col justify-between h-32 print:h-28">
+                  <div className="flex flex-col justify-between h-32 print:h-26">
                     <div>
                       <p className="font-extrabold text-slate-900 uppercase tracking-wide print:text-[9.5px]">MENGETAHUI (OPERASIONAL)</p>
                       <p className="text-[10.5px] print:text-[8.5px] text-slate-600 font-medium mt-0.5">{bastData.mengetahuiInstansi}</p>
@@ -538,7 +508,7 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
             </div>
 
             {/* BOTTOM CONTAINER: FOOTER KOP SURAT (VECTOR HTML/CSS) */}
-            <div className="bg-[#182b58] text-white px-8 py-3.5 print:px-6 print:py-2.5 flex items-center justify-between border-t-4 print:border-t-2 border-[#1e3a78] mt-6 print:mt-4 print:bg-[#182b58] print:text-white print-avoid-break">
+            <div className="bg-[#182b58] text-white px-8 py-3 print:px-6 print:py-2 flex items-center justify-between border-t-4 print:border-t-2 border-[#1e3a78] mt-4 print:mt-3 print:bg-[#182b58] print:text-white">
               <div className="flex items-center space-x-2">
                 <span className="text-xl print:text-base font-black italic tracking-tighter text-white">rapid</span>
                 <span className="text-[9px] print:text-[8px] font-bold bg-white text-[#182b58] px-1.5 py-0.5 rounded tracking-widest uppercase">
