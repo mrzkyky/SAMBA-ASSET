@@ -104,6 +104,7 @@ func SetupRouter() *gin.Engine {
 			{
 				transfers.GET("", handlers.GetTransfers)
 				transfers.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateTransfer)
+				transfers.POST("/batch", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateBatchTransfer)
 				transfers.POST("/recover", middleware.RequireRoles("Super Admin"), handlers.RecoverTransfers)
 			}
 

@@ -216,6 +216,11 @@ export const createTransfer = async (data) => {
   return response.data;
 };
 
+export const createBatchTransfer = async (data) => {
+  const response = await api.post('/transfers/batch', data);
+  return response.data;
+};
+
 export const recoverTransfers = async () => {
   const response = await api.post('/transfers/recover');
   return response.data;

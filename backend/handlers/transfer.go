@@ -43,7 +43,10 @@ func CreateTransfer(c *gin.Context) {
 	}
 
 	// Generate Reference Number MUT/YYYY/MM/XXXX
-	refNo := fmt.Sprintf("MUT/%s/%04d", time.Now().Format("2006/01"), time.Now().Unix()%10000)
+	refNo := strings.TrimSpace(input.ReferenceNo)
+	if refNo == "" {
+		refNo = fmt.Sprintf("MUT/%s/%04d", time.Now().Format("2006/01"), time.Now().Unix()%10000)
+	}
 
 	// Clean & format serial numbers to move
 	transferredSNs := strings.TrimSpace(input.SerialNumbers)
@@ -217,5 +220,192 @@ func RecoverTransfers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message":         fmt.Sprintf("Berhasil memulihkan %d riwayat mutasi dari catatan audit", recoveredCount),
 		"recovered_count": recoveredCount,
+	})
+}
+
+// CreateBatchTransfer handles transferring multiple assets simultaneously under a single BAST reference number
+func CreateBatchTransfer(c *gin.Context) {
+	var input models.CreateBatchTransferRequest
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(input.Items) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Daftar perangkat yang dipindahkan tidak boleh kosong"})
+		return
+	}
+
+	var destSite models.Site
+	if err := config.DB.Preload("Branch").First(&destSite, input.ToSiteID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Site tujuan tidak ditemukan"})
+		return
+	}
+
+	// Generate single unified BAST Reference Number
+	refNo := strings.TrimSpace(input.ReferenceNo)
+	if refNo == "" {
+		refNo = fmt.Sprintf("MUT/%s/%04d", time.Now().Format("2006/01"), time.Now().Unix()%10000)
+	}
+
+	// User info
+	userIDVal, _ := c.Get("user_id")
+	usernameVal, _ := c.Get("username")
+	var userIDPtr *uint
+	username := "System"
+	if uid, ok := userIDVal.(uint); ok {
+		userIDPtr = &uid
+	}
+	if uname, ok := usernameVal.(string); ok && uname != "" {
+		username = uname
+	}
+
+	toSiteName := destSite.SiteName
+	toPartnerName := destSite.PartnerName
+	toBranchName := ""
+	if destSite.Branch != nil {
+		toBranchName = destSite.Branch.Name
+	}
+
+	// Begin DB Transaction
+	tx := config.DB.Begin()
+	var createdRecords []models.AssetTransfer
+	var auditDetailsSummary []string
+
+	for _, item := range input.Items {
+		var sourceAsset models.Asset
+		if err := tx.Preload("Site.Branch").Preload("Category").First(&sourceAsset, item.AssetID).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("Aset ID %d tidak ditemukan", item.AssetID)})
+			return
+		}
+
+		if sourceAsset.SiteID == input.ToSiteID {
+			tx.Rollback()
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Aset '%s %s' sudah berada di site tujuan", sourceAsset.Brand, sourceAsset.Model)})
+			return
+		}
+
+		if item.UnitCount <= 0 || item.UnitCount > sourceAsset.UnitCount {
+			tx.Rollback()
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Jumlah unit mutasi '%s %s' tidak valid (Maksimal %d unit)", sourceAsset.Brand, sourceAsset.Model, sourceAsset.UnitCount)})
+			return
+		}
+
+		transferredSNs := strings.TrimSpace(item.SerialNumbers)
+		if transferredSNs == "" {
+			transferredSNs = sourceAsset.SerialNumber
+		}
+
+		categoryName := ""
+		if sourceAsset.Category != nil {
+			categoryName = sourceAsset.Category.Name
+		}
+		fromSiteName := ""
+		fromPartnerName := ""
+		fromBranchName := ""
+		if sourceAsset.Site != nil {
+			fromSiteName = sourceAsset.Site.SiteName
+			fromPartnerName = sourceAsset.Site.PartnerName
+			if sourceAsset.Site.Branch != nil {
+				fromBranchName = sourceAsset.Site.Branch.Name
+			}
+		}
+
+		transferRecord := models.AssetTransfer{
+			ReferenceNo:       refNo,
+			AssetID:           &sourceAsset.ID,
+			FromSiteID:        &sourceAsset.SiteID,
+			ToSiteID:          &input.ToSiteID,
+			UnitCount:         item.UnitCount,
+			SerialNumbers:     transferredSNs,
+			TransferDate:      time.Now(),
+			Reason:            input.Reason,
+			PerformedByUserID: userIDPtr,
+			AssetBrand:        sourceAsset.Brand,
+			AssetModel:        sourceAsset.Model,
+			CategoryName:      categoryName,
+			FromSiteName:      fromSiteName,
+			FromPartnerName:   fromPartnerName,
+			FromBranchName:    fromBranchName,
+			ToSiteName:        toSiteName,
+			ToPartnerName:     toPartnerName,
+			ToBranchName:      toBranchName,
+		}
+
+		if err := tx.Create(&transferRecord).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Gagal mencatat mutasi aset %s %s", sourceAsset.Brand, sourceAsset.Model)})
+			return
+		}
+
+		// Update asset position/quantity
+		if item.UnitCount >= sourceAsset.UnitCount {
+			updateMap := map[string]interface{}{
+				"site_id": input.ToSiteID,
+			}
+			if transferredSNs != "" {
+				updateMap["serial_number"] = transferredSNs
+			}
+			if err := tx.Model(&models.Asset{}).Where("id = ?", sourceAsset.ID).Updates(updateMap).Error; err != nil {
+				tx.Rollback()
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memindahkan lokasi aset di database"})
+				return
+			}
+		} else {
+			newCount := sourceAsset.UnitCount - item.UnitCount
+			if err := tx.Model(&models.Asset{}).Where("id = ?", sourceAsset.ID).Update("unit_count", newCount).Error; err != nil {
+				tx.Rollback()
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memperbarui jumlah unit aset asal"})
+				return
+			}
+
+			newDestAsset := models.Asset{
+				SiteID:         input.ToSiteID,
+				CategoryID:     sourceAsset.CategoryID,
+				SegmentID:      sourceAsset.SegmentID,
+				Brand:          sourceAsset.Brand,
+				Model:          sourceAsset.Model,
+				SerialNumber:   transferredSNs,
+				LocationDetail: sourceAsset.LocationDetail,
+				UnitCount:      item.UnitCount,
+				Status:         sourceAsset.Status,
+				Notes:          fmt.Sprintf("Hasil mutasi dari %s (%s). Catatan: %s", sourceAsset.Site.SiteName, refNo, input.Reason),
+			}
+			if err := tx.Create(&newDestAsset).Error; err != nil {
+				tx.Rollback()
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat aset baru di site tujuan"})
+				return
+			}
+		}
+
+		createdRecords = append(createdRecords, transferRecord)
+		auditDetailsSummary = append(auditDetailsSummary, fmt.Sprintf("%d unit %s %s", item.UnitCount, sourceAsset.Brand, sourceAsset.Model))
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan transaksi mutasi batch"})
+		return
+	}
+
+	// Record unified Audit Log
+	summaryText := strings.Join(auditDetailsSummary, ", ")
+	auditDetails := fmt.Sprintf("Mutasi Kolektif (%d perangkat: %s) ke %s [%s] (No. BAST/Ref: %s)",
+		len(input.Items), summaryText, destSite.SiteName, toBranchName, refNo)
+	config.RecordAuditLog(userIDPtr, username, "MUTASI_ASET_KOLEKTIF", auditDetails, c.ClientIP())
+
+	// Preload records for return
+	var preloadedRecords []models.AssetTransfer
+	config.DB.Where("reference_no = ?", refNo).
+		Preload("Asset.Category").
+		Preload("FromSite.Branch").
+		Preload("ToSite.Branch").
+		Preload("PerformedByUser").
+		Find(&preloadedRecords)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message":      fmt.Sprintf("Mutasi %d perangkat berhasil dilakukan dalam 1 BAST (%s)", len(input.Items), refNo),
+		"reference_no": refNo,
+		"data":         preloadedRecords,
 	})
 }

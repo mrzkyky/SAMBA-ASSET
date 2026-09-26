@@ -166,6 +166,20 @@ type CreateTransferRequest struct {
 	UnitCount     int    `json:"unit_count" binding:"required"`
 	SerialNumbers string `json:"serial_numbers"`
 	Reason        string `json:"reason"`
+	ReferenceNo   string `json:"reference_no"`
+}
+
+type BatchTransferItem struct {
+	AssetID       uint   `json:"asset_id" binding:"required"`
+	UnitCount     int    `json:"unit_count" binding:"required"`
+	SerialNumbers string `json:"serial_numbers"`
+}
+
+type CreateBatchTransferRequest struct {
+	ToSiteID    uint                `json:"to_site_id" binding:"required"`
+	Reason      string              `json:"reason"`
+	ReferenceNo string              `json:"reference_no"`
+	Items       []BatchTransferItem `json:"items" binding:"required"`
 }
 
 type AuditLog struct {

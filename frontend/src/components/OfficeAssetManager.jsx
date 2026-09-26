@@ -27,6 +27,7 @@ import {
   Network,
   Laptop,
   Zap,
+  BookmarkPlus,
 } from 'lucide-react';
 import {
   getOfficeUnits,
@@ -40,6 +41,10 @@ import {
   getOfficeStats,
   getOfficeHierarchy,
 } from '../api';
+import {
+  TEMPLATE_OPTIONS as STANDARD_TEMPLATES,
+  getSuggestedNoteForCategory as getSuggestedNoteNational,
+} from './AssetModal';
 
 // Helper: parse multiple serial numbers separated by comma, newline, or semicolon
 const parseOfficeSNCount = (rawSN) => {
@@ -48,15 +53,71 @@ const parseOfficeSNCount = (rawSN) => {
   return replaced.split(',').map((s) => s.trim()).filter(Boolean).length;
 };
 
+// Expanded asset type options covering both office and IT network infrastructure
 const ASSET_TYPE_OPTIONS = [
   'Server & Komputasi',
-  'Jaringan Kantor',
-  'Power & UPS',
+  'Rack Server',
   'Workstation/PC',
+  'Laptop / Notebook',
+  'Jaringan Kantor',
+  'Router',
+  'MikroTik',
+  'Switch',
+  'Access Point',
+  'Firewall',
+  'OLT',
+  'ONT',
+  'Power & UPS',
+  'UPS',
+  'Rectifier',
+  'Baterai',
+  'DCDU',
+  'PSU',
+  'Inverter',
+  'CCTV & Security',
+  'Akses Kontrol',
+  'Fasilitas & Rak',
+  'Printer & Scanner',
+  'Media Converter (MC)',
+  'Patch Cord & Kabel UTP',
+  'Tools & Instrument',
   'Aktif',
   'Pasif',
-  'Fasilitas & Rak',
 ];
+
+// Office specific note suggestions
+const OFFICE_NOTE_SUGGESTIONS = {
+  'workstation/pc': 'Workstation & Personal Computer Unit',
+  'laptop / notebook': 'Portable Computing & Mobile Workstation',
+  'laptop': 'Portable Computing & Mobile Workstation',
+  'printer & scanner': 'Document Printing & Imaging Peripheral',
+  'cctv & security': 'Video Surveillance & Security Camera System',
+  'jaringan kantor': 'Local Office LAN & Network Infrastructure',
+  'fasilitas & rak': 'Data Center Cabinet & Server Rack Enclosure',
+};
+
+export const getOfficeSuggestedNote = (typeName) => {
+  if (!typeName) return '';
+  const clean = typeName.trim().toLowerCase();
+  if (OFFICE_NOTE_SUGGESTIONS[clean]) {
+    return OFFICE_NOTE_SUGGESTIONS[clean];
+  }
+  for (const [k, v] of Object.entries(OFFICE_NOTE_SUGGESTIONS)) {
+    if (clean === k || clean.includes(k)) return v;
+  }
+  return getSuggestedNoteNational(typeName);
+};
+
+const EXTRA_OFFICE_TEMPLATES = [
+  { category: 'Workstation/PC', note: 'Workstation & Personal Computer Unit' },
+  { category: 'Laptop / Notebook', note: 'Portable Computing & Mobile Workstation' },
+  { category: 'Printer & Scanner', note: 'Document Printing & Imaging Peripheral' },
+  { category: 'CCTV & Security', note: 'Video Surveillance & Security Camera System' },
+  { category: 'Jaringan Kantor', note: 'Local Office LAN & Network Infrastructure' },
+  { category: 'Fasilitas & Rak', note: 'Data Center Cabinet & Server Rack Enclosure' },
+];
+
+const ALL_OFFICE_TEMPLATES = [...EXTRA_OFFICE_TEMPLATES, ...STANDARD_TEMPLATES];
 
 const STATUS_OPTIONS = ['Aktif', 'Nonaktif', 'Maintenance', 'Rusak', 'Cadangan / Spare'];
 const CONDITION_OPTIONS = ['Baik', 'Perlu Perbaikan', 'Rusak'];
@@ -99,6 +160,37 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
     ownership: 'Aset Perusahaan',
     notes: '',
   });
+
+  // Custom Notes Template State (Persisted in localStorage)
+  const [customTemplates, setCustomTemplates] = useState(() => {
+    try {
+      const saved = localStorage.getItem('samba_custom_notes_templates');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [templateSuccessMsg, setTemplateSuccessMsg] = useState('');
+
+  const handleSaveCustomTemplate = (customNote, categoryName) => {
+    const trimmed = (customNote || assetFormData.notes || '').trim();
+    if (!trimmed) return;
+
+    const catName = categoryName || assetFormData.asset_type || 'Kustom';
+    const exists = customTemplates.some((t) => t.note.toLowerCase() === trimmed.toLowerCase());
+    if (!exists) {
+      const updated = [{ category: catName, note: trimmed }, ...customTemplates];
+      setCustomTemplates(updated);
+      try {
+        localStorage.setItem('samba_custom_notes_templates', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Failed to persist custom note template:', err);
+      }
+    }
+
+    setTemplateSuccessMsg('✓ Template catatan baru disimpan!');
+    setTimeout(() => setTemplateSuccessMsg(''), 3500);
+  };
 
   const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState(null);
@@ -262,6 +354,16 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
         office_unit_id: parseInt(assetFormData.office_unit_id, 10),
         unit_count: parseInt(assetFormData.unit_count, 10) || 1,
       };
+
+      // Auto-save custom note template if new
+      const trimmedNote = (assetFormData.notes || '').trim();
+      if (trimmedNote) {
+        const inStd = ALL_OFFICE_TEMPLATES.some((t) => t.note.toLowerCase() === trimmedNote.toLowerCase());
+        const inCust = customTemplates.some((t) => t.note.toLowerCase() === trimmedNote.toLowerCase());
+        if (!inStd && !inCust) {
+          handleSaveCustomTemplate(trimmedNote, assetFormData.asset_type);
+        }
+      }
 
       if (editingAsset) {
         await updateOfficeAsset(editingAsset.id, payload);
@@ -832,9 +934,10 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                                       {assets.map((asset) => (
                                         <div
                                           key={asset.id}
-                                          className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between gap-2 hover:border-blue-500/30 transition-colors"
+                                          className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between gap-2.5 hover:border-blue-500/30 transition-colors"
                                         >
-                                          <div className="flex items-start space-x-2.5 min-w-0">
+                                          <div className="flex items-center justify-between gap-2">
+                                            <div className="flex items-start space-x-2.5 min-w-0">
                                             <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 mt-0.5">
                                               {renderAssetTypeIcon(asset.asset_type)}
                                             </div>
@@ -919,7 +1022,15 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                                             )}
                                           </div>
                                         </div>
-                                      ))}
+
+                                        {/* Notes Display */}
+                                        {asset.notes && (
+                                          <div className="text-[10.5px] italic text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 px-2.5 py-1.5 rounded-lg whitespace-pre-wrap break-words leading-relaxed">
+                                            "{asset.notes}"
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
                                     </div>
                                   )}
                                 </div>
@@ -1038,6 +1149,11 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                               {asset.brand} - {asset.model}
                             </div>
                             <div className="text-[10px] text-slate-500">{asset.asset_type}</div>
+                            {asset.notes && (
+                              <div className="text-[10px] italic text-slate-400 truncate max-w-xs mt-0.5" title={asset.notes}>
+                                "{asset.notes}"
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -1228,12 +1344,20 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                 {/* Asset Type */}
                 <div>
                   <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
-                    Tipe Perangkat *
+                    Tipe / Kategori Perangkat *
                   </label>
                   <select
                     required
                     value={assetFormData.asset_type}
-                    onChange={(e) => setAssetFormData({ ...assetFormData, asset_type: e.target.value })}
+                    onChange={(e) => {
+                      const newType = e.target.value;
+                      const suggested = getOfficeSuggestedNote(newType);
+                      setAssetFormData((prev) => ({
+                        ...prev,
+                        asset_type: newType,
+                        notes: !prev.notes || prev.notes.trim() === '' ? suggested : prev.notes,
+                      }));
+                    }}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none"
                   >
                     {ASSET_TYPE_OPTIONS.map((t) => (
@@ -1362,14 +1486,66 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   </select>
                 </div>
 
-                {/* Notes */}
+                {/* Notes with Template Selector */}
                 <div className="sm:col-span-2">
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
-                    Catatan Perangkat
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-slate-600 dark:text-slate-400 font-semibold">
+                      Catatan / Deskripsi Perangkat
+                    </label>
+                    <div className="flex items-center space-x-2">
+                      {templateSuccessMsg && (
+                        <span className="text-[10px] text-emerald-500 font-semibold">
+                          {templateSuccessMsg}
+                        </span>
+                      )}
+                      {assetFormData.notes && (
+                        <button
+                          type="button"
+                          onClick={() => handleSaveCustomTemplate(assetFormData.notes, assetFormData.asset_type)}
+                          className="text-[10px] text-blue-500 hover:text-blue-400 font-semibold flex items-center space-x-1"
+                          title="Simpan catatan saat ini sebagai template kustom"
+                        >
+                          <BookmarkPlus className="w-3 h-3 inline mr-0.5" />
+                          <span>Simpan Template</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Template Selector Dropdown */}
+                  <div className="mb-2">
+                    <select
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setAssetFormData((prev) => ({ ...prev, notes: e.target.value }));
+                        }
+                      }}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 focus:outline-none"
+                      defaultValue=""
+                    >
+                      <option value="">-- Pilih Template Catatan Standar --</option>
+                      {customTemplates.length > 0 && (
+                        <optgroup label="★ Template Kustom Anda">
+                          {customTemplates.map((item, idx) => (
+                            <option key={`cust_${idx}`} value={item.note}>
+                              [{item.category}] {item.note}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                      <optgroup label="Template Standar">
+                        {ALL_OFFICE_TEMPLATES.map((item, idx) => (
+                          <option key={`std_${idx}`} value={item.note}>
+                            [{item.category}] {item.note}
+                          </option>
+                        ))}
+                      </optgroup>
+                    </select>
+                  </div>
+
                   <textarea
                     rows={2}
-                    placeholder="Catatan tambahan spesifikasi atau peruntukan perangkat..."
+                    placeholder="Catatan spesifikasi atau fungsi perangkat (pilih template di atas atau ketik manual)..."
                     value={assetFormData.notes}
                     onChange={(e) => setAssetFormData({ ...assetFormData, notes: e.target.value })}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-white focus:outline-none"

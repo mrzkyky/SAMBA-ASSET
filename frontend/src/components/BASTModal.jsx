@@ -85,7 +85,7 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
     }
   };
 
-  const targetAsset = transfer ? transfer.asset : asset;
+  const targetAsset = transfer ? (transfer.asset || (transfer.items && transfer.items[0]?.asset)) : asset;
   const brandName = targetAsset?.brand || transfer?.asset_brand || '';
   const modelName = targetAsset?.model || transfer?.asset_model || '';
   const deviceDisplayName = (brandName && brandName !== '-' ? brandName + ' ' : '') + (modelName && modelName !== '-' ? modelName : (brandName || 'Perangkat Jaringan'));
@@ -106,6 +106,41 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
 
   const snText = transfer ? transfer.serial_numbers : targetAsset?.serial_number || '';
   const snList = parseSNList(snText);
+
+  // Multi-device items preparation for unified BAST document
+  const isBatch = transfer && transfer.items && transfer.items.length > 0;
+  const itemsList = isBatch
+    ? transfer.items.map((it) => {
+        const a = it.asset;
+        const b = a?.brand || it.asset_brand || '';
+        const m = a?.model || it.asset_model || '';
+        const devName = (b && b !== '-' ? b + ' ' : '') + (m && m !== '-' ? m : (b || 'Perangkat Jaringan'));
+        const snT = it.serial_numbers || a?.serial_number || '';
+        return {
+          asset: a,
+          brandName: b,
+          modelName: m,
+          deviceDisplayName: devName,
+          categoryName: a?.category?.name || it.category_name || 'Perangkat Jaringan',
+          locationDetail: a?.location_detail || 'Sub Rack',
+          unitCount: it.unit_count || 1,
+          snList: parseSNList(snT),
+        };
+      })
+    : [
+        {
+          asset: targetAsset,
+          brandName,
+          modelName,
+          deviceDisplayName,
+          categoryName: targetAsset?.category?.name || transfer?.category_name || 'Perangkat Jaringan',
+          locationDetail: targetAsset?.location_detail || 'Sub Rack',
+          unitCount: transfer ? transfer.unit_count : targetAsset?.unit_count || 1,
+          snList,
+        },
+      ];
+
+  const totalBASTUnits = itemsList.reduce((acc, it) => acc + (it.unitCount || 1), 0);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-sm overflow-y-auto">
@@ -357,50 +392,80 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 text-slate-800">
-                      <tr className="hover:bg-slate-50">
-                        <td className="p-3 border-r border-slate-200">
-                          <div className="font-bold text-slate-900">{deviceDisplayName}</div>
-                          <div className="text-[10px] text-slate-500 font-medium mt-0.5">
-                            Rak: {targetAsset?.location_detail || 'Sub Rack'}
-                          </div>
-                        </td>
-                        <td className="p-3 border-r border-slate-200 font-medium">
-                          {targetAsset?.category?.name || transfer?.category_name || 'Perangkat Jaringan'}
-                        </td>
-                        <td className="p-3 border-r border-slate-200 font-medium leading-normal">
-                          {fromSiteName}
-                        </td>
-                        <td className="p-3 border-r border-slate-200 font-medium leading-normal">
-                          {toSiteName}
-                        </td>
-                        <td className="p-3 text-center font-bold text-slate-900 text-sm">
-                          {transfer ? transfer.unit_count : targetAsset?.unit_count || 1} Unit
-                        </td>
-                      </tr>
+                      {itemsList.map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50">
+                          <td className="p-3 border-r border-slate-200">
+                            <div className="font-bold text-slate-900">{item.deviceDisplayName}</div>
+                            <div className="text-[10px] text-slate-500 font-medium mt-0.5">
+                              Rak: {item.locationDetail || 'Sub Rack'}
+                            </div>
+                          </td>
+                          <td className="p-3 border-r border-slate-200 font-medium">
+                            {item.categoryName}
+                          </td>
+                          <td className="p-3 border-r border-slate-200 font-medium leading-normal">
+                            {fromSiteName}
+                          </td>
+                          <td className="p-3 border-r border-slate-200 font-medium leading-normal">
+                            {toSiteName}
+                          </td>
+                          <td className="p-3 text-center font-bold text-slate-900 text-sm">
+                            {item.unitCount} Unit
+                          </td>
+                        </tr>
+                      ))}
+                      {itemsList.length > 1 && (
+                        <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
+                          <td colSpan="4" className="p-2.5 text-right border-r border-slate-300 uppercase text-[10px] tracking-wider">
+                            TOTAL KESELURUHAN PERANGKAT DISERAHTERIMAKAN:
+                          </td>
+                          <td className="p-2.5 text-center text-sm font-black text-slate-900">
+                            {totalBASTUnits} Unit
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
 
                 {/* BOX RINCIAN SERIAL NUMBER PERANGKAT */}
-                <div className="p-4 bg-slate-50/80 border border-slate-300 rounded-xl space-y-2">
-                  <div className="text-xs font-bold text-slate-800">
-                    Rincian Serial Number Perangkat ({snList.length} Unit):
-                  </div>
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {snList.length > 0 ? (
-                      snList.map((sn, idx) => (
-                        <div
-                          key={idx}
-                          className="font-mono text-xs font-bold bg-white px-3 py-1.5 rounded-lg border border-slate-300 shadow-xs flex items-center space-x-1.5"
-                        >
-                          <span className="text-slate-400 font-normal">#{idx + 1}</span>
-                          <span className="text-slate-900">{sn}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <span className="text-slate-500 italic text-xs">Serial Number Tidak Tersedia</span>
+                <div className="p-4 bg-slate-50/80 border border-slate-300 rounded-xl space-y-3">
+                  <div className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                    <span>Rincian Serial Number Perangkat (Total: {totalBASTUnits} Unit):</span>
+                    {itemsList.length > 1 && (
+                      <span className="text-[10px] font-bold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
+                        {itemsList.length} Model Perangkat
+                      </span>
                     )}
                   </div>
+                  
+                  {itemsList.map((it, itIdx) => (
+                    <div key={itIdx} className="space-y-1.5">
+                      {itemsList.length > 1 && (
+                        <div className="text-[11px] font-bold text-slate-700 flex items-center space-x-1.5">
+                          <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[9px] flex items-center justify-center font-bold">
+                            {itIdx + 1}
+                          </span>
+                          <span>{it.deviceDisplayName} ({it.unitCount} Unit):</span>
+                        </div>
+                      )}
+                      <div className={`flex flex-wrap gap-2 ${itemsList.length > 1 ? 'pl-5.5' : ''}`}>
+                        {it.snList.length > 0 ? (
+                          it.snList.map((sn, sIdx) => (
+                            <div
+                              key={sIdx}
+                              className="font-mono text-xs font-bold bg-white px-3 py-1.5 rounded-lg border border-slate-300 shadow-xs flex items-center space-x-1.5"
+                            >
+                              <span className="text-slate-400 font-normal">#{sIdx + 1}</span>
+                              <span className="text-slate-900">{sn}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-slate-500 italic text-xs">Serial Number Tidak Tersedia</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 {/* BOX CATATAN & SYARAT KETENTUAN */}
