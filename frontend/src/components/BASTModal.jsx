@@ -71,7 +71,149 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
   if (!isOpen) return null;
 
   const handlePrint = () => {
-    window.print();
+    const snRows = itemsList.map((item, idx) => {
+      const snBadges = item.snList && item.snList.length > 0
+        ? item.snList.map(sn => `<span style="font-family:monospace;font-size:8.5px;font-weight:700;background:#f1f5f9;color:#0f172a;padding:2px 6px;border-radius:4px;border:1px solid #cbd5e1;display:inline-block;margin:1px;">${sn}</span>`).join('')
+        : '<span style="font-size:9px;color:#94a3b8;font-style:italic;">S/N: Tidak Tersedia</span>';
+      return `
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:7px 8px;border-right:1px solid #e2e8f0;text-align:center;font-weight:700;color:#475569;">${idx + 1}</td>
+          <td style="padding:7px 8px;border-right:1px solid #e2e8f0;">
+            <div style="font-weight:700;font-size:11px;color:#0f172a;">${item.deviceDisplayName}</div>
+            <div style="font-size:9px;color:#64748b;margin-top:1px;">Posisi/Rak: ${item.locationDetail || 'Sub Rack'}</div>
+            <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px;align-items:center;">
+              <span style="font-size:8px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.5px;">S/N:</span>
+              ${snBadges}
+            </div>
+          </td>
+          <td style="padding:7px 8px;border-right:1px solid #e2e8f0;font-size:10px;font-weight:600;color:#475569;">${item.categoryName}</td>
+          <td style="padding:7px 8px;border-right:1px solid #e2e8f0;font-size:9.5px;line-height:1.5;">
+            <div style="color:#64748b;"><strong style="color:#475569;">Dari:</strong> ${fromSiteName}</div>
+            <div style="color:#0f172a;margin-top:2px;"><strong style="color:#0e7490;">Ke:</strong> ${toSiteName}</div>
+          </td>
+          <td style="padding:7px 8px;text-align:center;font-weight:700;font-size:11px;color:#0f172a;">${item.unitCount} Unit</td>
+        </tr>`;
+    }).join('');
+
+    const logoSection = customLogoUrl
+      ? `<img src="${customLogoUrl}" alt="Kop Surat" style="width:100%;max-height:90px;object-fit:contain;" />`
+      : `
+        <div style="background:#182b58;color:white;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;border-bottom:3px solid #1e3a78;">
+          <svg style="position:absolute;right:0;top:0;bottom:0;height:100%;width:180px;pointer-events:none;opacity:0.9;" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M110 100 L140 25 L128 25 L148 5 L168 25 L156 25 L126 100 Z" fill="#ffffff"/>
+            <path d="M135 100 L158 45 L148 45 L160 20 L172 45 L162 45 L145 100 Z" fill="#ffffff" opacity="0.6"/>
+          </svg>
+          <div style="z-index:1;">
+            <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#cbd5e1;text-transform:uppercase;">${bastData.companyName}</div>
+            <div style="font-size:22px;font-weight:900;letter-spacing:-0.5px;color:white;">Rapid Network</div>
+          </div>
+          <div style="text-align:right;z-index:1;padding-right:56px;">
+            <div style="font-size:9px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:1px;">${bastData.companyName}</div>
+            <div style="font-size:18px;font-weight:900;color:white;letter-spacing:0.5px;">${bastData.brandName}</div>
+            <div style="font-size:8px;color:#cbd5e1;margin-top:3px;">✉ ${bastData.companyEmail} &nbsp;|&nbsp; 📞 ${bastData.companyPhone} &nbsp;|&nbsp; 📱 ${bastData.companyWA}</div>
+            <div style="font-size:8px;color:#cbd5e1;">📸 ${bastData.companyInstagram} &nbsp;|&nbsp; 🌐 ${bastData.companyWebsite}</div>
+          </div>
+        </div>`;
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>BAST - ${bastData.refNo || 'Dokumen Resmi'}</title>
+  <style>
+    @page { size: A4 portrait; margin: 8mm 10mm 8mm 10mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { font-family: Arial, sans-serif; font-size: 11px; color: #1e293b; background: white; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { vertical-align: top; }
+    tr { page-break-inside: avoid; }
+  </style>
+</head>
+<body>
+  ${logoSection}
+
+  <div style="padding:18px 24px 0 24px;">
+    <div style="text-align:center;margin-bottom:12px;">
+      <h1 style="font-size:14px;font-weight:900;text-decoration:underline;letter-spacing:2px;text-transform:uppercase;color:#0f172a;">BERITA ACARA SERAH TERIMA (BAST)</h1>
+      <p style="font-size:11px;font-family:monospace;color:#475569;margin-top:4px;font-weight:600;">Nomor: ${bastData.refNo}</p>
+    </div>
+
+    <p style="font-size:11px;line-height:1.7;color:#334155;margin-bottom:12px;">
+      Pada hari ini <strong>${bastData.dateStr}</strong>, kami yang bertanda tangan di bawah ini telah melaksanakan serah terima dan pemindahan aset fisik berupa perangkat telekomunikasi / IT:
+    </p>
+
+    <div style="border:1px solid #cbd5e1;border-radius:8px;overflow:hidden;margin-bottom:12px;">
+      <table>
+        <thead>
+          <tr style="background:#f1f5f9;border-bottom:1px solid #cbd5e1;">
+            <th style="padding:7px 8px;border-right:1px solid #cbd5e1;width:32px;text-align:center;font-size:9px;text-transform:uppercase;letter-spacing:1px;">NO</th>
+            <th style="padding:7px 8px;border-right:1px solid #cbd5e1;font-size:9px;text-transform:uppercase;letter-spacing:1px;">DESKRIPSI PERANGKAT &amp; SERIAL NUMBER</th>
+            <th style="padding:7px 8px;border-right:1px solid #cbd5e1;width:90px;font-size:9px;text-transform:uppercase;letter-spacing:1px;">KATEGORI</th>
+            <th style="padding:7px 8px;border-right:1px solid #cbd5e1;font-size:9px;text-transform:uppercase;letter-spacing:1px;">LOKASI (ASAL → TUJUAN)</th>
+            <th style="padding:7px 8px;text-align:center;width:64px;font-size:9px;text-transform:uppercase;letter-spacing:1px;">JUMLAH</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${snRows}
+          <tr style="background:#f1f5f9;border-top:2px solid #94a3b8;">
+            <td colspan="4" style="padding:7px 8px;text-align:right;border-right:1px solid #cbd5e1;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#0f172a;">TOTAL KESELURUHAN PERANGKAT DISERAHTERIMAKAN:</td>
+            <td style="padding:7px 8px;text-align:center;font-weight:900;font-size:12px;color:#0f172a;">${totalBASTUnits} Unit</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="padding:10px 14px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;font-size:10px;margin-bottom:14px;">
+      <strong style="color:#0f172a;">Catatan &amp; Syarat Ketentuan:</strong>
+      <span style="color:#334155;"> ${bastData.notes || '-'}</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;text-align:center;font-size:10px;padding-bottom:4px;">
+      <div>
+        <p style="font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:9px;color:#0f172a;">PIHAK PERTAMA (PEMBERI)</p>
+        <p style="font-size:9px;color:#475569;font-weight:600;margin-top:2px;">${bastData.pemberiInstansi}</p>
+        <div style="height:52px;border-bottom:1px dashed #94a3b8;margin:8px 12px;"></div>
+        <p style="font-weight:700;text-decoration:underline;font-size:11px;color:#0f172a;">${bastData.pemberiNama}</p>
+        <p style="font-size:9px;color:#475569;font-weight:600;margin-top:1px;">${bastData.pemberiJabatan}</p>
+      </div>
+      <div>
+        <p style="font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:9px;color:#0f172a;">PIHAK KEDUA (PENERIMA)</p>
+        <p style="font-size:9px;color:#475569;font-weight:600;margin-top:2px;">${bastData.penerimaInstansi}</p>
+        <div style="height:52px;border-bottom:1px dashed #94a3b8;margin:8px 12px;"></div>
+        <p style="font-weight:700;text-decoration:underline;font-size:11px;color:#0f172a;">${bastData.penerimaNama}</p>
+        <p style="font-size:9px;color:#475569;font-weight:600;margin-top:1px;">${bastData.penerimaJabatan}</p>
+      </div>
+      <div>
+        <p style="font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:9px;color:#0f172a;">MENGETAHUI (OPERASIONAL)</p>
+        <p style="font-size:9px;color:#475569;font-weight:600;margin-top:2px;">${bastData.mengetahuiInstansi}</p>
+        <div style="height:52px;border-bottom:1px dashed #94a3b8;margin:8px 12px;"></div>
+        <p style="font-weight:700;text-decoration:underline;font-size:11px;color:#0f172a;">${bastData.mengetahuiNama}</p>
+        <p style="font-size:9px;color:#475569;font-weight:600;margin-top:1px;">${bastData.mengetahuiJabatan}</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:#182b58;color:white;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;margin-top:14px;border-top:3px solid #1e3a78;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:16px;font-weight:900;font-style:italic;letter-spacing:-0.5px;">rapid</span>
+      <span style="font-size:8px;font-weight:700;background:white;color:#182b58;padding:2px 6px;border-radius:3px;letter-spacing:2px;text-transform:uppercase;">NETWORK</span>
+    </div>
+    <div style="text-align:right;font-size:8px;color:#cbd5e1;line-height:1.6;">
+      <div style="font-weight:700;color:white;">${bastData.companyName} - ${bastData.brandName}</div>
+      <div>${bastData.companyAddress}</div>
+      <div>email: ${bastData.companyEmail} | Phone: ${bastData.companyPhone} | WhatsApp: ${bastData.companyWA}</div>
+    </div>
+  </div>
+
+  <script>window.onload = function() { window.print(); };</script>
+</body>
+</html>`;
+
+    const printWin = window.open('', '_blank', 'width=900,height=700');
+    if (printWin) {
+      printWin.document.write(htmlContent);
+      printWin.document.close();
+    }
   };
 
   const handleLogoUpload = (e) => {
@@ -145,47 +287,6 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-sm overflow-y-auto">
       
-      {/* Print CSS Overrides - Standar Dokumen A4 Resmi */}
-      <style>{`
-        @media print {
-          @page {
-            size: A4 portrait;
-            margin: 6mm 8mm 6mm 8mm;
-          }
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          html, body {
-            width: 100% !important;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #ffffff !important;
-          }
-          body * {
-            visibility: hidden !important;
-          }
-          #printable-bast, #printable-bast * {
-            visibility: visible !important;
-          }
-          #printable-bast {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            color: black !important;
-            box-sizing: border-box !important;
-          }
-          .no-print {
-            display: none !important;
-          }
-        }
-      `}</style>
 
       <div className="w-full max-w-4xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 my-auto">
         
