@@ -124,13 +124,129 @@ export const REGION_DATA = [
   { code: '1471', name: 'Kota Pekanbaru', province: 'Riau', aliases: ['pekanbaru', 'riau'] },
   { code: '2171', name: 'Kota Batam', province: 'Kepulauan Riau', aliases: ['batam', 'kota batam'] },
   { code: '1371', name: 'Kota Padang', province: 'Sumatera Barat', aliases: ['padang', 'kota padang'] },
-  { code: '5171', name: 'Kota Denpasar', province: 'Bali', aliases: ['denpasar', 'bali'] },
-  { code: '5103', name: 'Kabupaten Badung', province: 'Bali', aliases: ['badung', 'kuta', 'seminyak', 'canggu', 'nusa dua'] },
-  { code: '7371', name: 'Kota Makassar', province: 'Sulawesi Selatan', aliases: ['makassar', 'ujung pandang'] },
-  { code: '6471', name: 'Kota Balikpapan', province: 'Kalimantan Timur', aliases: ['balikpapan'] },
-  { code: '6472', name: 'Kota Samarinda', province: 'Kalimantan Timur', aliases: ['samarinda'] },
-  { code: '6371', name: 'Kota Banjarmasin', province: 'Kalimantan Selatan', aliases: ['banjarmasin'] },
-  { code: '6171', name: 'Kota Pontianak', province: 'Kalimantan Barat', aliases: ['pontianak'] },
+  // --- BALI (51) ---
+  { code: '5171', name: 'Kota Denpasar', province: 'Bali', aliases: ['kota denpasar', 'denpasar', 'sanur', 'panjer', 'renon'] },
+  { code: '5103', name: 'Kabupaten Badung', province: 'Bali', aliases: ['badung', 'kuta', 'seminyak', 'canggu', 'nusa dua', 'jimbaran', 'mengwi'] },
+  { code: '5102', name: 'Kabupaten Tabanan', province: 'Bali', aliases: ['tabanan', 'kediri tabanan', 'baturiti'] },
+  { code: '5104', name: 'Kabupaten Gianyar', province: 'Bali', aliases: ['gianyar', 'ubud', 'sukawati'] },
+  { code: '5108', name: 'Kabupaten Buleleng', province: 'Bali', aliases: ['buleleng', 'singaraja'] },
+
+  // --- KALIMANTAN SELATAN (63) ---
+  {
+    code: '6302',
+    name: 'Kabupaten Kotabaru',
+    province: 'Kalimantan Selatan',
+    aliases: [
+      'kotabaru', 'kota baru', 'kabupaten kotabaru', 'kab kotabaru', 'kotabaru regency',
+      'pulau sebuku', 'sungai durian', 'pulau laut', 'pulau laut utara', 'pulau laut selatan',
+      'pulau laut barat', 'pulau laut timur', 'pulau laut tengah', 'pulau laut kepulauan',
+      'pulau laut sigam', 'pulau laut tanjung selayar', 'hampang', 'kelumpang', 'kelumpang hilir',
+      'kelumpang hulu', 'kelumpang tengah', 'kelumpang utara', 'kelumpang barat', 'kelumpang selatan',
+      'pamukan', 'pamukan barat', 'pamukan utara', 'pamukan selatan', 'sampanahan',
+      'serongga', 'dirgahayu', 'sebatung', 'semayap', 'sungai bali', 'manunggul lama',
+      'sebanti', 'alle alle', 'stagen', 'sungai taib', 'gunung sari kotabaru', 'kotabaru tengah',
+      'kotabaru hilir', 'kotabaru hulu', 'baharu'
+    ]
+  },
+  {
+    code: '6371',
+    name: 'Kota Banjarmasin',
+    province: 'Kalimantan Selatan',
+    aliases: [
+      'kota banjarmasin', 'banjarmasin', 'banjarmasin barat', 'banjarmasin timur',
+      'banjarmasin tengah', 'banjarmasin utara', 'banjarmasin selatan', 'sungai miai',
+      'kayutangi', 'kuranji banjarmasin', 'teluk dalam banjarmasin'
+    ]
+  },
+  {
+    code: '6372',
+    name: 'Kota Banjarbaru',
+    province: 'Kalimantan Selatan',
+    aliases: ['kota banjarbaru', 'banjarbaru', 'landasan ulin', 'liang anggang', 'cempaka banjarbaru', 'guntung payung', 'loktabat']
+  },
+  {
+    code: '6301',
+    name: 'Kabupaten Tanah Laut',
+    province: 'Kalimantan Selatan',
+    aliases: ['tanah laut', 'tala', 'pelaihari', 'bati bati', 'kintap', 'jorong', 'takisung', 'kurau', 'batu ampar tala']
+  },
+  {
+    code: '6303',
+    name: 'Kabupaten Banjar',
+    province: 'Kalimantan Selatan',
+    aliases: ['kabupaten banjar', 'kab banjar', 'martapura', 'keraton martapura', 'karang intan', 'astambul', 'simpang empat banjar', 'gambut', 'kertak hanyar', 'aluh aluh', 'sungai tabuk']
+  },
+  {
+    code: '6304',
+    name: 'Kabupaten Barito Kuala',
+    province: 'Kalimantan Selatan',
+    aliases: ['barito kuala', 'batola', 'marabahan', 'alalak', 'mandastana', 'anjir muara', 'anjir pasar', 'rantaubadauh', 'belawang']
+  },
+  {
+    code: '6305',
+    name: 'Kabupaten Tapin',
+    province: 'Kalimantan Selatan',
+    aliases: ['kabupaten tapin', 'tapin', 'rantau', 'binuang', 'lokpaikat', 'bakarangan']
+  },
+  {
+    code: '6306',
+    name: 'Kabupaten Hulu Sungai Selatan',
+    province: 'Kalimantan Selatan',
+    aliases: ['hulu sungai selatan', 'hss', 'kandangan', 'nagara', 'angkinang', 'simpur', 'daha', 'daha utara', 'daha selatan']
+  },
+  {
+    code: '6307',
+    name: 'Kabupaten Hulu Sungai Tengah',
+    province: 'Kalimantan Selatan',
+    aliases: ['hulu sungai tengah', 'hst', 'barabai', 'batang alai', 'haruyan', 'batu benawa', 'labuan amas']
+  },
+  {
+    code: '6308',
+    name: 'Kabupaten Hulu Sungai Utara',
+    province: 'Kalimantan Selatan',
+    aliases: ['hulu sungai utara', 'hsu', 'amuntai', 'danau panggang', 'banjang', 'babirik']
+  },
+  {
+    code: '6309',
+    name: 'Kabupaten Tabalong',
+    province: 'Kalimantan Selatan',
+    aliases: ['kabupaten tabalong', 'tabalong', 'tanjung tabalong', 'murung pudak', 'kelua', 'haruai']
+  },
+  {
+    code: '6310',
+    name: 'Kabupaten Tanah Bumbu',
+    province: 'Kalimantan Selatan',
+    aliases: ['tanah bumbu', 'tanbu', 'batulicin', 'batu licin', 'simpang empat tanbu', 'satui', 'kusan hilir', 'pagatan', 'sungai loban', 'mantewe']
+  },
+  {
+    code: '6311',
+    name: 'Kabupaten Balangan',
+    province: 'Kalimantan Selatan',
+    aliases: ['kabupaten balangan', 'balangan', 'paringin', 'lampihong', 'awayan', 'halong']
+  },
+
+  // --- KALIMANTAN TIMUR & LAINNYA (64, 62, 61, 65) ---
+  { code: '6471', name: 'Kota Balikpapan', province: 'Kalimantan Timur', aliases: ['balikpapan', 'kota balikpapan'] },
+  { code: '6472', name: 'Kota Samarinda', province: 'Kalimantan Timur', aliases: ['samarinda', 'kota samarinda'] },
+  { code: '6402', name: 'Kabupaten Kutai Kartanegara', province: 'Kalimantan Timur', aliases: ['kutai kartanegara', 'kukar', 'tenggarong'] },
+  { code: '6474', name: 'Kota Bontang', province: 'Kalimantan Timur', aliases: ['bontang', 'kota bontang'] },
+  { code: '6403', name: 'Kabupaten Berau', province: 'Kalimantan Timur', aliases: ['berau', 'tanjung redeb'] },
+  { code: '6409', name: 'Kabupaten Penajam Paser Utara', province: 'Kalimantan Timur', aliases: ['penajam paser utara', 'ppu', 'penajam', 'sepaku', 'ikn'] },
+  { code: '6271', name: 'Kota Palangka Raya', province: 'Kalimantan Tengah', aliases: ['palangka raya', 'palangkaraya', 'kota palangka raya'] },
+  { code: '6201', name: 'Kabupaten Kotawaringin Barat', province: 'Kalimantan Tengah', aliases: ['kotawaringin barat', 'kobar', 'pangkalan bun'] },
+  { code: '6202', name: 'Kabupaten Kotawaringin Timur', province: 'Kalimantan Tengah', aliases: ['kotawaringin timur', 'kotim', 'sampit'] },
+  { code: '6203', name: 'Kabupaten Kapuas', province: 'Kalimantan Tengah', aliases: ['kapuas', 'kuala kapuas'] },
+  { code: '6171', name: 'Kota Pontianak', province: 'Kalimantan Barat', aliases: ['pontianak', 'kota pontianak'] },
+  { code: '6172', name: 'Kota Singkawang', province: 'Kalimantan Barat', aliases: ['singkawang', 'kota singkawang'] },
+  { code: '6104', name: 'Kabupaten Ketapang', province: 'Kalimantan Barat', aliases: ['ketapang'] },
+  { code: '6571', name: 'Kota Tarakan', province: 'Kalimantan Utara', aliases: ['tarakan', 'kota tarakan'] },
+  { code: '6501', name: 'Kabupaten Bulungan', province: 'Kalimantan Utara', aliases: ['bulungan', 'tanjung selor'] },
+
+  // --- SULAWESI & LAINNYA (73, dll) ---
+  { code: '7371', name: 'Kota Makassar', province: 'Sulawesi Selatan', aliases: ['makassar', 'kota makassar', 'ujung pandang'] },
+  { code: '7372', name: 'Kota Parepare', province: 'Sulawesi Selatan', aliases: ['parepare', 'kota parepare'] },
+  { code: '7373', name: 'Kota Palopo', province: 'Sulawesi Selatan', aliases: ['palopo', 'kota palopo'] },
+  { code: '7171', name: 'Kota Manado', province: 'Sulawesi Utara', aliases: ['manado', 'kota manado'] },
 ];
 
 /**
@@ -168,7 +284,7 @@ export function matchRegionFromText(text) {
     }
   }
 
-  // 2. Cek nama kabupaten / kota dasar (contoh: "brebes", "tegal", "pemalang")
+  // 2. Cek nama kabupaten / kota dasar (contoh: "brebes", "tegal", "pemalang", "kotabaru")
   for (const item of REGION_DATA) {
     const rawName = item.name.toLowerCase().replace('kabupaten ', '').replace('kota administrasi ', '').replace('kota ', '');
     const regex = new RegExp(`\\b${cleanText(rawName)}\\b`, 'i');
@@ -186,11 +302,11 @@ export function matchRegionFromText(text) {
  * 1. site.address (Alamat lengkap)
  * 2. site.site_name (Nama site)
  * 3. site.partner_name (Nama mitra)
- * 4. branch.name (Nama cabang)
- * 5. Fallback Default: 3329 (Kabupaten Brebes)
+ * 4. branch.name (Nama cabang & provinsi)
+ * 5. Fallback Default berdasarkan Branch atau Default Nasional (Brebes 3329)
  * 
  * @param {Object} site Objek site (site_name, address, partner_name)
- * @param {Object} branch Objek branch (name, province)
+ * @param {Object} branch Objek branch (name, province, code)
  * @returns {Object} { code: string, name: string, province: string, source: string }
  */
 export function resolveRegionCode(site, branch) {
@@ -227,8 +343,12 @@ export function resolveRegionCode(site, branch) {
     }
   }
 
-  // 4. Cek dari Nama Cabang (Branch)
-  const branchName = site?.branch?.name || branch?.name || '';
+  // 4. Cek dari Nama Cabang (Branch) & Mapping Provinsi Cabang
+  const branchObj = site?.branch || branch;
+  const branchName = branchObj?.name || '';
+  const branchCode = branchObj?.code || '';
+  const branchProvince = branchObj?.province || '';
+
   if (branchName) {
     const fromBranch = matchRegionFromText(branchName);
     if (fromBranch) {
@@ -237,6 +357,91 @@ export function resolveRegionCode(site, branch) {
         source: 'Nama Cabang',
       };
     }
+  }
+
+  // 4b. Cek dari Singkatan / Kata Kunci Wilayah Cabang (Kalsel, Kaltim, Jabar, Jatim, DKI, dll)
+  const combinedBranchText = cleanText(`${branchName} ${branchCode} ${branchProvince}`);
+  
+  if (combinedBranchText.includes('kalsel') || combinedBranchText.includes('kalimantan selatan')) {
+    // Jika ada indikasi kotabaru pada site atau address
+    const siteText = cleanText(`${site?.site_name || ''} ${site?.partner_name || ''} ${site?.address || ''}`);
+    if (siteText.includes('kotabaru') || siteText.includes('kota baru') || siteText.includes('pulau laut') || siteText.includes('sebuku')) {
+      return {
+        code: '6302',
+        name: 'Kabupaten Kotabaru',
+        province: 'Kalimantan Selatan',
+        source: 'Cabang Kalsel (Kotabaru)',
+      };
+    }
+    return {
+      code: '6371',
+      name: 'Kota Banjarmasin',
+      province: 'Kalimantan Selatan',
+      source: 'Cabang Kalsel (Pusat)',
+    };
+  }
+
+  if (combinedBranchText.includes('kaltim') || combinedBranchText.includes('kalimantan timur')) {
+    return {
+      code: '6471',
+      name: 'Kota Balikpapan',
+      province: 'Kalimantan Timur',
+      source: 'Cabang Kaltim',
+    };
+  }
+
+  if (combinedBranchText.includes('kalteng') || combinedBranchText.includes('kalimantan tengah')) {
+    return {
+      code: '6271',
+      name: 'Kota Palangka Raya',
+      province: 'Kalimantan Tengah',
+      source: 'Cabang Kalteng',
+    };
+  }
+
+  if (combinedBranchText.includes('kalbar') || combinedBranchText.includes('kalimantan barat')) {
+    return {
+      code: '6171',
+      name: 'Kota Pontianak',
+      province: 'Kalimantan Barat',
+      source: 'Cabang Kalbar',
+    };
+  }
+
+  if (combinedBranchText.includes('jabar') || combinedBranchText.includes('jawa barat') || combinedBranchText.includes('bandung')) {
+    return {
+      code: '3273',
+      name: 'Kota Bandung',
+      province: 'Jawa Barat',
+      source: 'Cabang Jawa Barat',
+    };
+  }
+
+  if (combinedBranchText.includes('jatim') || combinedBranchText.includes('jawa timur') || combinedBranchText.includes('surabaya')) {
+    return {
+      code: '3578',
+      name: 'Kota Surabaya',
+      province: 'Jawa Timur',
+      source: 'Cabang Jawa Timur',
+    };
+  }
+
+  if (combinedBranchText.includes('dki') || combinedBranchText.includes('jakarta')) {
+    return {
+      code: '3171',
+      name: 'Kota Administrasi Jakarta Pusat',
+      province: 'DKI Jakarta',
+      source: 'Cabang DKI Jakarta',
+    };
+  }
+
+  if (combinedBranchText.includes('sumut') || combinedBranchText.includes('medan')) {
+    return {
+      code: '1271',
+      name: 'Kota Medan',
+      province: 'Sumatera Utara',
+      source: 'Cabang Sumatera Utara',
+    };
   }
 
   // 5. Fallback default aman ke Kabupaten Brebes (3329)
