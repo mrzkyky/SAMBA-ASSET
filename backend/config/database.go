@@ -82,6 +82,11 @@ func InitDB() *gorm.DB {
 		log.Printf("Notice on alter serial_number column: %v", alterErr)
 	}
 
+	// Remove unique constraint on asset_transfers.reference_no to allow multiple items under 1 BAST
+	_ = DB.Exec("ALTER TABLE asset_transfers DROP CONSTRAINT IF EXISTS asset_transfers_reference_no_key;").Error
+	_ = DB.Exec("DROP INDEX IF EXISTS idx_asset_transfers_reference_no;").Error
+	_ = DB.Exec("CREATE INDEX IF NOT EXISTS idx_asset_transfers_reference_no ON asset_transfers(reference_no);").Error
+
 	// Explicitly create segments table if not exists
 	createSegTable := `
 	CREATE TABLE IF NOT EXISTS segments (

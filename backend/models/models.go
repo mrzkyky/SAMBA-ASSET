@@ -134,7 +134,7 @@ type Asset struct {
 
 type AssetTransfer struct {
 	ID                 uint      `gorm:"primaryKey" json:"id"`
-	ReferenceNo        string    `gorm:"size:50;uniqueIndex;not null" json:"reference_no"`
+	ReferenceNo        string    `gorm:"size:50;index;not null" json:"reference_no"`
 	AssetID            *uint     `gorm:"index" json:"asset_id"`
 	Asset              *Asset    `gorm:"foreignKey:AssetID" json:"asset,omitempty"`
 	FromSiteID         *uint     `gorm:"index" json:"from_site_id"`

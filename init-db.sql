@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- 6. Asset Transfers Table (Mutasi Perangkat)
 CREATE TABLE IF NOT EXISTS asset_transfers (
     id BIGSERIAL PRIMARY KEY,
-    reference_no VARCHAR(50) UNIQUE NOT NULL,
+    reference_no VARCHAR(50) NOT NULL,
     asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
     from_site_id BIGINT REFERENCES sites(id) ON DELETE SET NULL,
     to_site_id BIGINT REFERENCES sites(id) ON DELETE SET NULL,
