@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, QrCode, Lock, ArrowRightLeft, Layers, Gift } from 'lucide-react';
+import { Building2, Building, MapPin, ChevronDown, ChevronRight, Server, Copy, Check, Edit2, Trash2, Tag, Box, QrCode, Lock, ArrowRightLeft, Layers, Gift } from 'lucide-react';
 
 export const StatusBadge = ({ status }) => {
   if (status === 'Aktif') {
@@ -132,6 +132,7 @@ const HierarchyView = ({
   const [openSites, setOpenSites] = useState({});
   const [copiedSN, setCopiedSN] = useState(null);
   const [expandedSNs, setExpandedSNs] = useState({});
+  const [selectedBuildingPerSite, setSelectedBuildingPerSite] = useState({});
 
   const isAuditor = user?.role === 'Auditor';
   const isBranchAdmin = user?.role === 'Branch Admin';
@@ -190,6 +191,7 @@ const HierarchyView = ({
           const matchSN = asset.serial_number && asset.serial_number.toLowerCase().includes(q);
           const matchBrand = asset.brand && asset.brand.toLowerCase().includes(q);
           const matchModel = asset.model && asset.model.toLowerCase().includes(q);
+          const matchBuilding = asset.building && asset.building.toLowerCase().includes(q);
           const matchLocation = asset.location_detail && asset.location_detail.toLowerCase().includes(q);
           const matchNotes = asset.notes && asset.notes.toLowerCase().includes(q);
           const matchStatus = asset.status && asset.status.toLowerCase().includes(q);
@@ -206,6 +208,7 @@ const HierarchyView = ({
             matchSN ||
             matchBrand ||
             matchModel ||
+            matchBuilding ||
             matchLocation ||
             matchNotes ||
             matchStatus ||
@@ -512,92 +515,183 @@ const HierarchyView = ({
                         </div>
 
                         {/* ACCORDION CONTENT (Level 3 Category & Level 4 Assets) */}
-                        {isOpen && (
-                          <div className="p-3 sm:p-4 border-t border-slate-200/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/30 space-y-4 sm:space-y-5">
-                            {category_groups.length === 0 ? (
-                              <p className="text-xs text-slate-500 italic p-2">
-                                Belum ada aset terdaftar pada site ini.
-                              </p>
-                            ) : (
-                              category_groups.map((catGroup) => {
-                                const { category, assets: filteredAssets } = catGroup;
+                        {isOpen && (() => {
+                          const siteBuildings = Array.from(
+                            new Set(
+                              category_groups
+                                .flatMap((cg) => cg.assets)
+                                .map((a) => (a.building ? a.building.trim() : ''))
+                                .filter(Boolean)
+                            )
+                          ).sort((a, b) => a.localeCompare(b));
 
-                                if (filteredAssets.length === 0) return null;
+                          const activeBuilding = selectedBuildingPerSite[site.id] || '';
 
-                                return (
-                                  <div key={category.id} className="space-y-2.5 sm:space-y-3">
-                                    
-                                    {/* LEVEL 3: Category Badge Header */}
-                                    <div className="flex flex-wrap items-center gap-1.5">
-                                      <Tag className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                                      <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
-                                        Level 3: Kategori {category.name}
-                                      </span>
-                                      <span className="text-[10px] text-slate-500">
-                                        ({filteredAssets.length} tipe model)
-                                      </span>
+                          const displayedCategoryGroups = category_groups.map((catGroup) => {
+                            if (!activeBuilding) return catGroup;
+                            return {
+                              ...catGroup,
+                              assets: catGroup.assets.filter((a) => (a.building || '').trim() === activeBuilding),
+                            };
+                          }).filter((catGroup) => catGroup.assets.length > 0);
+
+                          return (
+                            <div className="p-3 sm:p-4 border-t border-slate-200/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/30 space-y-4 sm:space-y-5">
+                              {/* Sub-Site / Gedung / Plot Filter Pills */}
+                              {siteBuildings.length > 0 && (
+                                <div className="p-2.5 sm:p-3 rounded-xl bg-slate-100/90 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-2">
+                                  <div className="flex flex-wrap items-center justify-between gap-1.5">
+                                    <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
+                                      <Building className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                                      <span>Filter Plot / Gedung di Site Ini:</span>
                                     </div>
+                                    {activeBuilding && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setSelectedBuildingPerSite((prev) => ({ ...prev, [site.id]: '' }))}
+                                        className="text-[11px] font-semibold text-cyan-600 dark:text-cyan-400 hover:underline"
+                                      >
+                                        Tampilkan Semua Gedung
+                                      </button>
+                                    )}
+                                  </div>
 
-                                    {/* LEVEL 4: Asset Cards Grid */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                                      {filteredAssets.map((asset) => {
-                                        const snList = parseSNList(asset.serial_number);
-                                        const isExpanded = expandedSNs[asset.id];
-                                        const displaySNs = isExpanded ? snList : snList.slice(0, 3);
-                                        const segmentName = asset.segment?.name || 'Umum';
-                                        const segmentColor = asset.segment?.color || '#64748b';
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedBuildingPerSite((prev) => ({ ...prev, [site.id]: '' }))}
+                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                                        !activeBuilding
+                                          ? 'bg-cyan-600 text-white shadow-sm font-semibold'
+                                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:text-cyan-600 dark:hover:text-cyan-400'
+                                      }`}
+                                    >
+                                      🏢 Semua Gedung ({totalMatchingUnits} Unit)
+                                    </button>
 
-                                        return (
-                                          <div
-                                            key={asset.id}
-                                            className="p-3 sm:p-3.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all space-y-2.5 relative group shadow-sm"
-                                          >
-                                            {/* Card Top: Brand/Model on left & Status/Condition on right */}
-                                            <div className="flex items-start justify-between gap-2">
-                                              <div className="min-w-0 flex-1">
-                                                <div className="flex flex-wrap items-center gap-1">
-                                                  <span className="text-xs font-bold text-cyan-700 dark:text-cyan-400 break-words">{asset.brand}</span>
-                                                  <span className="text-slate-300 dark:text-slate-600">/</span>
-                                                  <span className="text-xs font-semibold text-slate-900 dark:text-slate-200 break-words">{asset.model}</span>
+                                    {siteBuildings.map((bName) => {
+                                      const bUnitCount = category_groups.reduce(
+                                        (acc, cat) => acc + cat.assets.filter((a) => (a.building || '').trim() === bName).reduce((sum, a) => sum + a.unit_count, 0),
+                                        0
+                                      );
+                                      const isSelected = activeBuilding === bName;
+
+                                      return (
+                                        <button
+                                          key={bName}
+                                          type="button"
+                                          onClick={() => setSelectedBuildingPerSite((prev) => ({ ...prev, [site.id]: bName }))}
+                                          className={`px-2.5 py-1 rounded-lg text-xs transition-all flex items-center space-x-1.5 ${
+                                            isSelected
+                                              ? 'bg-cyan-600 text-white shadow-sm font-bold'
+                                              : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-400 dark:hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium'
+                                          }`}
+                                        >
+                                          <span>🏢 {bName}</span>
+                                          <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+                                            isSelected ? 'bg-cyan-700 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                          }`}>
+                                            {bUnitCount} unit
+                                          </span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+
+                              {displayedCategoryGroups.length === 0 ? (
+                                <p className="text-xs text-slate-500 italic p-2">
+                                  {activeBuilding ? `Tidak ada perangkat di gedung "${activeBuilding}".` : 'Belum ada aset terdaftar pada site ini.'}
+                                </p>
+                              ) : (
+                                displayedCategoryGroups.map((catGroup) => {
+                                  const { category, assets: filteredAssets } = catGroup;
+
+                                  if (filteredAssets.length === 0) return null;
+
+                                  return (
+                                    <div key={category.id} className="space-y-2.5 sm:space-y-3">
+                                      
+                                      {/* LEVEL 3: Category Badge Header */}
+                                      <div className="flex flex-wrap items-center gap-1.5">
+                                        <Tag className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                                        <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
+                                          Level 3: Kategori {category.name}
+                                        </span>
+                                        <span className="text-[10px] text-slate-500">
+                                          ({filteredAssets.length} tipe model)
+                                        </span>
+                                      </div>
+
+                                      {/* LEVEL 4: Asset Cards Grid */}
+                                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                                        {filteredAssets.map((asset) => {
+                                          const snList = parseSNList(asset.serial_number);
+                                          const isExpanded = expandedSNs[asset.id];
+                                          const displaySNs = isExpanded ? snList : snList.slice(0, 3);
+                                          const segmentName = asset.segment?.name || 'Umum';
+                                          const segmentColor = asset.segment?.color || '#64748b';
+
+                                          return (
+                                            <div
+                                              key={asset.id}
+                                              className="p-3 sm:p-3.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all space-y-2.5 relative group shadow-sm"
+                                            >
+                                              {/* Card Top: Brand/Model on left & Status/Condition on right */}
+                                              <div className="flex items-start justify-between gap-2">
+                                                <div className="min-w-0 flex-1">
+                                                  <div className="flex flex-wrap items-center gap-1">
+                                                    <span className="text-xs font-bold text-cyan-700 dark:text-cyan-400 break-words">{asset.brand}</span>
+                                                    <span className="text-slate-300 dark:text-slate-600">/</span>
+                                                    <span className="text-xs font-semibold text-slate-900 dark:text-slate-200 break-words">{asset.model}</span>
+                                                  </div>
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-1 justify-end shrink-0 max-w-[50%]">
+                                                  <StatusBadge status={asset.status} />
+                                                  <ConditionBadge condition={asset.condition} />
                                                 </div>
                                               </div>
-                                              <div className="flex flex-wrap items-center gap-1 justify-end shrink-0 max-w-[50%]">
-                                                <StatusBadge status={asset.status} />
-                                                <ConditionBadge condition={asset.condition} />
-                                              </div>
-                                            </div>
 
-                                            {/* Badges: Ownership, Segment, Asset Type */}
-                                            <div className="flex flex-wrap items-center gap-1.5">
-                                              <OwnershipBadge ownership={asset.ownership} />
-                                              <span
-                                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0"
-                                                style={{
-                                                  backgroundColor: `${segmentColor}18`,
-                                                  color: segmentColor,
-                                                  border: `1px solid ${segmentColor}35`,
-                                                }}
-                                              >
+                                              {/* Badges: Ownership, Segment, Asset Type */}
+                                              <div className="flex flex-wrap items-center gap-1.5">
+                                                <OwnershipBadge ownership={asset.ownership} />
                                                 <span
-                                                  className="w-1.5 h-1.5 rounded-full mr-1"
-                                                  style={{ backgroundColor: segmentColor }}
-                                                />
-                                                {segmentName}
-                                              </span>
-                                              {asset.asset_type && (
-                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/20 shrink-0">
-                                                  {asset.asset_type}
+                                                  className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0"
+                                                  style={{
+                                                    backgroundColor: `${segmentColor}18`,
+                                                    color: segmentColor,
+                                                    border: `1px solid ${segmentColor}35`,
+                                                  }}
+                                                >
+                                                  <span
+                                                    className="w-1.5 h-1.5 rounded-full mr-1"
+                                                    style={{ backgroundColor: segmentColor }}
+                                                  />
+                                                  {segmentName}
                                                 </span>
-                                              )}
-                                            </div>
+                                                {asset.asset_type && (
+                                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/20 shrink-0">
+                                                    {asset.asset_type}
+                                                  </span>
+                                                )}
+                                              </div>
 
-                                            {/* Location Detail on its own clear line */}
-                                            <div className="flex items-start text-[11px] text-slate-500 dark:text-slate-400">
-                                              <Box className="w-3.5 h-3.5 mr-1.5 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
-                                              <span className="text-slate-700 dark:text-slate-300 font-medium break-words leading-snug">
-                                                {asset.location_detail || 'Main Rack'}
-                                              </span>
-                                            </div>
+                                              {/* Building / Plot / Area and Location Detail */}
+                                              <div className="space-y-1">
+                                                {asset.building && (
+                                                  <div className="inline-flex items-center text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/80 px-2 py-0.5 rounded-md">
+                                                    <Building className="w-3 h-3 mr-1 text-indigo-500 shrink-0" />
+                                                    <span>Gedung: <strong className="text-indigo-900 dark:text-indigo-200">{asset.building}</strong></span>
+                                                  </div>
+                                                )}
+                                                <div className="flex items-start text-[11px] text-slate-500 dark:text-slate-400">
+                                                  <Box className="w-3.5 h-3.5 mr-1.5 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
+                                                  <span className="text-slate-700 dark:text-slate-300 font-medium break-words leading-snug">
+                                                    {asset.building ? `Rak / Letak: ${asset.location_detail || 'Main Rack'}` : (asset.location_detail || 'Main Rack')}
+                                                  </span>
+                                                </div>
+                                              </div>
 
                                             {/* Multi-SN List Display */}
                                             <div className="p-2 sm:p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-1.5">
@@ -732,7 +826,8 @@ const HierarchyView = ({
                               })
                             )}
                           </div>
-                        )}
+                        );
+                      })()}
                       </div>
                     );
                   })

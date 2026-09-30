@@ -377,6 +377,11 @@ const AssetTable = ({
                       )}
                     </td>
                     <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 max-w-xs">
+                      {asset.building && (
+                        <div className="inline-flex items-center text-[10px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/80 px-1.5 py-0.5 rounded mb-1">
+                          🏢 {asset.building}
+                        </div>
+                      )}
                       <div className="font-medium text-slate-700 dark:text-slate-300">{asset.location_detail || 'Main Rack'}</div>
                       {asset.notes && (
                         <div className="text-[11px] text-slate-600 dark:text-slate-400 italic mt-1 bg-slate-50 dark:bg-slate-950/70 p-1.5 rounded border border-slate-200 dark:border-slate-800/70 whitespace-pre-wrap break-words leading-relaxed">
