@@ -106,7 +106,9 @@ func InitDB() *gorm.DB {
 		log.Printf("Notice on add segment_id column: %v", alterSegErr)
 	}
 
-	// Explicitly ensure asset_type, condition, and ownership columns exist on assets table
+	// Explicitly ensure asset_type, condition, ownership, and building columns exist on assets table
+	DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS building VARCHAR(150) DEFAULT '';")
+	_ = DB.Exec("CREATE INDEX IF NOT EXISTS idx_assets_building ON assets(building);").Error
 	DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS asset_type VARCHAR(50) DEFAULT 'Aktif';")
 	DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS condition VARCHAR(50) DEFAULT 'Baik';")
 	DB.Exec("ALTER TABLE assets ADD COLUMN IF NOT EXISTS ownership VARCHAR(50) DEFAULT 'Aset Tetap';")

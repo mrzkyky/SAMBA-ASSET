@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS assets (
     site_id BIGINT NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
     category_id BIGINT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
     segment_id BIGINT REFERENCES segments(id) ON DELETE SET NULL,
+    building VARCHAR(150) DEFAULT '',
     asset_type VARCHAR(50) NOT NULL DEFAULT 'Aktif',
     brand VARCHAR(100) NOT NULL,
     model VARCHAR(100) NOT NULL,
