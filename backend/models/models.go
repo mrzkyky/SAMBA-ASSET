@@ -118,6 +118,7 @@ type Asset struct {
 	Category       *Category `gorm:"foreignKey:CategoryID" json:"category,omitempty"`
 	SegmentID      *uint     `gorm:"index" json:"segment_id"`
 	Segment        *Segment  `gorm:"foreignKey:SegmentID" json:"segment,omitempty"`
+	Building       string    `gorm:"size:150;default:'';index" json:"building"` // Gedung / Plot / Area (sub-site grouping, e.g. 'Gedung Pembibitan', 'Booth Kantin Depan')
 	AssetType      string    `gorm:"size:50;default:'Aktif';index" json:"asset_type"` // 'Aktif', 'Pasif', 'Interconnect', 'Power'
 	Brand          string    `gorm:"size:255;not null" json:"brand"`
 	Model          string    `gorm:"size:255;not null" json:"model"`

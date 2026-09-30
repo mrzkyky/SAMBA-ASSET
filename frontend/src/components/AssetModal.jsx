@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Server, Save, Plus, Tag, Check } from 'lucide-react';
-import { createAsset, updateAsset, createCategory, getCategories, createSegment, getSegments, getSites } from '../api';
+import { createAsset, updateAsset, createCategory, getCategories, createSegment, getSegments, getSites, getBuildingsBySite } from '../api';
 import SearchableSelect from './SearchableSelect';
 import { resolveRegionCode } from '../utils/regionCodes';
 
@@ -138,6 +138,7 @@ const AssetModal = ({
     site_id: '',
     category_id: '',
     segment_id: '',
+    building: '',
     asset_type: 'Aktif',
     brand: '',
     model: '',
@@ -149,6 +150,8 @@ const AssetModal = ({
     ownership: 'Aset Tetap',
     notes: '',
   });
+  const [buildingSuggestions, setBuildingSuggestions] = useState([]);
+  const [showBuildingSuggestions, setShowBuildingSuggestions] = useState(false);
 
   // Custom Notes Template State (Persisted in localStorage)
   const [customTemplates, setCustomTemplates] = useState(() => {
@@ -239,6 +242,15 @@ const AssetModal = ({
     }
   }, [initialSites, isOpen]);
 
+  // Fetch building suggestions whenever selected site changes
+  useEffect(() => {
+    if (formData.site_id) {
+      getBuildingsBySite(formData.site_id).then(setBuildingSuggestions).catch(() => {});
+    } else {
+      setBuildingSuggestions([]);
+    }
+  }, [formData.site_id]);
+
   useEffect(() => {
     if (initialCategories && initialCategories.length > 0) {
       setCategories(initialCategories);
@@ -261,6 +273,7 @@ const AssetModal = ({
         site_id: String(asset.site_id || ''),
         category_id: String(asset.category_id || ''),
         segment_id: asset.segment_id ? String(asset.segment_id) : '',
+        building: asset.building || '',
         asset_type: asset.asset_type || 'Aktif',
         brand: asset.brand || '',
         model: asset.model || '',
@@ -294,6 +307,7 @@ const AssetModal = ({
         site_id: defaultSiteId,
         category_id: defaultCatId,
         segment_id: segmentsList[0]?.id ? String(segmentsList[0].id) : '',
+        building: '',
         asset_type: 'Aktif',
         brand: '',
         model: '',
@@ -498,6 +512,7 @@ const AssetModal = ({
         site_id: parseInt(formData.site_id, 10),
         category_id: finalCategoryId,
         segment_id: finalSegmentId,
+        building: (formData.building || '').trim(),
         asset_type: formData.asset_type || 'Aktif',
         brand: formData.brand.trim(),
         model: formData.model.trim(),
@@ -906,7 +921,53 @@ const AssetModal = ({
               />
             </div>
 
-            {/* Row 4 - Left: Lokasi Detail / Rack */}
+            {/* Row 4 - Left: Gedung / Plot (sub-site grouping) */}
+            <div className="relative">
+              <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                Gedung / Plot / Area
+                <span className="ml-1 text-slate-500 font-normal">(opsional – pengelompokan dalam satu site)</span>
+              </label>
+              <input
+                type="text"
+                placeholder="misal: Gedung Pembibitan, Booth Kantin, Gerbang Utara"
+                value={formData.building}
+                onFocus={() => {
+                  if (formData.site_id) {
+                    getBuildingsBySite(formData.site_id).then(setBuildingSuggestions).catch(() => {});
+                  }
+                  setShowBuildingSuggestions(true);
+                }}
+                onBlur={() => setTimeout(() => setShowBuildingSuggestions(false), 200)}
+                onChange={(e) => {
+                  setFormData({ ...formData, building: e.target.value });
+                  setShowBuildingSuggestions(true);
+                }}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+              />
+              {/* Autocomplete dropdown */}
+              {showBuildingSuggestions && buildingSuggestions.length > 0 && (
+                <div className="absolute z-20 w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-xl overflow-hidden">
+                  {buildingSuggestions
+                    .filter(b => !formData.building || b.toLowerCase().includes(formData.building.toLowerCase()))
+                    .map((b, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onMouseDown={() => {
+                          setFormData(prev => ({ ...prev, building: b }));
+                          setShowBuildingSuggestions(false);
+                        }}
+                        className="w-full text-left px-3.5 py-2 text-xs text-slate-200 hover:bg-emerald-500/10 hover:text-emerald-300 flex items-center space-x-2 transition-colors"
+                      >
+                        <span className="text-emerald-400">🏢</span>
+                        <span>{b}</span>
+                      </button>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Row 4 - Right was Lokasi Detail, now shifted */}
             <div>
               <label className="text-xs font-semibold text-slate-300 block mb-1.5">
                 Lokasi Detail / Rack

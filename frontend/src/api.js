@@ -186,6 +186,11 @@ export const deleteAsset = async (id) => {
   return response.data;
 };
 
+export const getBuildingsBySite = async (siteId) => {
+  const response = await api.get('/assets/buildings', { params: { site_id: siteId } });
+  return response.data?.data || [];
+};
+
 export const importAssets = async (data) => {
   const response = await api.post('/assets/import', data);
   return response.data;

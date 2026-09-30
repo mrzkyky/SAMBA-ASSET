@@ -91,6 +91,7 @@ func SetupRouter() *gin.Engine {
 				assets.GET("", handlers.GetAssets)
 				assets.GET("/missing-sn-sites", handlers.GetMissingSNSites)
 				assets.GET("/export", handlers.ExportAssets)
+				assets.GET("/buildings", handlers.GetBuildingsBySite)
 				assets.GET("/:id", handlers.GetAssetByID)
 				assets.POST("", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.CreateAsset)
 				assets.POST("/import", middleware.RequireRoles("Super Admin", "Branch Admin"), handlers.ImportAssets)

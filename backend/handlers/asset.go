@@ -69,8 +69,8 @@ func GetAssets(c *gin.Context) {
 			Joins("LEFT JOIN categories ON categories.id = assets.category_id").
 			Joins("LEFT JOIN segments ON segments.id = assets.segment_id").
 			Where(
-				"LOWER(assets.serial_number) LIKE ? OR LOWER(assets.brand) LIKE ? OR LOWER(assets.model) LIKE ? OR LOWER(assets.location_detail) LIKE ? OR LOWER(assets.notes) LIKE ? OR LOWER(assets.asset_type) LIKE ? OR LOWER(assets.status) LIKE ? OR LOWER(assets.condition) LIKE ? OR LOWER(assets.ownership) LIKE ? OR LOWER(sites.site_name) LIKE ? OR LOWER(sites.partner_name) LIKE ? OR LOWER(branches.name) LIKE ? OR LOWER(branches.code) LIKE ? OR LOWER(categories.name) LIKE ? OR LOWER(segments.name) LIKE ?",
-				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+				"LOWER(assets.serial_number) LIKE ? OR LOWER(assets.brand) LIKE ? OR LOWER(assets.model) LIKE ? OR LOWER(assets.location_detail) LIKE ? OR LOWER(assets.building) LIKE ? OR LOWER(assets.notes) LIKE ? OR LOWER(assets.asset_type) LIKE ? OR LOWER(assets.status) LIKE ? OR LOWER(assets.condition) LIKE ? OR LOWER(assets.ownership) LIKE ? OR LOWER(sites.site_name) LIKE ? OR LOWER(sites.partner_name) LIKE ? OR LOWER(branches.name) LIKE ? OR LOWER(branches.code) LIKE ? OR LOWER(categories.name) LIKE ? OR LOWER(segments.name) LIKE ?",
+				searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
 			)
 	} else if branchID != "" {
 		// Only join sites if search hasn't already joined it
@@ -174,6 +174,21 @@ func GetAssetByID(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": asset})
+}
+
+// GetBuildingsBySite returns distinct non-empty building/plot names for a given site
+// Used for frontend autocomplete when adding/editing assets
+func GetBuildingsBySite(c *gin.Context) {
+	siteID := c.Query("site_id")
+	var buildings []string
+	query := config.DB.Model(&models.Asset{}).
+		Distinct("building").
+		Where("building != '' AND building IS NOT NULL")
+	if siteID != "" {
+		query = query.Where("site_id = ?", siteID)
+	}
+	query.Pluck("building", &buildings)
+	c.JSON(http.StatusOK, gin.H{"data": buildings})
 }
 
 // CreateAsset creates a new asset with multi-SN auto formatting
