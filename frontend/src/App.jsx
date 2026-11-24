@@ -21,6 +21,7 @@ import AuditLogView from './components/AuditLogView';
 import ImportAssetModal from './components/ImportAssetModal';
 import MissingSNTracker from './components/MissingSNTracker';
 import OfficeAssetManager from './components/OfficeAssetManager';
+import UpdateAnnouncementModal, { CURRENT_APP_VERSION } from './components/UpdateAnnouncementModal';
 
 import {
   getProfile,
@@ -56,6 +57,23 @@ function App() {
       return 'light';
     }
   });
+
+  // System Update Announcement Modal State (triggered once per major version per user)
+  const [showUpdateModal, setShowUpdateModal] = useState(() => {
+    try {
+      const lastSeenVersion = localStorage.getItem('samba_seen_version');
+      return lastSeenVersion !== CURRENT_APP_VERSION;
+    } catch {
+      return false;
+    }
+  });
+
+  const handleDismissUpdateModal = () => {
+    try {
+      localStorage.setItem('samba_seen_version', CURRENT_APP_VERSION);
+    } catch {}
+    setShowUpdateModal(false);
+  };
 
   // Sync theme class to <html> root element
   useEffect(() => {
@@ -561,6 +579,12 @@ function App() {
         onClose={() => setIsBASTModalOpen(false)}
         transfer={bastTransfer}
         asset={bastAsset}
+      />
+
+      {/* Major Release Announcement Modal (v3.0) */}
+      <UpdateAnnouncementModal
+        isOpen={showUpdateModal}
+        onClose={handleDismissUpdateModal}
       />
     </div>
   );

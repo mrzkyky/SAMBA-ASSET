@@ -185,8 +185,8 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
           {/* Top Branding Section */}
           <div className="relative z-10">
             <div className="flex items-center space-x-4 mb-8">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/95 dark:bg-[#1D332E] border-2 border-[#D9A441]/60 p-2 flex items-center justify-center shadow-xl shadow-[#112928]/40 shrink-0">
-                <img src={sambaStackLogo} alt="SAMBA Stack Logo" className="w-full h-full object-contain drop-shadow-sm" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/95 dark:bg-[#1D332E] border-2 border-[#D9A441]/60 p-2.5 flex items-center justify-center shadow-xl shadow-[#112928]/40 shrink-0">
+                <img src={sambaStackLogo} alt="SAMBA Stack Logo" className="w-full h-full object-contain drop-shadow-md scale-110" />
               </div>
               <div>
                 <div className="flex items-center space-x-2">
@@ -194,7 +194,7 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
                     SAMBA ASSET
                   </h1>
                   <span className="px-2 py-0.5 rounded text-[10px] font-black bg-[#D9A441]/20 text-[#D9A441] border border-[#D9A441]/40">
-                    v2.5
+                    v3.0
                   </span>
                 </div>
                 <p className="text-xs text-[#A0B0A8] font-medium">
