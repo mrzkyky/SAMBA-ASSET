@@ -15,7 +15,7 @@ import {
   X,
   Boxes,
 } from 'lucide-react';
-import sambaIcon from '../assets/samba-icon.png';
+import sambaSLogo from '../assets/samba-s-logo.png';
 
 const Sidebar = ({
   user,
@@ -159,15 +159,15 @@ const Sidebar = ({
         `}
       >
         {/* Header / Brand Area */}
-        <div className="h-16 flex items-center justify-between px-3.5 border-b border-[#245451] dark:border-[#355047] bg-[#143231]/80 dark:bg-[#11201D]/90 shrink-0">
+        <div className="h-16 flex items-center justify-between px-3 border-b border-[#245451] dark:border-[#355047] bg-[#143231]/80 dark:bg-[#11201D]/90 shrink-0">
           <div className="flex items-center space-x-2.5 overflow-hidden min-w-0">
-            <div className="w-9 h-9 rounded-xl overflow-hidden bg-white/10 border border-[#D9A441]/40 p-1 flex items-center justify-center shrink-0 shadow-sm">
-              <img src={sambaIcon} alt="SAMBA Logo" className="w-full h-full object-contain" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden bg-white/95 dark:bg-[#1D332E] border border-[#D9A441]/50 p-1 flex items-center justify-center shrink-0 shadow-md">
+              <img src={sambaSLogo} alt="SAMBA Logo" className="w-full h-full object-contain drop-shadow-sm" />
             </div>
             {(!collapsed || mobileOpen) && (
               <div className="min-w-0 flex-1">
                 <div className="flex items-center space-x-1.5">
-                  <span className="font-extrabold text-[13px] tracking-tight text-white dark:text-[#F1F5F2] truncate">
+                  <span className="font-black text-sm tracking-tight text-white dark:text-[#F1F5F2] truncate">
                     SAMBA ASSET
                   </span>
                   <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-[#D9A441]/20 text-[#D9A441] border border-[#D9A441]/40 shrink-0">

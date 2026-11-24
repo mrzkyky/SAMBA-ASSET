@@ -18,7 +18,8 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { login, registerUser, verifyEmailOTP, resendOTP } from '../api';
-import sambaIcon from '../assets/samba-icon.png';
+import sambaStackLogo from '../assets/samba-stack-logo.png';
+import sambaSLogo from '../assets/samba-s-logo.png';
 
 const LoginModal = ({ isOpen, onLoginSuccess }) => {
   const [mode, setMode] = useState('login'); // 'login' | 'register' | 'verify_otp'
@@ -183,9 +184,9 @@ const LoginModal = ({ isOpen, onLoginSuccess }) => {
 
           {/* Top Branding Section */}
           <div className="relative z-10">
-            <div className="flex items-center space-x-3.5 mb-8">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 border border-[#D9A441]/50 p-2 flex items-center justify-center shadow-xl shadow-[#112928]/40">
-                <img src={sambaIcon} alt="SAMBA Logo" className="w-full h-full object-contain" />
+            <div className="flex items-center space-x-4 mb-8">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/95 dark:bg-[#1D332E] border-2 border-[#D9A441]/60 p-2 flex items-center justify-center shadow-xl shadow-[#112928]/40 shrink-0">
+                <img src={sambaStackLogo} alt="SAMBA Stack Logo" className="w-full h-full object-contain drop-shadow-sm" />
               </div>
               <div>
                 <div className="flex items-center space-x-2">
