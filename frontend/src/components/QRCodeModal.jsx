@@ -183,7 +183,7 @@ const QRCodeModal = ({ isOpen, onClose, asset, branches = [] }) => {
         {/* Modal Header */}
         <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between no-print">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-[#0F766E]/20">
               <QrCode className="w-5 h-5" />
             </div>
             <div>
@@ -204,7 +204,7 @@ const QRCodeModal = ({ isOpen, onClose, asset, branches = [] }) => {
               onClick={() => setShowConfig(!showConfig)}
               className={`p-1.5 rounded-xl border transition-colors flex items-center space-x-1.5 text-xs px-2.5 font-medium ${
                 showConfig
-                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                  ? 'bg-cyan-500/20 text-cyan-300 border-[#0F766E]/40'
                   : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:text-white hover:bg-slate-800'
               }`}
             >

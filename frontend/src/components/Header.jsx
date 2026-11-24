@@ -82,27 +82,27 @@ const Header = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-sm dark:shadow-2xl transition-colors duration-200">
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#142522]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-[#355047] shadow-sm dark:shadow-2xl transition-colors duration-200">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         
         {/* Top Header Row: Logo/Title, Theme Switcher & User Profile */}
-        <div className="py-2.5 sm:py-3 flex items-center justify-between gap-2 border-b border-slate-200/60 dark:border-slate-800/60">
+        <div className="py-2.5 sm:py-3 flex items-center justify-between gap-2 border-b border-slate-200/60 dark:border-[#355047]">
           
           {/* Logo & Title */}
           <div className="flex items-center space-x-2.5 min-w-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-md shadow-cyan-500/20 border border-cyan-500/30 bg-white dark:bg-slate-950 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-md shadow-cyan-500/20 border border-[#0F766E]/30 bg-white dark:bg-[#142522] flex items-center justify-center shrink-0">
               <img src={sambaIcon} alt="SAMBA Logo" className="w-full h-full object-contain" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center space-x-1.5 sm:space-x-2">
-                <h1 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight truncate">
+                <h1 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-[#F1F5F2] tracking-tight truncate">
                   SAMBA ASSET
                 </h1>
-                <span className="px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 shrink-0">
+                <span className="px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-cyan-500/10 text-[#0F766E] dark:text-[#8DD6BB] border border-[#0F766E]/20 shrink-0">
                   v2.5
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+              <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-[#829A8F] font-medium truncate">
                 System Asset Management
               </p>
             </div>
@@ -115,7 +115,7 @@ const Header = ({
               <button
                 type="button"
                 onClick={toggleTheme}
-                className="p-2 rounded-xl text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-amber-300 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-all shrink-0 active:scale-95 shadow-sm"
+                className="p-2 rounded-xl text-slate-600 hover:text-amber-500 hover:bg-slate-100 dark:text-[#829A8F] dark:hover:text-amber-300 dark:hover:bg-slate-900 border border-slate-200 dark:border-[#355047] transition-all shrink-0 active:scale-95 shadow-sm"
                 title={theme === 'dark' ? 'Ganti ke Mode Putih Minimalis' : 'Ganti ke Mode Gelap'}
                 aria-label="Toggle Theme"
               >
@@ -129,13 +129,13 @@ const Header = ({
 
             {user && (
               <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
-                <div className="flex items-center space-x-1.5 sm:space-x-2 bg-slate-50 dark:bg-slate-900 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 max-w-[150px] sm:max-w-none shadow-sm">
-                  <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                <div className="flex items-center space-x-1.5 sm:space-x-2 bg-slate-50 dark:bg-[#172A27] px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-slate-200 dark:border-[#355047] max-w-[150px] sm:max-w-none shadow-sm">
+                  <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0F766E] dark:text-[#8DD6BB] shrink-0" />
                   <div className="text-left min-w-0">
-                    <div className="text-[11px] sm:text-xs font-bold text-slate-900 dark:text-white leading-tight truncate">
+                    <div className="text-[11px] sm:text-xs font-bold text-slate-900 dark:text-[#F1F5F2] leading-tight truncate">
                       {user.username}
                     </div>
-                    <div className="text-[9px] sm:text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold leading-tight truncate">
+                    <div className="text-[9px] sm:text-[10px] text-[#0F766E] dark:text-[#8DD6BB] font-semibold leading-tight truncate">
                       {user.role} {user.branch ? `(${user.branch.code})` : ''}
                     </div>
                   </div>
@@ -155,7 +155,7 @@ const Header = ({
         </div>
 
         {/* Search Bar & Action Buttons Row */}
-        <div className="py-2.5 flex items-center gap-2 border-b border-slate-200/50 dark:border-slate-800/40">
+        <div className="py-2.5 flex items-center gap-2 border-b border-slate-200/50 dark:border-[#355047]">
           <div className="relative flex-1 min-w-0">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
@@ -163,7 +163,7 @@ const Header = ({
               placeholder="Cari SN, Merek, Site, Model..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-all shadow-sm"
+              className="w-full bg-slate-50 dark:bg-[#172A27] border border-slate-200 dark:border-[#355047] rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-[#F1F5F2] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-[#0F766E] transition-all shadow-sm"
             />
           </div>
 
@@ -182,7 +182,7 @@ const Header = ({
           <button
             type="button"
             onClick={handleExportCSV}
-            className="p-2 sm:px-3 sm:py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-slate-700 text-xs font-semibold flex items-center space-x-1.5 transition-all shrink-0 active:scale-95 shadow-sm"
+            className="p-2 sm:px-3 sm:py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 dark:bg-[#1D332E] dark:hover:bg-[#2B4840] dark:text-[#B8CCC3] dark:border-[#355047] text-xs font-semibold flex items-center space-x-1.5 transition-all shrink-0 active:scale-95 shadow-sm"
             title="Unduh Laporan CSV"
           >
             <Download className="w-4 h-4" />
@@ -249,8 +249,8 @@ const Header = ({
             onClick={() => setActiveTab('hierarchy')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
               activeTab === 'hierarchy'
-                ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                ? 'bg-[#DDF3EC] text-[#0F766E] border border-[#BBE5D7] shadow-sm dark:bg-[#31584C]/40 dark:text-[#8DD6BB] dark:border-[#0F766E]/30'
+                : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
             }`}
           >
             <Layers className="w-4 h-4" />
@@ -262,8 +262,8 @@ const Header = ({
             onClick={() => setActiveTab('master')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
               activeTab === 'master'
-                ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                ? 'bg-[#DDF3EC] text-[#0F766E] border border-[#BBE5D7] shadow-sm dark:bg-[#31584C]/40 dark:text-[#8DD6BB] dark:border-[#0F766E]/30'
+                : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
             }`}
           >
             <Table className="w-4 h-4" />
@@ -276,8 +276,8 @@ const Header = ({
             onClick={() => setActiveTab('office_assets')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
               activeTab === 'office_assets'
-                ? 'bg-blue-50 text-blue-700 border border-blue-300 shadow-sm dark:bg-blue-600/20 dark:text-blue-400 dark:border-blue-500/40'
-                : 'text-slate-600 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-900'
+                ? 'bg-blue-50 text-blue-700 border border-blue-300 shadow-sm dark:bg-blue-600/20 dark:text-[#8DD6BB] dark:border-[#355047]'
+                : 'text-slate-600 dark:text-[#829A8F] hover:text-blue-700 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-900'
             }`}
           >
             <Building className="w-4 h-4 text-blue-500" />
@@ -291,7 +291,7 @@ const Header = ({
             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
               activeTab === 'missing_sn'
                 ? 'bg-amber-50 text-amber-800 border border-amber-300 shadow-sm dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/40'
-                : 'text-slate-600 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-slate-100 dark:hover:bg-slate-900'
+                : 'text-slate-600 dark:text-[#829A8F] hover:text-amber-700 dark:hover:text-amber-300 hover:bg-slate-100 dark:hover:bg-slate-900'
             }`}
           >
             <AlertTriangle className="w-4 h-4 text-amber-500 dark:text-amber-400" />
@@ -308,8 +308,8 @@ const Header = ({
             onClick={() => setActiveTab('transfers')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
               activeTab === 'transfers'
-                ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                ? 'bg-[#DDF3EC] text-[#0F766E] border border-[#BBE5D7] shadow-sm dark:bg-[#31584C]/40 dark:text-[#8DD6BB] dark:border-[#0F766E]/30'
+                : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
             }`}
           >
             <ArrowRightLeft className="w-4 h-4" />
@@ -324,7 +324,7 @@ const Header = ({
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
                 activeTab === 'audit'
                   ? 'bg-amber-50 text-amber-800 border border-amber-300 shadow-sm dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/30'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                  : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
               }`}
             >
               <ShieldCheck className="w-4 h-4 text-amber-500 dark:text-amber-400" />
@@ -339,8 +339,8 @@ const Header = ({
               onClick={() => setActiveTab('sites')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
                 activeTab === 'sites'
-                  ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                  ? 'bg-[#DDF3EC] text-[#0F766E] border border-[#BBE5D7] shadow-sm dark:bg-[#31584C]/40 dark:text-[#8DD6BB] dark:border-[#0F766E]/30'
+                  : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
               }`}
             >
               <MapPin className="w-4 h-4" />
@@ -355,8 +355,8 @@ const Header = ({
               onClick={() => setActiveTab('categories')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
                 activeTab === 'categories'
-                  ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                  ? 'bg-[#DDF3EC] text-[#0F766E] border border-[#BBE5D7] shadow-sm dark:bg-[#31584C]/40 dark:text-[#8DD6BB] dark:border-[#0F766E]/30'
+                  : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
               }`}
             >
               <Tag className="w-4 h-4" />
@@ -373,8 +373,8 @@ const Header = ({
                   onClick={() => setActiveTab('users')}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
                     activeTab === 'users'
-                      ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                      ? 'bg-[#DDF3EC] text-[#0F766E] border border-[#BBE5D7] shadow-sm dark:bg-[#31584C]/40 dark:text-[#8DD6BB] dark:border-[#0F766E]/30'
+                      : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
                   }`}
                 >
                   <Users className="w-4 h-4" />
@@ -387,8 +387,8 @@ const Header = ({
                 onClick={() => setActiveTab('branches')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
                   activeTab === 'branches'
-                    ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                    ? 'bg-[#DDF3EC] text-[#0F766E] border border-[#BBE5D7] shadow-sm dark:bg-[#31584C]/40 dark:text-[#8DD6BB] dark:border-[#0F766E]/30'
+                    : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
                 }`}
               >
                 <Building2 className="w-4 h-4" />
@@ -401,7 +401,7 @@ const Header = ({
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 active:scale-95 ${
                   activeTab === 'segments'
                     ? 'bg-violet-50 text-violet-700 border border-violet-200 shadow-sm dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-500/30'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                    : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
                 }`}
               >
                 <Layers className="w-4 h-4" />

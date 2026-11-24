@@ -136,7 +136,7 @@ const SearchableSelect = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none flex items-center justify-between transition-all hover:border-slate-700 text-left select-none"
+        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-[#0F766E] focus:outline-none flex items-center justify-between transition-all hover:border-slate-700 text-left select-none"
       >
         <span className={selectedOption ? 'text-slate-100 font-semibold truncate' : 'text-slate-500 truncate'}>
           {selectedOption ? selectedOption.label : placeholder}
@@ -157,7 +157,7 @@ const SearchableSelect = ({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-7 py-1.5 text-xs text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-7 py-1.5 text-xs text-white placeholder-slate-500 focus:border-[#0F766E] focus:outline-none"
               />
               {searchTerm && (
                 <button
@@ -195,7 +195,7 @@ const SearchableSelect = ({
                     onMouseEnter={() => setHighlightedIndex(idx)}
                     className={`px-3 py-2 rounded-lg text-xs cursor-pointer flex items-center justify-between transition-colors ${
                       isSelected
-                        ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
+                        ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-[#0F766E]/30'
                         : isHighlighted
                         ? 'bg-slate-800/90 text-white font-semibold ring-1 ring-cyan-500/40 shadow-sm'
                         : 'text-slate-300 hover:bg-slate-800 hover:text-white'

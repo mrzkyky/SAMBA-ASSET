@@ -561,21 +561,21 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
       )}
 
       {/* Header Banner & Title */}
-      <div className="p-5 sm:p-6 bg-gradient-to-r from-blue-950/40 via-slate-900 to-slate-900 dark:from-blue-950/60 dark:via-slate-900 dark:to-slate-950 rounded-2xl border border-blue-500/20 dark:border-blue-500/30 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-5 sm:p-6 bg-gradient-to-r from-blue-950/40 via-slate-900 to-slate-900 dark:from-blue-950/60 dark:via-slate-900 dark:to-slate-950 rounded-2xl border border-blue-500/20 dark:border-[#355047] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-start sm:items-center space-x-3.5">
           <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/25 shrink-0">
             <Building className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center space-x-2 flex-wrap gap-1">
-              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-[#F1F5F2] tracking-tight">
                 Aset Internal Perusahaan
               </h2>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-500/15 text-blue-600 dark:text-[#8DD6BB] border border-blue-500/30 uppercase tracking-wider">
                 Infrastruktur Kantor
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-[#829A8F] mt-0.5">
               Inventaris perangkat server, jaringan, dan workstation di Kantor Pusat, Cabang Utama, dan Unit Kantor
             </p>
           </div>
@@ -588,7 +588,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
               <button
                 type="button"
                 onClick={handleOpenCreateUnit}
-                className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-300 dark:border-slate-700 flex items-center space-x-1.5 transition-all active:scale-95 shadow-xs"
+                className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1D332E] dark:hover:bg-[#2B4840] text-slate-700 dark:text-[#F1F5F2] text-xs font-bold border border-slate-300 dark:border-[#355047] flex items-center space-x-1.5 transition-all active:scale-95 shadow-xs"
               >
                 <Building className="w-3.5 h-3.5 text-blue-500" />
                 <span>+ Unit Kantor</span>
@@ -596,7 +596,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
               <button
                 type="button"
                 onClick={() => handleOpenCreateAsset()}
-                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-blue-600/25 flex items-center space-x-1.5 transition-all active:scale-95"
+                className="px-3.5 py-2 rounded-xl bg-[#0F766E] hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-blue-600/25 flex items-center space-x-1.5 transition-all active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 <span>+ Tambah Perangkat</span>
@@ -607,7 +607,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
             type="button"
             onClick={loadAllData}
             disabled={loading}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-all active:scale-95"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1D332E] dark:hover:bg-[#2B4840] text-slate-600 dark:text-[#B8CCC3] border border-slate-300 dark:border-[#355047] transition-all active:scale-95"
             title="Muat Ulang Data"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-cyan-400' : ''}`} />
@@ -619,57 +619,57 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
         {/* Card 1: Total Aset Internal */}
-        <div className="p-4 bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+        <div className="p-4 bg-white dark:bg-[#1D332E] rounded-2xl border border-slate-200 dark:border-[#355047] shadow-sm relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-[#829A8F] uppercase tracking-wider">
               Total Aset Internal
             </span>
             <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 border border-blue-500/20">
               <HardDrive className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-[#F1F5F2]">
             {stats?.total_office_assets || 0}
-            <span className="text-xs font-normal text-slate-500 dark:text-slate-400 ml-1.5">Unit</span>
+            <span className="text-xs font-normal text-slate-500 dark:text-[#829A8F] ml-1.5">Unit</span>
           </div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center space-x-1">
+          <div className="text-[11px] text-slate-500 dark:text-[#829A8F] mt-1 flex items-center space-x-1">
             <span>Tersebar di</span>
-            <strong className="text-slate-700 dark:text-slate-200">{stats?.total_office_units || 0} Kantor Unit</strong>
+            <strong className="text-slate-700 dark:text-[#F1F5F2]">{stats?.total_office_units || 0} Kantor Unit</strong>
           </div>
         </div>
 
         {/* Card 2: Perangkat Server & Komputasi */}
-        <div className="p-4 bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+        <div className="p-4 bg-white dark:bg-[#1D332E] rounded-2xl border border-slate-200 dark:border-[#355047] shadow-sm relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-[#829A8F] uppercase tracking-wider">
               Server & Komputasi
             </span>
-            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
+            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-500 border border-[#0F766E]/20">
               <Server className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-[#F1F5F2]">
             {stats?.server_assets || 0}
-            <span className="text-xs font-normal text-slate-500 dark:text-slate-400 ml-1.5">Unit</span>
+            <span className="text-xs font-normal text-slate-500 dark:text-[#829A8F] ml-1.5">Unit</span>
           </div>
-          <div className="text-[11px] text-cyan-600 dark:text-cyan-400 font-semibold mt-1">
+          <div className="text-[11px] text-[#0F766E] dark:text-[#8DD6BB] font-semibold mt-1">
             Server Fisik & Node Cabang
           </div>
         </div>
 
         {/* Card 3: Jaringan Kantor */}
-        <div className="p-4 bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+        <div className="p-4 bg-white dark:bg-[#1D332E] rounded-2xl border border-slate-200 dark:border-[#355047] shadow-sm relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-[#829A8F] uppercase tracking-wider">
               Jaringan Kantor
             </span>
             <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500 border border-purple-500/20">
               <Network className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-[#F1F5F2]">
             {stats?.network_assets || 0}
-            <span className="text-xs font-normal text-slate-500 dark:text-slate-400 ml-1.5">Unit</span>
+            <span className="text-xs font-normal text-slate-500 dark:text-[#829A8F] ml-1.5">Unit</span>
           </div>
           <div className="text-[11px] text-purple-600 dark:text-purple-400 font-semibold mt-1">
             Switch Core, Router & AP
@@ -677,9 +677,9 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
         </div>
 
         {/* Card 4: Status Operasional */}
-        <div className="p-4 bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+        <div className="p-4 bg-white dark:bg-[#1D332E] rounded-2xl border border-slate-200 dark:border-[#355047] shadow-sm relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-[#829A8F] uppercase tracking-wider">
               Status Perangkat
             </span>
             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
@@ -688,12 +688,12 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
           </div>
           <div className="flex items-baseline space-x-2">
             <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{stats?.active_assets || 0}</span>
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Aktif</span>
+            <span className="text-xs text-slate-500 dark:text-[#829A8F] font-medium">Aktif</span>
             <span className="text-slate-400">•</span>
             <span className="text-base font-bold text-amber-500">{stats?.spare_assets || 0}</span>
             <span className="text-[11px] text-slate-500">Spare</span>
           </div>
-          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 flex items-center space-x-2">
+          <div className="text-[10px] text-slate-500 dark:text-[#829A8F] mt-1 flex items-center space-x-2">
             <span>Maintenance: <strong className="text-amber-500">{stats?.maintenance_assets || 0}</strong></span>
             <span>•</span>
             <span>Rusak: <strong className="text-rose-500">{stats?.damaged_assets || 0}</strong></span>
@@ -703,17 +703,17 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
       </div>
 
       {/* FILTER & VIEW SELECTOR BAR */}
-      <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-4 bg-white dark:bg-[#172A27] rounded-2xl border border-slate-200 dark:border-[#355047] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
         
         {/* Left: View Tabs */}
-        <div className="flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800/80 shrink-0">
+        <div className="flex items-center space-x-1.5 bg-slate-100 dark:bg-[#142522] p-1 rounded-xl border border-slate-200 dark:border-[#355047] shrink-0">
           <button
             type="button"
             onClick={() => setActiveSubTab('hierarchy')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all ${
               activeSubTab === 'hierarchy'
                 ? 'bg-blue-600 text-white shadow-md'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -725,7 +725,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all ${
               activeSubTab === 'table'
                 ? 'bg-blue-600 text-white shadow-md'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                : 'text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <HardDrive className="w-3.5 h-3.5" />
@@ -742,7 +742,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
               setSelectedBranchId(e.target.value);
               setSelectedUnitId('');
             }}
-            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 font-semibold focus:outline-none"
+            className="bg-slate-50 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-[#F1F5F2] font-semibold focus:outline-none"
           >
             <option value="">Semua Cabang & Pusat</option>
             <option value="pusat">🏢 Kantor Pusat (Head Office)</option>
@@ -757,7 +757,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
           <select
             value={selectedUnitId}
             onChange={(e) => setSelectedUnitId(e.target.value)}
-            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 font-semibold focus:outline-none"
+            className="bg-slate-50 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-[#F1F5F2] font-semibold focus:outline-none"
           >
             <option value="">Semua Unit Kantor</option>
             {unitsList.map((u) => (
@@ -771,7 +771,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
             <button
               type="button"
               onClick={handleExportCSV}
-              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold flex items-center space-x-1.5 transition-all"
+              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1D332E] dark:hover:bg-[#2B4840] text-slate-700 dark:text-[#F1F5F2] font-bold flex items-center space-x-1.5 transition-all"
               title="Unduh CSV"
             >
               <Download className="w-3.5 h-3.5" />
@@ -788,9 +788,9 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
       {activeSubTab === 'hierarchy' && (
         <div className="space-y-4">
           {hierarchyData.length === 0 ? (
-            <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500">
+            <div className="p-12 text-center bg-white dark:bg-[#172A27] rounded-2xl border border-slate-200 dark:border-[#355047] text-slate-500">
               <Building className="w-10 h-10 mx-auto mb-2 opacity-40 text-blue-500" />
-              <p className="font-bold text-slate-700 dark:text-slate-300">Belum ada data unit kantor atau perangkat tercatat.</p>
+              <p className="font-bold text-slate-700 dark:text-[#B8CCC3]">Belum ada data unit kantor atau perangkat tercatat.</p>
               <p className="text-xs mt-1">Mulai dengan menambahkan Unit Kantor atau klik tombol "+ Unit Kantor" di atas.</p>
             </div>
           ) : (
@@ -801,12 +801,12 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
               return (
                 <div
                   key={gIdx}
-                  className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+                  className="bg-white dark:bg-[#172A27] rounded-2xl border border-slate-200 dark:border-[#355047] shadow-sm overflow-hidden"
                 >
                   {/* Branch Level Header */}
                   <div
                     onClick={() => toggleNode(branchKey)}
-                    className="p-4 bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-950 transition-colors select-none"
+                    className="p-4 bg-slate-50 dark:bg-[#142522]/80 border-b border-slate-200 dark:border-[#355047] flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-950 transition-colors select-none"
                   >
                     <div className="flex items-center space-x-3">
                       <button type="button" className="text-slate-400">
@@ -817,21 +817,21 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                          <h3 className="text-sm font-black text-slate-900 dark:text-[#F1F5F2]">
                             {branchGroup.branch_name}
                           </h3>
-                          <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                          <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-[#1D332E] text-slate-700 dark:text-[#B8CCC3]">
                             {branchGroup.branch_code}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        <p className="text-[11px] text-slate-500 dark:text-[#829A8F]">
                           {branchGroup.units?.length || 0} Unit Kantor Tercatat
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center space-x-2">
-                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      <span className="text-xs font-semibold text-slate-500 dark:text-[#829A8F]">
                         {branchGroup.units?.reduce((acc, u) => acc + (u.assets?.length || 0), 0)} Perangkat
                       </span>
                     </div>
@@ -852,25 +852,25 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                           return (
                             <div
                               key={unit.id}
-                              className="rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 overflow-hidden"
+                              className="rounded-xl border border-slate-200 dark:border-[#355047] bg-slate-50/50 dark:bg-[#142522]/40 overflow-hidden"
                             >
                               {/* Office Unit Header */}
                               <div
                                 onClick={() => toggleNode(unitKey)}
-                                className="p-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors select-none"
+                                className="p-3.5 bg-white dark:bg-[#172A27] border-b border-slate-200 dark:border-[#355047] flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-[#2B4840]/50 transition-colors select-none"
                               >
                                 <div className="flex items-center space-x-2.5">
                                   <button type="button" className="text-slate-400">
                                     {isUnitExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                                   </button>
-                                  <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+                                  <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-cyan-500/10 text-[#0F766E] dark:text-[#8DD6BB] border border-[#0F766E]/20">
                                     {unit.unit_type}
                                   </span>
                                   <div>
-                                    <h4 className="text-xs font-extrabold text-slate-900 dark:text-white">
+                                    <h4 className="text-xs font-extrabold text-slate-900 dark:text-[#F1F5F2]">
                                       {unit.unit_name}
                                     </h4>
-                                    <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center space-x-2">
+                                    <div className="text-[10px] text-slate-500 dark:text-[#829A8F] flex items-center space-x-2">
                                       {unit.code && <span>Kode: <strong className="font-mono">{unit.code}</strong></span>}
                                       {unit.address && <span>• {unit.address}</span>}
                                       {unit.pic_name && <span>• PIC: {unit.pic_name}</span>}
@@ -879,7 +879,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                                 </div>
 
                                 <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-[#1D332E] text-slate-600 dark:text-[#B8CCC3]">
                                     {assets.length} Perangkat
                                   </span>
                                   {canEdit && (
@@ -934,32 +934,32 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                                       {assets.map((asset) => (
                                         <div
                                           key={asset.id}
-                                          className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between gap-2.5 hover:border-blue-500/30 transition-colors"
+                                          className="p-3 bg-white dark:bg-[#172A27] rounded-xl border border-slate-200 dark:border-[#355047] shadow-xs flex flex-col justify-between gap-2.5 hover:border-blue-500/30 transition-colors"
                                         >
                                           <div className="flex items-center justify-between gap-2">
                                             <div className="flex items-start space-x-2.5 min-w-0">
-                                            <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0 mt-0.5">
+                                            <div className="p-2 rounded-lg bg-slate-100 dark:bg-[#1D332E] shrink-0 mt-0.5">
                                               {renderAssetTypeIcon(asset.asset_type)}
                                             </div>
                                             <div className="min-w-0">
                                               <div className="flex items-center space-x-1.5 truncate">
-                                                <h5 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                                <h5 className="text-xs font-bold text-slate-900 dark:text-[#F1F5F2] truncate">
                                                   {asset.brand} - {asset.model}
                                                 </h5>
-                                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-100 dark:bg-[#1D332E] text-slate-600 dark:text-[#B8CCC3]">
                                                   {asset.asset_type}
                                                 </span>
                                               </div>
                                               
-                                              <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center space-x-1.5 mt-0.5 flex-wrap">
-                                                <span>SN: <strong className="font-mono text-slate-700 dark:text-slate-300">{asset.serial_number}</strong></span>
+                                              <div className="text-[10px] text-slate-500 dark:text-[#829A8F] flex items-center space-x-1.5 mt-0.5 flex-wrap">
+                                                <span>SN: <strong className="font-mono text-slate-700 dark:text-[#B8CCC3]">{asset.serial_number}</strong></span>
                                                 {asset.location_detail && <span>• 📍 {asset.location_detail}</span>}
                                               </div>
 
                                               {/* Optional IP & VLAN note badge */}
                                               {asset.ip_address && (
                                                 <div className="flex items-center space-x-1.5 mt-1">
-                                                  <span className="font-mono text-[9px] font-bold text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-1.5 py-0.2 rounded border border-cyan-500/20">
+                                                  <span className="font-mono text-[9px] font-bold text-[#0F766E] dark:text-[#8DD6BB] bg-cyan-500/10 px-1.5 py-0.2 rounded border border-[#0F766E]/20">
                                                     IP: {asset.ip_address}
                                                   </span>
                                                   <button
@@ -984,7 +984,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                                                   : asset.status === 'Maintenance'
                                                   ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30'
                                                   : asset.status === 'Spare' || asset.status?.includes('Spare')
-                                                  ? 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30'
+                                                  ? 'bg-blue-500/15 text-blue-600 dark:text-[#8DD6BB] border border-blue-500/30'
                                                   : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
                                               }`}
                                             >
@@ -1025,7 +1025,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
 
                                         {/* Notes Display */}
                                         {asset.notes && (
-                                          <div className="text-[10.5px] italic text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 px-2.5 py-1.5 rounded-lg whitespace-pre-wrap break-words leading-relaxed">
+                                          <div className="text-[10.5px] italic text-slate-500 dark:text-[#829A8F] bg-slate-50 dark:bg-[#142522]/70 border border-slate-200 dark:border-[#355047] px-2.5 py-1.5 rounded-lg whitespace-pre-wrap break-words leading-relaxed">
                                             "{asset.notes}"
                                           </div>
                                         )}
@@ -1052,10 +1052,10 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
       {/* VIEW 2: TABEL MASTER ASET KANTOR                                          */}
       {/* ========================================================================= */}
       {activeSubTab === 'table' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-[#172A27] rounded-2xl border border-slate-200 dark:border-[#355047] shadow-sm overflow-hidden">
           
           {/* Table Filters Header */}
-          <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div className="p-4 border-b border-slate-200 dark:border-[#355047] flex flex-wrap items-center justify-between gap-3">
             <div className="relative flex-1 min-w-[220px]">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
@@ -1066,7 +1066,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   setCurrentPage(1);
                 }}
                 placeholder="Cari brand, model, SN, IP Address, lokasi..."
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
+                className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-800 dark:text-[#F1F5F2] focus:outline-none"
               />
             </div>
 
@@ -1077,7 +1077,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   setSelectedAssetType(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 font-semibold focus:outline-none"
+                className="bg-slate-50 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] rounded-xl px-2.5 py-1.5 text-xs text-slate-700 dark:text-[#B8CCC3] font-semibold focus:outline-none"
               >
                 <option value="">Semua Tipe Perangkat</option>
                 {ASSET_TYPE_OPTIONS.map((t) => (
@@ -1093,7 +1093,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   setSelectedStatus(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 font-semibold focus:outline-none"
+                className="bg-slate-50 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] rounded-xl px-2.5 py-1.5 text-xs text-slate-700 dark:text-[#B8CCC3] font-semibold focus:outline-none"
               >
                 <option value="">Semua Status</option>
                 {STATUS_OPTIONS.map((s) => (
@@ -1107,8 +1107,8 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
 
           {/* Table Content */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase font-semibold border-b border-slate-200 dark:border-slate-800">
+            <table className="w-full text-left text-xs text-slate-700 dark:text-[#B8CCC3]">
+              <thead className="bg-slate-50 dark:bg-[#142522] text-slate-500 uppercase font-semibold border-b border-slate-200 dark:border-[#355047]">
                 <tr>
                   <th className="py-3 px-4">Unit Kantor</th>
                   <th className="py-3 px-4">Perangkat & Tipe</th>
@@ -1118,7 +1118,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   <th className="py-3 px-4 text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-200 dark:divide-[#355047]">
                 {assetsData.data?.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-slate-500">
@@ -1127,9 +1127,9 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   </tr>
                 ) : (
                   assetsData.data?.map((asset) => (
-                    <tr key={asset.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                    <tr key={asset.id} className="hover:bg-slate-50 dark:hover:bg-[#2B4840]/40">
                       <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 dark:text-white">
+                        <div className="font-bold text-slate-900 dark:text-[#F1F5F2]">
                           {asset.office_unit?.unit_name || '-'}
                         </div>
                         <div className="text-[10px] text-slate-500 flex items-center space-x-1">
@@ -1141,11 +1141,11 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
 
                       <td className="py-3 px-4">
                         <div className="flex items-center space-x-2">
-                          <div className="p-1 rounded bg-slate-100 dark:bg-slate-800">
+                          <div className="p-1 rounded bg-slate-100 dark:bg-[#1D332E]">
                             {renderAssetTypeIcon(asset.asset_type)}
                           </div>
                           <div>
-                            <div className="font-black text-slate-900 dark:text-white">
+                            <div className="font-black text-slate-900 dark:text-[#F1F5F2]">
                               {asset.brand} - {asset.model}
                             </div>
                             <div className="text-[10px] text-slate-500">{asset.asset_type}</div>
@@ -1159,7 +1159,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                       </td>
 
                       <td className="py-3 px-4">
-                        <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                        <span className="font-mono font-bold text-slate-800 dark:text-[#F1F5F2]">
                           {asset.serial_number}
                         </span>
                         <div className="text-[10px] text-slate-500">
@@ -1170,7 +1170,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                       <td className="py-3 px-4">
                         {asset.ip_address ? (
                           <div className="flex items-center space-x-1">
-                            <span className="font-mono text-[10px] font-bold text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-1.5 py-0.2 rounded border border-cyan-500/20">
+                            <span className="font-mono text-[10px] font-bold text-[#0F766E] dark:text-[#8DD6BB] bg-cyan-500/10 px-1.5 py-0.2 rounded border border-[#0F766E]/20">
                               {asset.ip_address}
                             </span>
                             <button
@@ -1199,7 +1199,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                                 : asset.status === 'Maintenance'
                                 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30'
                                 : asset.status === 'Spare' || asset.status?.includes('Spare')
-                                ? 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30'
+                                ? 'bg-blue-500/15 text-blue-600 dark:text-[#8DD6BB] border border-blue-500/30'
                                 : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
                             }`}
                           >
@@ -1216,7 +1216,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                           <button
                             type="button"
                             onClick={() => handlePrintQRCode(asset)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-slate-100 dark:hover:bg-[#2B4840] transition-colors"
                             title="Cetak Stiker QR Code"
                           >
                             <QrCode className="w-3.5 h-3.5" />
@@ -1227,7 +1227,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditAsset(asset)}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-[#2B4840] transition-colors"
                                 title="Edit Perangkat"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
@@ -1235,7 +1235,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                               <button
                                 type="button"
                                 onClick={() => handleDeleteAsset(asset.id, `${asset.brand} ${asset.model}`)}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-[#2B4840] transition-colors"
                                 title="Hapus Perangkat"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1253,7 +1253,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
 
           {/* Pagination Controls */}
           {assetsData.total_pages > 1 && (
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+            <div className="p-4 border-t border-slate-200 dark:border-[#355047] flex items-center justify-between text-xs text-slate-500">
               <span>
                 Halaman {assetsData.page} dari {assetsData.total_pages} (Total {assetsData.total} perangkat)
               </span>
@@ -1262,7 +1262,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   type="button"
                   disabled={currentPage <= 1}
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 disabled:opacity-40"
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#1D332E] disabled:opacity-40"
                 >
                   Sebelumnya
                 </button>
@@ -1270,7 +1270,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   type="button"
                   disabled={currentPage >= assetsData.total_pages}
                   onClick={() => setCurrentPage((p) => p + 1)}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 disabled:opacity-40"
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#1D332E] disabled:opacity-40"
                 >
                   Selanjutnya
                 </button>
@@ -1285,16 +1285,16 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
       {/* ========================================================================= */}
       {isAssetModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
-          <div className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in duration-200">
+          <div className="w-full max-w-2xl bg-white dark:bg-[#172A27] border border-slate-200 dark:border-[#355047] rounded-2xl shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in duration-200">
             
             {/* Modal Header */}
-            <div className="p-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="p-4 bg-slate-50 dark:bg-[#142522] border-b border-slate-200 dark:border-[#355047] flex items-center justify-between">
               <div className="flex items-center space-x-2.5">
                 <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 border border-blue-500/20">
                   <Server className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-[#F1F5F2]">
                     {editingAsset ? `Edit Perangkat: ${editingAsset.brand} - ${editingAsset.model}` : 'Tambah Perangkat Internal Kantor'}
                   </h3>
                   <p className="text-[11px] text-slate-500">
@@ -1323,14 +1323,14 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                 
                 {/* Office Unit */}
                 <div className="sm:col-span-2">
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                  <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                     Lokasi Unit Kantor *
                   </label>
                   <select
                     required
                     value={assetFormData.office_unit_id}
                     onChange={(e) => setAssetFormData({ ...assetFormData, office_unit_id: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] font-medium focus:outline-none"
                   >
                     <option value="">-- Pilih Unit Kantor --</option>
                     {unitsList.map((u) => (
@@ -1343,7 +1343,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
 
                 {/* Asset Type */}
                 <div>
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                  <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                     Tipe / Kategori Perangkat *
                   </label>
                   <select
@@ -1358,7 +1358,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                         notes: !prev.notes || prev.notes.trim() === '' ? suggested : prev.notes,
                       }));
                     }}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] font-medium focus:outline-none"
                   >
                     {ASSET_TYPE_OPTIONS.map((t) => (
                       <option key={t} value={t}>
@@ -1370,7 +1370,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
 
                 {/* Brand */}
                 <div>
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                  <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                     Merek / Brand *
                   </label>
                   <input
@@ -1379,13 +1379,13 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                     placeholder="misal: Dell, HP, MikroTik, Cisco, APC"
                     value={assetFormData.brand}
                     onChange={(e) => setAssetFormData({ ...assetFormData, brand: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] focus:outline-none"
                   />
                 </div>
 
                 {/* Model */}
                 <div>
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                  <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                     Model Perangkat *
                   </label>
                   <input
@@ -1394,17 +1394,17 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                     placeholder="misal: PowerEdge R740, CCR1036, Catalyst 2960"
                     value={assetFormData.model}
                     onChange={(e) => setAssetFormData({ ...assetFormData, model: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] focus:outline-none"
                   />
                 </div>
 
                 {/* Serial Number – Multi-SN Support */}
                 <div className="sm:col-span-2">
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-slate-600 dark:text-slate-400 font-semibold">
+                    <label className="block text-slate-600 dark:text-[#829A8F] font-semibold">
                       Serial Number (SN) *
                     </label>
-                    <span className="text-[11px] font-bold text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                    <span className="text-[11px] font-bold text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded border border-[#0F766E]/20">
                       Detected: {parseOfficeSNCount(assetFormData.serial_number)} SN
                     </span>
                   </div>
@@ -1414,7 +1414,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                     placeholder={`Masukkan 1 atau lebih Serial Number (pisahkan dengan koma atau Enter)\nContoh:\nABC123, DEF456, GHI789`}
                     value={assetFormData.serial_number}
                     onChange={handleOfficeSNChange}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-cyan-400 font-mono text-xs focus:outline-none resize-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#8DD6BB] font-mono text-xs focus:outline-none resize-none"
                   />
                   <p className="text-[11px] text-slate-400 mt-1">
                     * Paste semua SN sekaligus dipisah koma atau Enter — jumlah unit otomatis terhitung.
@@ -1423,7 +1423,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
 
                 {/* IP Address / VLAN (Optional) */}
                 <div>
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1 flex items-center justify-between">
+                  <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1 flex items-center justify-between">
                     <span>IP Address / VLAN (Opsional)</span>
                     <span className="text-[10px] text-cyan-500 font-normal">Catatan Teknis</span>
                   </label>
@@ -1432,13 +1432,13 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                     placeholder="misal: 192.168.10.2 / VLAN 10"
                     value={assetFormData.ip_address}
                     onChange={(e) => setAssetFormData({ ...assetFormData, ip_address: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-mono focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] font-mono focus:outline-none"
                   />
                 </div>
 
                 {/* Location Detail */}
                 <div>
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                  <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                     Lokasi Ruangan / Rak
                   </label>
                   <input
@@ -1446,19 +1446,19 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                     placeholder="misal: Ruang Server Lt. 2 - Rack A, NOC"
                     value={assetFormData.location_detail}
                     onChange={(e) => setAssetFormData({ ...assetFormData, location_detail: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] focus:outline-none"
                   />
                 </div>
 
                 {/* Status */}
                 <div>
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                  <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                     Status Operasional
                   </label>
                   <select
                     value={assetFormData.status}
                     onChange={(e) => setAssetFormData({ ...assetFormData, status: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] font-medium focus:outline-none"
                   >
                     {STATUS_OPTIONS.map((s) => (
                       <option key={s} value={s}>
@@ -1470,13 +1470,13 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
 
                 {/* Condition */}
                 <div>
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                  <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                     Kondisi Fisik
                   </label>
                   <select
                     value={assetFormData.condition}
                     onChange={(e) => setAssetFormData({ ...assetFormData, condition: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] font-medium focus:outline-none"
                   >
                     {CONDITION_OPTIONS.map((c) => (
                       <option key={c} value={c}>
@@ -1489,7 +1489,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                 {/* Notes with Template Selector */}
                 <div className="sm:col-span-2">
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-slate-600 dark:text-slate-400 font-semibold">
+                    <label className="block text-slate-600 dark:text-[#829A8F] font-semibold">
                       Catatan / Deskripsi Perangkat
                     </label>
                     <div className="flex items-center space-x-2">
@@ -1520,7 +1520,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                           setAssetFormData((prev) => ({ ...prev, notes: e.target.value }));
                         }
                       }}
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 focus:outline-none"
+                      className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-1.5 text-xs text-slate-700 dark:text-[#B8CCC3] focus:outline-none"
                       defaultValue=""
                     >
                       <option value="">-- Pilih Template Catatan Standar --</option>
@@ -1548,24 +1548,24 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                     placeholder="Catatan spesifikasi atau fungsi perangkat (pilih template di atas atau ketik manual)..."
                     value={assetFormData.notes}
                     onChange={(e) => setAssetFormData({ ...assetFormData, notes: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl p-2.5 text-slate-900 dark:text-[#F1F5F2] focus:outline-none"
                   />
                 </div>
 
               </div>
 
               {/* Modal Footer */}
-              <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-[#355047]">
                 <button
                   type="button"
                   onClick={() => setIsAssetModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1D332E] dark:hover:bg-[#2B4840] text-slate-700 dark:text-[#B8CCC3] text-xs font-semibold"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition-all"
+                  className="px-5 py-2 rounded-xl bg-[#0F766E] hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition-all"
                 >
                   {editingAsset ? 'Simpan Perubahan' : 'Tambahkan Perangkat'}
                 </button>
@@ -1581,16 +1581,16 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
       {/* ========================================================================= */}
       {isUnitModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
-          <div className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in duration-200">
+          <div className="w-full max-w-lg bg-white dark:bg-[#172A27] border border-slate-200 dark:border-[#355047] rounded-2xl shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in duration-200">
             
             {/* Modal Header */}
-            <div className="p-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="p-4 bg-slate-50 dark:bg-[#142522] border-b border-slate-200 dark:border-[#355047] flex items-center justify-between">
               <div className="flex items-center space-x-2.5">
                 <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 border border-blue-500/20">
                   <Building className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-[#F1F5F2]">
                     {editingUnit ? `Edit Unit: ${editingUnit.unit_name}` : 'Tambah Unit Kantor Cabang / Pusat'}
                   </h3>
                   <p className="text-[11px] text-slate-500">
@@ -1618,13 +1618,13 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
               
               {/* Branch Association */}
               <div>
-                <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                   Induk Cabang (Branch)
                 </label>
                 <select
                   value={unitFormData.branch_id}
                   onChange={(e) => setUnitFormData({ ...unitFormData, branch_id: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] font-medium focus:outline-none"
                 >
                   <option value="">🏢 Kantor Pusat (Head Office / Tanpa Induk Cabang)</option>
                   {branches.map((b) => (
@@ -1637,14 +1637,14 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
 
               {/* Unit Type */}
               <div>
-                <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                   Tipe Unit Kantor *
                 </label>
                 <select
                   required
                   value={unitFormData.unit_type}
                   onChange={(e) => setUnitFormData({ ...unitFormData, unit_type: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] font-medium focus:outline-none"
                 >
                   {UNIT_TYPE_OPTIONS.map((ut) => (
                     <option key={ut} value={ut}>
@@ -1656,7 +1656,7 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
 
               {/* Unit Name */}
               <div>
-                <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                   Nama Unit Kantor *
                 </label>
                 <input
@@ -1665,13 +1665,13 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   placeholder="misal: Kantor Cabang Brebes, Kantor Unit Jatibarang"
                   value={unitFormData.unit_name}
                   onChange={(e) => setUnitFormData({ ...unitFormData, unit_name: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] focus:outline-none"
                 />
               </div>
 
               {/* Code */}
               <div>
-                <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                   Kode Singkatan Unit (Opsional)
                 </label>
                 <input
@@ -1679,13 +1679,13 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   placeholder="misal: KTR-BRB, UNT-JTB, HO-JKT"
                   value={unitFormData.code}
                   onChange={(e) => setUnitFormData({ ...unitFormData, code: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-mono focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] font-mono focus:outline-none"
                 />
               </div>
 
               {/* Address */}
               <div>
-                <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                   Alamat Lengkap Kantor
                 </label>
                 <input
@@ -1693,14 +1693,14 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                   placeholder="Alamat kantor..."
                   value={unitFormData.address}
                   onChange={(e) => setUnitFormData({ ...unitFormData, address: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] focus:outline-none"
                 />
               </div>
 
               {/* PIC Info */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                  <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                     Nama PIC Kantor
                   </label>
                   <input
@@ -1708,11 +1708,11 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                     placeholder="Nama PIC"
                     value={unitFormData.pic_name}
                     onChange={(e) => setUnitFormData({ ...unitFormData, pic_name: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-600 dark:text-slate-400 font-semibold mb-1">
+                  <label className="block text-slate-600 dark:text-[#829A8F] font-semibold mb-1">
                     No. Kontak PIC
                   </label>
                   <input
@@ -1720,23 +1720,23 @@ const OfficeAssetManager = ({ user, branches = [], onOpenQRCodeModal }) => {
                     placeholder="No. Telp/WA"
                     value={unitFormData.pic_phone}
                     onChange={(e) => setUnitFormData({ ...unitFormData, pic_phone: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-[#142522] border border-slate-300 dark:border-[#355047] rounded-xl px-3 py-2 text-slate-900 dark:text-[#F1F5F2] focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* Modal Footer */}
-              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200 dark:border-[#355047]">
                 <button
                   type="button"
                   onClick={() => setIsUnitModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1D332E] dark:hover:bg-[#2B4840] text-slate-700 dark:text-[#B8CCC3] text-xs font-semibold"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition-all"
+                  className="px-5 py-2 rounded-xl bg-[#0F766E] hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition-all"
                 >
                   {editingUnit ? 'Simpan Unit' : 'Tambahkan Unit Kantor'}
                 </button>

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Building2, Plus, Edit2, Trash2, X, RefreshCw } from 'lucide-react';
-import { createBranch, updateBranch, deleteBranch, getBranches } from '../api';
+import { getBranches, createBranch, updateBranch, deleteBranch } from '../api';
 
-const BranchManager = ({ branches: initialBranches, onRefresh }) => {
-  const [branches, setBranches] = useState(initialBranches || []);
+const BranchManager = ({ branches: initialBranches = [], onRefresh }) => {
+  const [branches, setBranches] = useState(initialBranches);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingBranch, setEditingBranch] = useState(null);
   const [formData, setFormData] = useState({ code: '', name: '', province: '' });
@@ -13,22 +13,11 @@ const BranchManager = ({ branches: initialBranches, onRefresh }) => {
   const loadBranches = async () => {
     try {
       const data = await getBranches();
-      setBranches(data || []);
+      if (Array.isArray(data)) setBranches(data);
     } catch (err) {
       console.error('Gagal mengambil data cabang:', err);
     }
   };
-
-  useEffect(() => {
-    loadBranches();
-    if (onRefresh) onRefresh();
-  }, []);
-
-  useEffect(() => {
-    if (initialBranches && initialBranches.length > 0) {
-      setBranches(initialBranches);
-    }
-  }, [initialBranches]);
 
   const handleOpenForm = (branch = null) => {
     setError('');
@@ -92,23 +81,23 @@ const BranchManager = ({ branches: initialBranches, onRefresh }) => {
   };
 
   return (
-    <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-6">
+    <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-[#1D332E] border border-slate-200 dark:border-[#355047] shadow-sm space-y-6 transition-colors">
       
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-            <Building2 className="w-5 h-5 text-cyan-400" />
+          <h2 className="text-lg font-bold text-slate-900 dark:text-[#F1F5F2] flex items-center space-x-2">
+            <Building2 className="w-5 h-5 text-[#0F766E] dark:text-[#8DD6BB]" />
             <span>Kelola Cabang Daerah (Level 1)</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">Tambah, edit, atau hapus data cabang nasional.</p>
+          <p className="text-xs text-slate-500 dark:text-[#829A8F] mt-0.5">Tambah, edit, atau hapus data cabang nasional.</p>
         </div>
 
         <div className="flex items-center space-x-2">
           <button
             type="button"
             onClick={loadBranches}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-[#1D332E] dark:hover:bg-[#2B4840] dark:text-[#B8CCC3] transition-colors"
             title="Refresh Cabang"
           >
             <RefreshCw className="w-4 h-4" />
@@ -116,7 +105,7 @@ const BranchManager = ({ branches: initialBranches, onRefresh }) => {
           <button
             type="button"
             onClick={() => handleOpenForm(null)}
-            className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 transition-all shadow-lg shadow-cyan-500/20 active:scale-95"
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-sky-700 hover:from-cyan-500 hover:to-sky-600 text-white font-bold text-xs flex items-center space-x-1.5 transition-all shadow-md shadow-cyan-600/20 active:scale-95"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Cabang</span>
@@ -124,66 +113,66 @@ const BranchManager = ({ branches: initialBranches, onRefresh }) => {
         </div>
       </div>
 
-      {/* Form Editor Panel (Rendered on TOP) */}
+      {/* Form Editor Panel */}
       {isFormOpen && (
-        <div className="p-5 rounded-xl bg-slate-950 border border-cyan-500/30 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 shadow-2xl">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h3 className="text-sm font-bold text-cyan-400">
+        <div className="p-5 rounded-xl bg-[#F8FAFC] dark:bg-[#142522] border border-[#0F766E]/30 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 shadow-lg">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#355047] pb-2">
+            <h3 className="text-sm font-bold text-[#0F766E] dark:text-[#8DD6BB]">
               {editingBranch ? `Edit Cabang: ${editingBranch.name}` : 'Tambah Cabang Daerah Baru'}
             </h3>
-            <button type="button" onClick={handleCloseForm} className="text-slate-500 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+            <button type="button" onClick={handleCloseForm} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-[#2B4840]">
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          {error && <p className="text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-lg border border-rose-500/20">{error}</p>}
+          {error && <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 p-2.5 rounded-lg border border-rose-200 dark:border-rose-500/20">{error}</p>}
 
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="text-[11px] text-slate-400 block mb-1">Kode Cabang * (misal: BR-BDG)</label>
+              <label className="text-[11px] font-semibold text-slate-600 dark:text-[#829A8F] block mb-1">Kode Cabang *</label>
               <input
                 type="text"
                 required
                 placeholder="misal: BR-BDG"
                 value={formData.code}
                 onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-white dark:bg-[#172A27] border border-slate-200 dark:border-[#355047] rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-[#F1F5F2] focus:border-[#0F766E] focus:outline-none"
               />
             </div>
             <div>
-              <label className="text-[11px] text-slate-400 block mb-1">Nama Cabang *</label>
+              <label className="text-[11px] font-semibold text-slate-600 dark:text-[#829A8F] block mb-1">Nama Cabang *</label>
               <input
                 type="text"
                 required
                 placeholder="misal: Branch Bandung"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-white dark:bg-[#172A27] border border-slate-200 dark:border-[#355047] rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-[#F1F5F2] focus:border-[#0F766E] focus:outline-none"
               />
             </div>
             <div>
-              <label className="text-[11px] text-slate-400 block mb-1">Provinsi *</label>
+              <label className="text-[11px] font-semibold text-slate-600 dark:text-[#829A8F] block mb-1">Provinsi *</label>
               <input
                 type="text"
                 required
                 placeholder="misal: Jawa Barat"
                 value={formData.province}
                 onChange={(e) => setFormData({ ...formData, province: e.target.value })}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-white dark:bg-[#172A27] border border-slate-200 dark:border-[#355047] rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-[#F1F5F2] focus:border-[#0F766E] focus:outline-none"
               />
             </div>
             <div className="md:col-span-3 flex justify-end space-x-2 pt-2">
               <button
                 type="button"
                 onClick={handleCloseForm}
-                className="px-3.5 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-700"
+                className="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-[#1D332E] dark:hover:bg-[#2B4840] dark:text-[#B8CCC3] text-xs font-medium"
               >
                 Batal
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 active:scale-95"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-sky-700 hover:from-cyan-500 hover:to-sky-600 text-white font-bold text-xs shadow-md shadow-cyan-600/20 active:scale-95"
               >
                 {loading ? 'Menyimpan...' : 'Simpan Cabang'}
               </button>
@@ -193,9 +182,9 @@ const BranchManager = ({ branches: initialBranches, onRefresh }) => {
       )}
 
       {/* Branch Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#355047]">
+        <table className="w-full text-left text-xs text-slate-700 dark:text-[#B8CCC3]">
+          <thead className="bg-slate-50 dark:bg-[#142522] text-slate-600 dark:text-[#829A8F] uppercase font-semibold border-b border-slate-200 dark:border-[#355047]">
             <tr>
               <th className="py-3 px-4">Kode Cabang</th>
               <th className="py-3 px-4">Nama Cabang</th>
@@ -204,28 +193,28 @@ const BranchManager = ({ branches: initialBranches, onRefresh }) => {
               <th className="py-3 px-4 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800">
+          <tbody className="divide-y divide-slate-100 dark:divide-[#355047] bg-white dark:bg-[#1D332E]">
             {branches.length === 0 ? (
               <tr>
-                <td colSpan="5" className="py-8 text-center text-slate-500">
+                <td colSpan="5" className="py-8 text-center text-slate-400 dark:text-[#829A8F]">
                   Belum ada data cabang. Klik "+ Tambah Cabang" untuk membuat cabang baru.
                 </td>
               </tr>
             ) : (
               branches.map((b) => (
-                <tr key={b.id} className="hover:bg-slate-800/40">
-                  <td className="py-3 px-4 font-mono font-bold text-cyan-400">{b.code}</td>
-                  <td className="py-3 px-4 font-semibold text-white">{b.name}</td>
-                  <td className="py-3 px-4 text-slate-400">{b.province}</td>
-                  <td className="py-3 px-4 text-center font-bold text-slate-300">
-                    {b.sites ? b.sites.length : 0}
+                <tr key={b.id} className="hover:bg-slate-50 dark:hover:bg-[#2B4840]/40 transition-colors">
+                  <td className="py-3 px-4 font-mono font-bold text-[#0F766E] dark:text-[#8DD6BB]">{b.code}</td>
+                  <td className="py-3 px-4 font-semibold text-slate-900 dark:text-[#F1F5F2]">{b.name}</td>
+                  <td className="py-3 px-4 text-slate-600 dark:text-[#829A8F]">{b.province}</td>
+                  <td className="py-3 px-4 text-center font-bold text-slate-700 dark:text-[#B8CCC3]">
+                    {b.sites ? b.sites.length : (b.total_sites || 0)}
                   </td>
                   <td className="py-3 px-4 text-right">
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         type="button"
                         onClick={() => handleOpenForm(b)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800 active:scale-95"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-[#0F766E] dark:hover:text-[#8DD6BB] hover:bg-slate-100 dark:hover:bg-[#2B4840] active:scale-95"
                         title="Edit Cabang"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -233,7 +222,7 @@ const BranchManager = ({ branches: initialBranches, onRefresh }) => {
                       <button
                         type="button"
                         onClick={() => handleDelete(b.id)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 active:scale-95"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-[#2B4840] active:scale-95"
                         title="Hapus Cabang"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

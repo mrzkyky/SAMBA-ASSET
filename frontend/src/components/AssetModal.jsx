@@ -562,7 +562,7 @@ const AssetModal = ({
         {/* Header */}
         <div className="p-5 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-[#0F766E]/20">
               <Server className="w-5 h-5" />
             </div>
             <div>
@@ -663,7 +663,7 @@ const AssetModal = ({
                       placeholder="Nama Kategori Baru (misal: SFP+)"
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
-                      className="flex-1 bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                      className="flex-1 bg-slate-950 border border-[#0F766E]/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
                     />
                     <button
                       type="button"
@@ -837,7 +837,7 @@ const AssetModal = ({
                           handleAddNewAssetType(e);
                         }
                       }}
-                      className="flex-1 bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                      className="flex-1 bg-slate-950 border border-[#0F766E]/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
                     />
                     <button
                       type="button"
@@ -902,7 +902,7 @@ const AssetModal = ({
                 placeholder="misal: Rapid, TP-Link, Cisco"
                 value={formData.brand}
                 onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-[#0F766E] focus:outline-none"
               />
             </div>
 
@@ -917,7 +917,7 @@ const AssetModal = ({
                 placeholder="misal: SFP Rapid-1,25G-20KM"
                 value={formData.model}
                 onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-[#0F766E] focus:outline-none"
               />
             </div>
 
@@ -977,7 +977,7 @@ const AssetModal = ({
                 placeholder="misal: Main Rack / Sub Rack 01"
                 value={formData.location_detail}
                 onChange={(e) => setFormData({ ...formData, location_detail: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-[#0F766E] focus:outline-none"
               />
             </div>
 
@@ -990,7 +990,7 @@ const AssetModal = ({
                 required
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-[#0F766E] focus:outline-none"
               >
                 <option value="Aktif">Aktif</option>
                 <option value="Nonaktif">Nonaktif</option>
@@ -1008,7 +1008,7 @@ const AssetModal = ({
               <label className="text-xs font-semibold text-slate-300">
                 Serial Number *
               </label>
-              <span className="text-[11px] font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+              <span className="text-[11px] font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-[#0F766E]/20">
                 Detected: {detectedSNCount} Serial Number
               </span>
             </div>
@@ -1018,7 +1018,7 @@ const AssetModal = ({
               placeholder={`Masukkan 1 atau lebih Serial Number (pisahkan dengan koma atau tekan Enter)\nContoh:\nEW3BU4542, EW3BU4543`}
               value={formData.serial_number}
               onChange={handleSNChange}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-cyan-400 focus:border-cyan-500 focus:outline-none"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-cyan-400 focus:border-[#0F766E] focus:outline-none"
             ></textarea>
             <p className="text-[11px] text-slate-500 mt-1">
               * Anda bisa menyalin-menempel (*paste*) Serial Number sekaligus (pisahkan dengan koma atau Enter).
@@ -1038,7 +1038,7 @@ const AssetModal = ({
                 required
                 value={formData.unit_count}
                 onChange={(e) => setFormData({ ...formData, unit_count: parseInt(e.target.value, 10) || 1 })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-[#0F766E] focus:outline-none"
               />
             </div>
 
@@ -1051,7 +1051,7 @@ const AssetModal = ({
                 required
                 value={formData.condition}
                 onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-[#0F766E] focus:outline-none"
               >
                 <option value="Baik">Baik</option>
                 <option value="Perlu Perbaikan">Perlu Perbaikan</option>
@@ -1068,7 +1068,7 @@ const AssetModal = ({
                 required
                 value={formData.ownership}
                 onChange={(e) => setFormData({ ...formData, ownership: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none font-medium"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-[#0F766E] focus:outline-none font-medium"
               >
                 <option value="Aset Tetap">🏢 Aset Tetap (Perusahaan)</option>
                 <option value="Aset Hibah">🎁 Aset Hibah (Mitra)</option>
@@ -1092,7 +1092,7 @@ const AssetModal = ({
                       setFormData((prev) => ({ ...prev, notes: e.target.value }));
                     }
                   }}
-                  className="text-[11px] bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-cyan-400 focus:border-cyan-500 focus:outline-none cursor-pointer max-w-[220px] sm:max-w-none truncate"
+                  className="text-[11px] bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-cyan-400 focus:border-[#0F766E] focus:outline-none cursor-pointer max-w-[220px] sm:max-w-none truncate"
                   title="Pilih dari daftar template deskripsi otomatis"
                 >
                   <option value="">📋 Pilih Template Keterangan...</option>
@@ -1118,7 +1118,7 @@ const AssetModal = ({
                   <button
                     type="button"
                     onClick={() => handleSaveCustomTemplate()}
-                    className="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 text-[11px] font-semibold flex items-center space-x-1 transition-all active:scale-95 shadow-sm"
+                    className="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-[#0F766E]/20 text-[11px] font-semibold flex items-center space-x-1 transition-all active:scale-95 shadow-sm"
                     title="Simpan teks keterangan yang Anda ketik saat ini sebagai template baru agar langsung tersimpan & bisa dipakai kembali"
                   >
                     <Plus className="w-3 h-3" />
@@ -1136,7 +1136,7 @@ const AssetModal = ({
 
             {/* Suggested Template Banner / Quick Apply Button */}
             {currentCategorySuggestedNote && formData.notes !== currentCategorySuggestedNote && (
-              <div className="mb-2 flex items-center justify-between bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1.5 rounded-lg text-xs">
+              <div className="mb-2 flex items-center justify-between bg-cyan-500/10 border border-[#0F766E]/20 px-2.5 py-1.5 rounded-lg text-xs">
                 <span className="text-cyan-300 text-[11px] truncate mr-2">
                   💡 Saran ({currentCategoryName}): <em className="text-white font-medium">"{currentCategorySuggestedNote}"</em>
                 </span>
@@ -1155,7 +1155,7 @@ const AssetModal = ({
               placeholder={currentCategorySuggestedNote ? `misal: ${currentCategorySuggestedNote}...` : "misal: Optical & Ethernet Network Transceiver Link to Trayeman..."}
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-[#0F766E] focus:outline-none"
             ></textarea>
             <p className="text-[11px] text-slate-500 mt-1">
               * Keterangan otomatis terisi saat memilih kategori perangkat, dan Anda tetap bebas mengetik/menyesuaikan isinya.

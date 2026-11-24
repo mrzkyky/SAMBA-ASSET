@@ -76,19 +76,19 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
         ? item.snList.map(sn => `<span style="font-family:monospace;font-size:8.5px;font-weight:700;background:#f1f5f9;color:#0f172a;padding:2px 6px;border-radius:4px;border:1px solid #cbd5e1;display:inline-block;margin:1px;">${sn}</span>`).join('')
         : '<span style="font-size:9px;color:#94a3b8;font-style:italic;">S/N: Tidak Tersedia</span>';
       return `
-        <tr style="border-bottom:1px solid #e2e8f0;">
-          <td style="padding:7px 8px;border-right:1px solid #e2e8f0;text-align:center;font-weight:700;color:#475569;">${idx + 1}</td>
-          <td style="padding:7px 8px;border-right:1px solid #e2e8f0;">
+        <tr style="border-bottom:1px solid #E4E5DC;">
+          <td style="padding:7px 8px;border-right:1px solid #E4E5DC;text-align:center;font-weight:700;color:#475569;">${idx + 1}</td>
+          <td style="padding:7px 8px;border-right:1px solid #E4E5DC;">
             <div style="font-weight:700;font-size:11px;color:#0f172a;">${item.deviceDisplayName}</div>
-            <div style="font-size:9px;color:#64748b;margin-top:1px;">Posisi/Rak: ${item.locationDetail || 'Sub Rack'}</div>
+            <div style="font-size:9px;color:#718078;margin-top:1px;">Posisi/Rak: ${item.locationDetail || 'Sub Rack'}</div>
             <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px;align-items:center;">
               <span style="font-size:8px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.5px;">S/N:</span>
               ${snBadges}
             </div>
           </td>
-          <td style="padding:7px 8px;border-right:1px solid #e2e8f0;font-size:10px;font-weight:600;color:#475569;">${item.categoryName}</td>
-          <td style="padding:7px 8px;border-right:1px solid #e2e8f0;font-size:9.5px;line-height:1.5;">
-            <div style="color:#64748b;"><strong style="color:#475569;">Dari:</strong> ${fromSiteName}</div>
+          <td style="padding:7px 8px;border-right:1px solid #E4E5DC;font-size:10px;font-weight:600;color:#475569;">${item.categoryName}</td>
+          <td style="padding:7px 8px;border-right:1px solid #E4E5DC;font-size:9.5px;line-height:1.5;">
+            <div style="color:#718078;"><strong style="color:#475569;">Dari:</strong> ${fromSiteName}</div>
             <div style="color:#0f172a;margin-top:2px;"><strong style="color:#0e7490;">Ke:</strong> ${toSiteName}</div>
           </td>
           <td style="padding:7px 8px;text-align:center;font-weight:700;font-size:11px;color:#0f172a;">${item.unitCount} Unit</td>
@@ -293,7 +293,7 @@ const BASTModal = ({ isOpen, onClose, transfer, asset }) => {
         {/* Modal Header Bar */}
         <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between no-print">
           <div className="flex items-center space-x-2.5">
-            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-[#0F766E]/20">
               <FileText className="w-5 h-5" />
             </div>
             <div>

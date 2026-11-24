@@ -659,13 +659,13 @@ const ImportAssetModal = ({
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-slate-800 bg-slate-950/80 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-[#0F766E]/20">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
                 <span>Import Massal Aset (Spreadsheet / CSV)</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center space-x-1">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-[#0F766E]/20 flex items-center space-x-1">
                   <Sparkles className="w-3 h-3 mr-0.5 text-cyan-400" />
                   <span>Smart Auto-Mapping</span>
                 </span>
@@ -697,7 +697,7 @@ const ImportAssetModal = ({
               <select
                 value={selectedDefaultSiteId}
                 onChange={(e) => setSelectedDefaultSiteId(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-[#0F766E] focus:outline-none"
               >
                 <option value="">-- Otomatis Baca Kolom Site di File Spreadsheet --</option>
                 {sites.map((s) => (
@@ -732,7 +732,7 @@ const ImportAssetModal = ({
             <div className="space-y-3">
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-700 hover:border-cyan-500 rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all bg-slate-950/40 hover:bg-slate-900/60 group"
+                className="border-2 border-dashed border-slate-700 hover:border-[#0F766E] rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all bg-slate-950/40 hover:bg-slate-900/60 group"
               >
                 <input
                   ref={fileInputRef}
@@ -741,7 +741,7 @@ const ImportAssetModal = ({
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-[#0F766E]/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                   <Upload className="w-6 h-6" />
                 </div>
                 <h3 className="text-sm sm:text-base font-bold text-white">
@@ -765,7 +765,7 @@ const ImportAssetModal = ({
                   placeholder="Salin baris dari Excel / Google Sheets dan tempelkan di sini (Ctrl+V)..."
                   value={rawText}
                   onChange={handleTextPasteChange}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-300 placeholder-slate-600 focus:border-cyan-500 focus:outline-none"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-300 placeholder-slate-600 focus:border-[#0F766E] focus:outline-none"
                 />
               </div>
             </div>
@@ -808,7 +808,7 @@ const ImportAssetModal = ({
 
               {/* Expandable Column Mapping Customizer */}
               {showMappingConfig && (
-                <div className="p-3.5 rounded-xl bg-slate-950 border border-cyan-500/30 space-y-3 animate-in fade-in duration-150">
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-[#0F766E]/30 space-y-3 animate-in fade-in duration-150">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                     <span className="text-xs font-bold text-cyan-400">
                       Pemetaan Kolom Spreadsheet ke Sistem SAMBA:
@@ -845,7 +845,7 @@ const ImportAssetModal = ({
                               [field.key]: e.target.value !== '' ? parseInt(e.target.value, 10) : '',
                             })
                           }
-                          className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:border-cyan-500 focus:outline-none"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:border-[#0F766E] focus:outline-none"
                         >
                           <option value="">-- Otomatis / Deteksi AI --</option>
                           {parsedHeaders.map((h, hIdx) => (
@@ -861,18 +861,18 @@ const ImportAssetModal = ({
               )}
 
               {/* Auto-Group Multi-SN Same Model Toggle Banner */}
-              <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-gradient-to-r from-cyan-950/40 via-slate-950 to-blue-950/40 border border-cyan-500/30 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-gradient-to-r from-cyan-950/40 via-slate-950 to-blue-950/40 border border-[#0F766E]/30 text-xs">
                 <label className="flex items-start space-x-2.5 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={autoGroupSameModels}
                     onChange={(e) => setAutoGroupSameModels(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-500 focus:ring-offset-slate-900 cursor-pointer accent-cyan-500"
+                    className="mt-0.5 w-4 h-4 rounded text-cyan-500 bg-slate-900 border-slate-700 focus:ring-[#0F766E] focus:ring-offset-slate-900 cursor-pointer accent-cyan-500"
                   />
                   <div>
                     <span className="font-bold text-white flex items-center space-x-1.5">
                       <span>🔗 Satukan Perangkat Tipe Sama Menjadi Multi-SN & Multi-Lokasi</span>
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-500/20 text-cyan-400 border border-[#0F766E]/30">
                         Rekomendasi
                       </span>
                     </span>
@@ -923,7 +923,7 @@ const ImportAssetModal = ({
                       >
                         <td className="py-2 px-3 whitespace-nowrap">
                           {item.isMerged ? (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-500/15 text-cyan-400 border border-[#0F766E]/30 shadow-sm">
                               <Layers className="w-3 h-3 mr-1" />
                               Gabung {item.unit_count} Unit
                             </span>
@@ -959,7 +959,7 @@ const ImportAssetModal = ({
                           )}
                         </td>
                         <td className="py-2 px-3 text-center font-bold text-slate-200">
-                          <span className={`px-2 py-0.5 rounded ${item.unit_count > 1 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : ''}`}>
+                          <span className={`px-2 py-0.5 rounded ${item.unit_count > 1 ? 'bg-cyan-500/20 text-cyan-300 border border-[#0F766E]/30' : ''}`}>
                             {item.unit_count}
                           </span>
                         </td>

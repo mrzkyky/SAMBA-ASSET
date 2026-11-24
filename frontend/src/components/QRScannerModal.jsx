@@ -61,7 +61,7 @@ const QRScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
         {/* Header */}
         <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
-            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-[#0F766E]/20">
               <Camera className="w-5 h-5 animate-pulse" />
             </div>
             <div>
@@ -88,7 +88,7 @@ const QRScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
               </p>
             </div>
           ) : (
-            <div className="w-full relative rounded-xl overflow-hidden border-2 border-cyan-500/40 shadow-lg">
+            <div className="w-full relative rounded-xl overflow-hidden border-2 border-[#0F766E]/40 shadow-lg">
               <div id="qr-reader" className="w-full"></div>
             </div>
           )}

@@ -50,7 +50,7 @@ const ActionBadge = ({ action }) => {
     );
   }
   return (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-sm">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-cyan-500/10 text-cyan-400 border border-[#0F766E]/30 shadow-sm">
       <ShieldCheck className="w-3 h-3 mr-1.5" />
       {action}
     </span>
@@ -155,38 +155,38 @@ const AuditLogView = () => {
   };
 
   return (
-    <div className="rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl overflow-hidden space-y-5 p-4 sm:p-6">
+    <div className="rounded-2xl bg-white dark:bg-[#1D332E] border border-slate-200 dark:border-[#355047] shadow-sm space-y-5 p-4 sm:p-6 transition-colors">
       
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800/80 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-[#355047] pb-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-            <History className="w-5 h-5 text-amber-400" />
+          <h2 className="text-lg font-bold text-slate-900 dark:text-[#F1F5F2] flex items-center space-x-2">
+            <History className="w-5 h-5 text-amber-500 dark:text-amber-400" />
             <span>Riwayat Perubahan & Audit Trail Aset</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-[#829A8F] mt-0.5">
             Lacak riwayat terakhir kali data aset diedit, nilai sebelumnya (sebelum salah input), mutasi, dan penambahan aset.
           </p>
         </div>
 
         <div className="flex items-center space-x-2 shrink-0">
-          <span className="text-xs font-semibold text-slate-400 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
-            Total: <strong className="text-cyan-400">{totalCount}</strong> Aktivitas
+          <span className="text-xs font-semibold text-slate-600 dark:text-[#829A8F] bg-slate-100 dark:bg-[#142522] px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#355047]">
+            Total: <strong className="text-[#0F766E] dark:text-[#8DD6BB]">{totalCount}</strong> Aktivitas
           </span>
           <button
             type="button"
             onClick={() => fetchLogs(page, selectedAction, searchQuery)}
-            className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center space-x-1.5 transition-all active:scale-95"
+            className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-[#1D332E] dark:hover:bg-[#2B4840] dark:text-[#B8CCC3] text-xs font-semibold flex items-center space-x-1.5 transition-all active:scale-95"
             title="Segarkan data log"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-cyan-400' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#0F766E] dark:text-[#8DD6BB]' : ''}`} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[#F8FAFC] dark:bg-[#142522]/60 p-3 rounded-xl border border-slate-200 dark:border-[#355047]">
         {/* Action Type Filter Pills */}
         <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-1">
           <button
@@ -194,8 +194,8 @@ const AuditLogView = () => {
             onClick={() => setSelectedAction('')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 active:scale-95 ${
               selectedAction === ''
-                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
-                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/20'
+                : 'bg-white dark:bg-[#172A27] text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-[#355047]'
             }`}
           >
             Semua ({totalCount})
@@ -207,7 +207,7 @@ const AuditLogView = () => {
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 active:scale-95 ${
               selectedAction === 'EDIT_ASET'
                 ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                : 'bg-white dark:bg-[#172A27] text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-[#355047]'
             }`}
           >
             ✏️ Edit Aset
@@ -218,8 +218,8 @@ const AuditLogView = () => {
             onClick={() => setSelectedAction('TAMBAH_ASET')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 active:scale-95 ${
               selectedAction === 'TAMBAH_ASET'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                : 'bg-white dark:bg-[#172A27] text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-[#355047]'
             }`}
           >
             ➕ Tambah Aset
@@ -230,8 +230,8 @@ const AuditLogView = () => {
             onClick={() => setSelectedAction('MUTASI_ASET')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 active:scale-95 ${
               selectedAction === 'MUTASI_ASET'
-                ? 'bg-violet-500 text-white shadow-md shadow-violet-500/20'
-                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20'
+                : 'bg-white dark:bg-[#172A27] text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-[#355047]'
             }`}
           >
             🔄 Mutasi Aset
@@ -242,8 +242,8 @@ const AuditLogView = () => {
             onClick={() => setSelectedAction('HAPUS_ASET')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 active:scale-95 ${
               selectedAction === 'HAPUS_ASET'
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
-                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                ? 'bg-rose-600 text-white shadow-md shadow-rose-600/20'
+                : 'bg-white dark:bg-[#172A27] text-slate-600 dark:text-[#829A8F] hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-[#355047]'
             }`}
           >
             🗑️ Hapus Aset
@@ -253,30 +253,30 @@ const AuditLogView = () => {
         {/* Search Bar */}
         <form onSubmit={handleSearchSubmit} className="flex items-center space-x-2 shrink-0">
           <div className="relative flex-1 sm:w-64">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               placeholder="Cari SN, Merek, User, Site..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:border-cyan-500 focus:outline-none"
+              className="w-full bg-white dark:bg-[#172A27] border border-slate-200 dark:border-[#355047] rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-[#F1F5F2] placeholder:text-slate-400 focus:border-[#0F766E] focus:outline-none"
             />
           </div>
           <button
             type="submit"
-            className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shrink-0 active:scale-95"
+            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-sky-700 hover:from-cyan-500 hover:to-sky-600 text-white font-bold text-xs shrink-0 active:scale-95"
           >
             Cari
           </button>
         </form>
       </div>
 
-      {error && <p className="text-xs text-rose-400 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">{error}</p>}
+      {error && <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 p-3 rounded-xl border border-rose-200 dark:border-rose-500/20">{error}</p>}
 
       {/* Activity Logs Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-800">
-        <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#355047]">
+        <table className="w-full text-left text-xs text-slate-700 dark:text-[#B8CCC3]">
+          <thead className="bg-slate-50 dark:bg-[#142522] text-slate-600 dark:text-[#829A8F] uppercase font-semibold border-b border-slate-200 dark:border-[#355047]">
             <tr>
               <th className="py-3.5 px-4">Waktu Kejadian</th>
               <th className="py-3.5 px-4">Pengubah (User)</th>
@@ -285,7 +285,7 @@ const AuditLogView = () => {
               <th className="py-3.5 px-4 text-right">Alamat IP</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 bg-slate-950/40">
+          <tbody className="divide-y divide-slate-100 dark:divide-[#355047]/60 bg-white dark:bg-[#1D332E]">
             {loading ? (
               <tr>
                 <td colSpan="5" className="py-10 text-center text-slate-500">
@@ -315,7 +315,7 @@ const AuditLogView = () => {
                   {/* Username */}
                   <td className="py-3.5 px-4 font-bold text-white align-top whitespace-nowrap">
                     <div className="flex items-center space-x-1.5">
-                      <div className="w-6 h-6 rounded-md bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-[11px] font-bold text-cyan-400 uppercase">
+                      <div className="w-6 h-6 rounded-md bg-cyan-500/10 border border-[#0F766E]/20 flex items-center justify-center text-[11px] font-bold text-cyan-400 uppercase">
                         {log.username?.charAt(0) || 'U'}
                       </div>
                       <span className="text-cyan-300">{log.username}</span>

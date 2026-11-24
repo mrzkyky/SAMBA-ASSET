@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Header from './components/Header';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import QuickActionsBar from './components/QuickActionsBar';
 import StatsOverview from './components/StatsOverview';
 import HierarchyView from './components/HierarchyView';
 import AssetTable from './components/AssetTable';
@@ -75,6 +77,26 @@ function App() {
 
   // Active Navigation Tab: 'hierarchy', 'master', 'transfers', 'audit', 'users', 'branches', 'sites', 'categories'
   const [activeTab, setActiveTab] = useState('hierarchy');
+
+  // Sidebar States
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  const toggleSidebarCollapse = (val) => {
+    setSidebarCollapsed((prev) => {
+      const next = typeof val === 'boolean' ? val : !prev;
+      try {
+        localStorage.setItem('sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   // Filter States
   const [selectedBranch, setSelectedBranch] = useState('');
@@ -310,41 +332,67 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 pb-16 transition-colors duration-200">
-      
-      {/* Responsive Header Bar */}
-      <Header
+    <div className="min-h-screen bg-[#F4F2EB] text-[#27332F] dark:bg-[#172A27] dark:text-[#F1F5F2] font-sans antialiased selection:bg-[#0F766E] selection:text-white transition-colors duration-200">
+      {/* Collapsible Left Sidebar (260px / 76px) */}
+      <Sidebar
         user={user}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        onLogout={handleLogout}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenAssetModal={handleOpenCreateAssetModal}
-        onOpenImportModal={() => setIsImportModalOpen(true)}
-        onOpenQRScannerModal={() => setIsQRScannerOpen(true)}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        selectedBranch={selectedBranch}
+        collapsed={sidebarCollapsed}
+        setCollapsed={toggleSidebarCollapse}
+        mobileOpen={mobileSidebarOpen}
+        setMobileOpen={setMobileSidebarOpen}
         missingSNStats={{
           sites: stats?.missing_sn_sites,
           assets: stats?.missing_sn_assets,
         }}
       />
 
-      {/* Main Content Area */}
-      <main className="w-full px-2.5 sm:px-6 lg:px-8 mt-3 sm:mt-6 space-y-4 sm:space-y-6">
-        
-        {/* Dashboard Key Metrics Banner (Aset Nasional / Mitra) */}
-        {activeTab !== 'office_assets' && (
-          <StatsOverview
-            stats={stats}
-            selectedBranch={selectedBranch}
-            branches={branches}
+      {/* Main Column Wrapper with exact matching padding */}
+      <div
+        className={`flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? 'lg:pl-[76px]' : 'lg:pl-[260px]'
+        }`}
+      >
+        {/* Enterprise Topbar */}
+        <Topbar
+          user={user}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onLogout={handleLogout}
+          activeTab={activeTab}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedBranch={selectedBranch}
+          onOpenAssetModal={handleOpenCreateAssetModal}
+          onOpenImportModal={() => setIsImportModalOpen(true)}
+          onOpenQRScannerModal={() => setIsQRScannerOpen(true)}
+          onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+        />
+
+        {/* Main Content Area */}
+        <main className="flex-1 w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+          {/* Quick Actions Bar */}
+          <QuickActionsBar
             user={user}
-            onOpenMissingSNTracker={() => setActiveTab('missing_sn')}
+            selectedBranch={selectedBranch}
+            onOpenAssetModal={handleOpenCreateAssetModal}
+            onOpenImportModal={() => setIsImportModalOpen(true)}
+            onOpenQRScannerModal={() => setIsQRScannerOpen(true)}
+            onRefresh={refreshAllData}
+            loading={loading}
           />
-        )}
+
+          {/* Dashboard Key Metrics Banner (Aset Nasional / Mitra) */}
+          {activeTab !== 'office_assets' && (
+            <StatsOverview
+              stats={stats}
+              selectedBranch={selectedBranch}
+              branches={branches}
+              user={user}
+              onOpenMissingSNTracker={() => setActiveTab('missing_sn')}
+            />
+          )}
 
         {/* Tab 1: 4-Level Hierarchy View */}
         {activeTab === 'hierarchy' && (
@@ -458,6 +506,7 @@ function App() {
           <SegmentManager segments={segments} onRefresh={refreshAllData} />
         )}
       </main>
+      </div>
 
       {/* Asset CRUD Form Modal */}
       <AssetModal

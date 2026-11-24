@@ -14,7 +14,7 @@ export const StatusBadge = ({ status }) => {
   }
   if (status === 'Nonaktif') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-500/20">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-500/10 text-slate-600 dark:text-[#829A8F] border border-slate-200 dark:border-slate-500/20">
         <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>
         Nonaktif
       </span>
@@ -53,7 +53,7 @@ export const StatusBadge = ({ status }) => {
     );
   }
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-[#1D332E] text-slate-700 dark:text-[#B8CCC3] border border-slate-200 dark:border-[#355047]">
       {status || 'Aktif'}
     </span>
   );
@@ -85,7 +85,7 @@ export const ConditionBadge = ({ condition }) => {
     );
   }
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm">
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-[#1D332E] text-slate-700 dark:text-[#B8CCC3] border border-slate-200 dark:border-[#355047] shadow-sm">
       {condition || 'Baik'}
     </span>
   );
@@ -101,8 +101,8 @@ export const OwnershipBadge = ({ ownership }) => {
     );
   }
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-sm" title="Aset Tetap Milik Perusahaan">
-      <Building2 className="w-3 h-3 mr-1 text-blue-500 dark:text-blue-400" />
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/10 text-blue-600 dark:text-[#8DD6BB] border border-blue-500/20 shadow-sm" title="Aset Tetap Milik Perusahaan">
+      <Building2 className="w-3 h-3 mr-1 text-blue-500 dark:text-[#8DD6BB]" />
       Aset Tetap
     </span>
   );
@@ -152,14 +152,14 @@ const AssetTable = ({
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm dark:shadow-xl overflow-hidden">
+    <div className="rounded-2xl bg-white dark:bg-[#1D332E] border border-slate-200/80 dark:border-[#355047] shadow-sm dark:shadow-xl overflow-hidden">
       
       {/* Table Filters & Toolbar */}
-      <div className="p-5 border-b border-slate-200 dark:border-slate-800 space-y-4">
+      <div className="p-5 border-b border-slate-200 dark:border-[#355047] space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-[#F1F5F2] flex items-center space-x-2">
             <span>{currentBranch ? `Daftar Master Aset Cabang ${currentBranch.name}` : 'Daftar Master Aset Nasional'}</span>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 font-semibold border border-slate-200 dark:border-transparent">
+            <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-[#1D332E] text-[#0F766E] dark:text-[#8DD6BB] font-semibold border border-slate-200 dark:border-transparent">
               {total} Total Rekord
             </span>
           </h2>
@@ -170,7 +170,7 @@ const AssetTable = ({
               disabled={isBranchScoped}
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
-              className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 disabled:opacity-60"
+              className="bg-slate-50 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] text-xs text-slate-700 dark:text-[#F1F5F2] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0F766E] disabled:opacity-60"
             >
               <option value="">Semua Branch</option>
               {branches.map((b) => (
@@ -184,7 +184,7 @@ const AssetTable = ({
             <select
               value={selectedSegment || ''}
               onChange={(e) => setSelectedSegment(e.target.value)}
-              className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-violet-700 dark:text-violet-300 rounded-xl px-3 py-2 focus:outline-none focus:border-violet-500 font-medium"
+              className="bg-slate-50 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] text-xs text-violet-700 dark:text-violet-300 rounded-xl px-3 py-2 focus:outline-none focus:border-violet-500 font-medium"
             >
               <option value="">Semua Segmen Layanan</option>
               {segments?.map((seg) => (
@@ -198,7 +198,7 @@ const AssetTable = ({
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500"
+              className="bg-slate-50 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] text-xs text-slate-700 dark:text-[#F1F5F2] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0F766E]"
             >
               <option value="">Semua Kategori</option>
               {categories.map((c) => (
@@ -212,7 +212,7 @@ const AssetTable = ({
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500"
+              className="bg-slate-50 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] text-xs text-slate-700 dark:text-[#F1F5F2] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0F766E]"
             >
               <option value="">Semua Status</option>
               <option value="Aktif">Aktif</option>
@@ -227,7 +227,7 @@ const AssetTable = ({
             <select
               value={selectedOwnership}
               onChange={(e) => setSelectedOwnership(e.target.value)}
-              className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500"
+              className="bg-slate-50 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] text-xs text-slate-700 dark:text-[#F1F5F2] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0F766E]"
             >
               <option value="">Semua Kepemilikan</option>
               <option value="Aset Tetap">🏢 Aset Tetap</option>
@@ -242,7 +242,7 @@ const AssetTable = ({
                 className={`border text-xs rounded-xl px-3 py-2 focus:outline-none transition-all font-semibold ${
                   filterMissingSN === 'true'
                     ? 'bg-rose-50 dark:bg-rose-500/15 border-rose-300 dark:border-rose-500/40 text-rose-700 dark:text-rose-300'
-                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 focus:border-cyan-500'
+                    : 'bg-slate-50 dark:bg-[#142522] border-slate-200 dark:border-[#355047] text-slate-700 dark:text-[#F1F5F2] focus:border-[#0F766E]'
                 }`}
               >
                 <option value="">Semua Status SN</option>
@@ -255,8 +255,8 @@ const AssetTable = ({
 
       {/* Data Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-          <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
+        <table className="w-full text-left text-xs text-slate-700 dark:text-[#B8CCC3]">
+          <thead className="bg-slate-50 dark:bg-[#142522] text-slate-600 dark:text-[#829A8F] font-semibold uppercase tracking-wider border-b border-slate-200 dark:border-[#355047]">
             <tr>
               <th className="py-3.5 px-4">Info Branch / Site</th>
               <th className="py-3.5 px-4">Segmen Layanan</th>
@@ -271,10 +271,10 @@ const AssetTable = ({
               <th className="py-3.5 px-4 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 bg-white dark:bg-slate-900/40">
+          <tbody className="divide-y divide-slate-200 dark:divide-[#355047]/60 bg-white dark:bg-[#1D332E]">
             {assets.length === 0 ? (
               <tr>
-                <td colSpan="11" className="py-12 text-center text-slate-400 dark:text-slate-500">
+                <td colSpan="11" className="py-12 text-center text-slate-400 dark:text-[#829A8F]">
                   Tidak ada aset yang memenuhi kriteria filter.
                 </td>
               </tr>
@@ -285,14 +285,14 @@ const AssetTable = ({
                 const branchName = asset.site?.branch?.name || '-';
                 const categoryName = asset.category?.name || '-';
                 const segmentName = asset.segment?.name || 'Umum';
-                const segmentColor = asset.segment?.color || '#64748b';
+                const segmentColor = asset.segment?.color || '#718078';
                 const assetType = asset.asset_type || 'Aktif';
                 const snList = parseSNList(asset.serial_number);
 
                 return (
-                  <tr key={asset.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                  <tr key={asset.id} className="hover:bg-slate-50/80 dark:hover:bg-[#2B4840]/40 transition-colors">
                     <td className="py-3.5 px-4">
-                      <div className="font-semibold text-slate-800 dark:text-slate-200">{partnerName} - {siteName}</div>
+                      <div className="font-semibold text-slate-800 dark:text-[#F1F5F2]">{partnerName} - {siteName}</div>
                       <div className="text-[11px] text-slate-500">{branchName}</div>
                     </td>
                     <td className="py-3.5 px-4">
@@ -313,14 +313,14 @@ const AssetTable = ({
                         <span className="inline-flex px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20">
                           {categoryName}
                         </span>
-                        <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20">
+                        <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#DDF3EC] text-[#0F766E] border-[#BBE5D7] dark:bg-[#31584C]/40 dark:text-[#8DD6BB] dark:border-[#0F766E]/20">
                           {assetType}
                         </span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-900 dark:text-white">{asset.brand}</div>
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400">{asset.model}</div>
+                      <div className="font-bold text-slate-900 dark:text-[#F1F5F2]">{asset.brand}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-[#829A8F]">{asset.model}</div>
                     </td>
                     <td className="py-3.5 px-4 font-mono max-w-xs">
                       {isMissingSN(asset.serial_number) ? (
@@ -330,12 +330,12 @@ const AssetTable = ({
                         </span>
                       ) : snList.length <= 1 ? (
                         <div className="flex items-center space-x-1.5">
-                          <span className="text-cyan-600 dark:text-cyan-400 font-semibold">{snList[0] || '-'}</span>
+                          <span className="text-[#0F766E] dark:text-[#8DD6BB] font-semibold">{snList[0] || '-'}</span>
                           {snList[0] && (
                             <button
                               type="button"
                               onClick={() => handleCopy(snList[0])}
-                              className="p-1 text-slate-400 hover:text-cyan-600 dark:text-slate-500 dark:hover:text-cyan-400 transition-colors active:scale-95"
+                              className="p-1 text-slate-400 hover:text-[#0F766E] dark:text-[#829A8F] dark:hover:text-[#8DD6BB] transition-colors active:scale-95"
                               title="Copy SN"
                             >
                               {copiedSN === snList[0] ? (
@@ -348,20 +348,20 @@ const AssetTable = ({
                         </div>
                       ) : (
                         <div className="space-y-1">
-                          <div className="text-[10px] text-cyan-700 dark:text-cyan-400 font-bold uppercase tracking-wider">
+                          <div className="text-[10px] text-[#0F766E] dark:text-[#8DD6BB] font-bold uppercase tracking-wider">
                             {snList.length} Serial Number Terdaftar:
                           </div>
                           <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
                             {snList.map((sn, idx) => (
                               <span
                                 key={idx}
-                                className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] text-cyan-700 dark:text-cyan-400 font-semibold"
+                                className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded bg-slate-100 dark:bg-[#142522] border border-slate-200 dark:border-[#355047] text-[11px] text-[#0F766E] dark:text-[#8DD6BB] font-semibold"
                               >
                                 <span>{sn}</span>
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(sn)}
-                                  className="text-slate-400 hover:text-cyan-600 dark:text-slate-500 dark:hover:text-cyan-300"
+                                  className="text-slate-400 hover:text-[#0F766E] dark:text-[#829A8F] dark:hover:text-[#8DD6BB]"
                                   title="Copy SN ini"
                                 >
                                   {copiedSN === sn ? (
@@ -376,20 +376,20 @@ const AssetTable = ({
                         </div>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 max-w-xs">
+                    <td className="py-3.5 px-4 text-slate-500 dark:text-[#829A8F] max-w-xs">
                       {asset.building && (
                         <div className="inline-flex items-center text-[10px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/80 px-1.5 py-0.5 rounded mb-1">
                           🏢 {asset.building}
                         </div>
                       )}
-                      <div className="font-medium text-slate-700 dark:text-slate-300">{asset.location_detail || 'Main Rack'}</div>
+                      <div className="font-medium text-slate-700 dark:text-[#B8CCC3]">{asset.location_detail || 'Main Rack'}</div>
                       {asset.notes && (
-                        <div className="text-[11px] text-slate-600 dark:text-slate-400 italic mt-1 bg-slate-50 dark:bg-slate-950/70 p-1.5 rounded border border-slate-200 dark:border-slate-800/70 whitespace-pre-wrap break-words leading-relaxed">
+                        <div className="text-[11px] text-slate-600 dark:text-[#829A8F] italic mt-1 bg-slate-50 dark:bg-[#142522]/70 p-1.5 rounded border border-slate-200 dark:border-[#355047] whitespace-pre-wrap break-words leading-relaxed">
                           "{asset.notes}"
                         </div>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-center font-bold text-slate-800 dark:text-slate-200">
+                    <td className="py-3.5 px-4 text-center font-bold text-slate-800 dark:text-[#F1F5F2]">
                       {asset.unit_count}
                     </td>
                     <td className="py-3.5 px-4 text-center">
@@ -419,7 +419,7 @@ const AssetTable = ({
                             <button
                               type="button"
                               onClick={() => onOpenTransferModal(asset)}
-                              className="p-1.5 rounded-lg text-cyan-600 hover:bg-cyan-50 dark:text-cyan-400 dark:hover:bg-cyan-500/10 transition-colors active:scale-95"
+                              className="p-1.5 rounded-lg text-[#0F766E] hover:bg-[#DDF3EC] dark:text-[#8DD6BB] dark:hover:bg-[#31584C]/40 transition-colors active:scale-95"
                               title="Mutasi / Pindahkan Perangkat"
                             >
                               <ArrowRightLeft className="w-4 h-4" />
@@ -427,7 +427,7 @@ const AssetTable = ({
                             <button
                               type="button"
                               onClick={() => onEditAsset(asset)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-cyan-400 dark:hover:bg-slate-800 transition-colors active:scale-95"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-[#0F766E] hover:bg-slate-100 dark:text-[#829A8F] dark:hover:text-[#8DD6BB] dark:hover:bg-[#2B4840] transition-colors active:scale-95"
                               title="Edit Aset"
                             >
                               <Edit2 className="w-4 h-4" />
@@ -435,7 +435,7 @@ const AssetTable = ({
                             <button
                               type="button"
                               onClick={() => onDeleteAsset(asset.id)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-slate-800 transition-colors active:scale-95"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:text-[#829A8F] dark:hover:text-rose-400 dark:hover:bg-[#2B4840] transition-colors active:scale-95"
                               title="Hapus Aset"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -453,10 +453,10 @@ const AssetTable = ({
       </div>
 
       {/* Pagination Controls */}
-      <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950">
+      <div className="p-4 border-t border-slate-200 dark:border-[#355047] flex items-center justify-between text-xs text-slate-500 dark:text-[#829A8F] bg-slate-50 dark:bg-[#142522]">
         <div>
-          Menampilkan halaman <strong className="text-slate-700 dark:text-slate-200">{page}</strong> dari{' '}
-          <strong className="text-slate-700 dark:text-slate-200">{totalPages || 1}</strong> ({total} total aset)
+          Menampilkan halaman <strong className="text-slate-700 dark:text-[#F1F5F2]">{page}</strong> dari{' '}
+          <strong className="text-slate-700 dark:text-[#F1F5F2]">{totalPages || 1}</strong> ({total} total aset)
         </div>
 
         <div className="flex items-center space-x-2">
@@ -464,18 +464,18 @@ const AssetTable = ({
             type="button"
             onClick={() => onPageChange(page - 1)}
             disabled={page <= 1}
-            className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 shadow-sm"
+            className="p-2 rounded-xl bg-white dark:bg-[#172A27] border border-slate-200 dark:border-[#355047] text-slate-600 dark:text-[#B8CCC3] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-[#2B4840] transition-colors active:scale-95 shadow-sm"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <span className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-semibold text-slate-700 dark:text-slate-200 shadow-sm">
+          <span className="px-3 py-1.5 rounded-lg bg-white dark:bg-[#172A27] border border-slate-200 dark:border-[#355047] font-semibold text-slate-700 dark:text-[#F1F5F2] shadow-sm">
             {page}
           </span>
           <button
             type="button"
             onClick={() => onPageChange(page + 1)}
             disabled={page >= totalPages}
-            className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 shadow-sm"
+            className="p-2 rounded-xl bg-white dark:bg-[#172A27] border border-slate-200 dark:border-[#355047] text-slate-600 dark:text-[#B8CCC3] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-[#2B4840] transition-colors active:scale-95 shadow-sm"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
